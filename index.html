@@ -1107,6 +1107,27 @@
             modal.style.display = 'none';
         }
 
+        // Add to cart from index page
+        function addToCartFromIndex(productId) {
+            var products = getProducts();
+            var product = products.find(function (p) { return p.id === productId; });
+
+            if (product) {
+                addToCart(productId, product);
+            }
+        }
+
+        // Toggle wishlist from index page
+        function toggleWishlistFromIndex(productId) {
+            var products = getProducts();
+            var product = products.find(function (p) { return p.id === productId; });
+
+            if (product) {
+                toggleWishlist(productId, product);
+                updateAllWishlistIcons();
+            }
+        }
+
         // Registration Form
         document.getElementById('registrationForm').addEventListener('submit', function (e) {
             e.preventDefault();

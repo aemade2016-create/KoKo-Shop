@@ -290,68 +290,7 @@ function highlightActivePage() {
 }
 
 // ============================================
-// 8. CART & WISHLIST AUTHENTICATION
-// ============================================
-function initCartAuthentication() {
-    // Get all cart buttons/links
-    var cartButtons = document.querySelectorAll('[href="cart.html"], #cartBtn, .cart-link');
-
-    cartButtons.forEach(function (button) {
-        button.addEventListener('click', function (e) {
-            e.preventDefault();
-
-            var currentUser = getCurrentUser();
-
-            if (!currentUser) {
-                // Not logged in - show message and redirect to login
-                showToast('Please login to view your cart', 'error');
-
-                // Save intended destination
-                sessionStorage.setItem('redirect_after_login', 'cart.html');
-
-                // Redirect to login after short delay
-                setTimeout(function () {
-                    window.location.href = 'login.html';
-                }, 1500);
-            } else {
-                // Logged in - proceed to cart
-                window.location.href = 'cart.html';
-            }
-        });
-    });
-}
-
-function initWishlistAuthentication() {
-    // Get all wishlist buttons/links
-    var wishlistButtons = document.querySelectorAll('[href="wishlist.html"], .wishlist-link');
-
-    wishlistButtons.forEach(function (button) {
-        button.addEventListener('click', function (e) {
-            e.preventDefault();
-
-            var currentUser = getCurrentUser();
-
-            if (!currentUser) {
-                // Not logged in - show message and redirect to login
-                showToast('Please login to view your wishlist', 'error');
-
-                // Save intended destination
-                sessionStorage.setItem('redirect_after_login', 'wishlist.html');
-
-                // Redirect to login after short delay
-                setTimeout(function () {
-                    window.location.href = 'login.html';
-                }, 1500);
-            } else {
-                // Logged in - proceed to wishlist
-                window.location.href = 'wishlist.html';
-            }
-        });
-    });
-}
-
-// ============================================
-// 9. INITIALIZATION
+// 8. INITIALIZATION
 // ============================================
 
 // Apply theme immediately (before DOMContentLoaded)
@@ -372,15 +311,11 @@ document.addEventListener('DOMContentLoaded', function () {
     highlightActivePage();
     updateAllWishlistIcons();
 
-    // Initialize cart and wishlist authentication
-    initCartAuthentication();
-    initWishlistAuthentication();
-
     console.log('Luxe Beauty App Initialized ✨');
 });
 
 // ============================================
-// 10. UTILITY FUNCTIONS
+// 9. UTILITY FUNCTIONS
 // ============================================
 function formatPrice(price) {
     return '$' + parseFloat(price).toFixed(2);
@@ -405,7 +340,7 @@ function generateStars(rating) {
 }
 
 // ============================================
-// 11. EXPORT FOR GLOBAL USE
+// 10. EXPORT FOR GLOBAL USE
 // ============================================
 window.LuxeBeauty = {
     // Cart
