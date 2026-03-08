@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Luxe Beauty</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .tab-btn.active {
+            border-bottom: 3px solid #ec4899;
+            color: #ec4899;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fdf2f8',
+                            100: '#fce7f3',
+                            200: '#fbcfe8',
+                            300: '#f9a8d4',
+                            400: '#f472b6',
+                            500: '#ec4899',
+                            600: '#db2777',
+                            700: '#be185d',
+                            800: '#9d174d',
+                            900: '#831843',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+    <!-- Navbar -->
+    <nav
+        class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-md transition-colors duration-300">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <i class="fas fa-gem text-primary-500 text-2xl"></i>
+                    <span
+                        class="text-2xl font-display font-bold bg-gradient-to-r from-primary-500 to-pink-600 bg-clip-text text-transparent">Luxe
+                        Beauty</span>
+                </a>
+
+                <div class="hidden lg:flex items-center space-x-8">
+                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
+                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
+                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button id="themeToggle" class="hover:text-primary-500 transition">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+
+                    <!-- Admin Panel Icon -->
+                    <a href="admin-dashboard.html" id="adminPanelIcon"
+                        class="hidden text-purple-500 hover:text-purple-600 transition" title="Admin Dashboard">
+                        <i class="fas fa-cog text-xl"></i>
+                    </a>
+
+                    <a href="#" id="accountLink" class="text-primary-500 transition">
+                        <i class="fas fa-user"></i>
+                    </a>
+
+                    <a href="wishlist.html" class="relative hover:text-primary-500 transition">
+                        <i class="fas fa-heart"></i>
+                        <span id="wishlistCount"
+                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </a>
+
+                    <a href="cart.html" class="relative hover:text-primary-500 transition">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span id="cartCount"
+                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </a>
+
+                    <button id="mobileMenuBtn" class="lg:hidden hover:text-primary-500 transition">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="hidden lg:hidden mt-4 pb-4 border-t dark:border-gray-700 pt-4">
+                <div class="flex flex-col space-y-3">
+                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Shop</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
+                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
+                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login/Register Section -->
+    <section class="py-20 min-h-screen flex items-center">
+        <div class="container mx-auto px-4">
+            <div class="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden">
+                <!-- Tabs -->
+                <div class="flex border-b border-gray-200 dark:border-gray-700">
+                    <button onclick="switchTab('login')" id="loginTab"
+                        class="tab-btn active flex-1 py-4 text-center font-semibold transition">
+                        Sign In
+                    </button>
+                    <button onclick="switchTab('register')" id="registerTab"
+                        class="tab-btn flex-1 py-4 text-center font-semibold transition">
+                        Create Account
+                    </button>
+                </div>
+
+                <!-- Login Form -->
+                <div id="loginForm" class="p-8">
+                    <div class="text-center mb-8">
+                        <i class="fas fa-user-circle text-5xl text-primary-500 mb-4"></i>
+                        <h2 class="text-3xl font-display font-bold mb-2">Welcome Back</h2>
+                        <p class="text-gray-600 dark:text-gray-400">Sign in to your account</p>
+                    </div>
+
+                    <form id="signinForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Email Address</label>
+                            <input type="email" id="loginEmail" required
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
+                                placeholder="your@email.com">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Password</label>
+                            <input type="password" id="loginPassword" required
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
+                                placeholder="Enter your password">
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded text-primary-500 mr-2">
+                                <span class="text-sm">Remember me</span>
+                            </label>
+                            <a href="#" class="text-sm text-primary-500 hover:underline">Forgot password?</a>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full bg-primary-500 hover:bg-primary-600 text-white py-3 rounded-lg font-semibold transition transform hover:scale-105">
+                            Sign In
+                        </button>
+                    </form>
+
+                    <div class="relative my-6">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-4 bg-white dark:bg-gray-800 text-gray-500">Or continue with</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <button onclick="loginWithGoogle()"
+                            class="w-full flex items-center justify-center space-x-3 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 py-3 rounded-lg font-semibold transition">
+                            <i class="fab fa-google text-red-500"></i>
+                            <span>Continue with Google</span>
+                        </button>
+
+                        <button onclick="loginWithFacebook()"
+                            class="w-full flex items-center justify-center space-x-3 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition">
+                            <i class="fab fa-facebook-f"></i>
+                            <span>Continue with Facebook</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Register Form -->
+                <div id="registerForm" class="p-8 hidden">
+                    <div class="text-center mb-8">
+                        <i class="fas fa-user-plus text-5xl text-primary-500 mb-4"></i>
+                        <h2 class="text-3xl font-display font-bold mb-2">Create Account</h2>
+                        <p class="text-gray-600 dark:text-gray-400">Join us and get exclusive benefits</p>
+                    </div>
+
+                    <form id="signupForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Full Name</label>
+                            <input type="text" id="registerName" required
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
+                                placeholder="Enter your name">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Email Address</label>
+                            <input type="email" id="registerEmail" required
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
+                                placeholder="your@email.com">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Password</label>
+                            <input type="password" id="registerPassword" required minlength="6"
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
+                                placeholder="Create a password (min 6 characters)">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Confirm Password</label>
+                            <input type="password" id="registerPasswordConfirm" required minlength="6"
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
+                                placeholder="Confirm your password">
+                        </div>
+
+                        <label class="flex items-start">
+                            <input type="checkbox" required class="rounded text-primary-500 mr-2 mt-1">
+                            <span class="text-sm">I agree to the <a href="#"
+                                    class="text-primary-500 hover:underline">Terms & Conditions</a> and <a href="#"
+                                    class="text-primary-500 hover:underline">Privacy Policy</a></span>
+                        </label>
+
+                        <button type="submit"
+                            class="w-full bg-primary-500 hover:bg-primary-600 text-white py-3 rounded-lg font-semibold transition transform hover:scale-105">
+                            Create Account
+                        </button>
+                    </form>
+
+                    <div class="relative my-6">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-4 bg-white dark:bg-gray-800 text-gray-500">Or continue with</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <button onclick="loginWithGoogle()"
+                            class="w-full flex items-center justify-center space-x-3 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 py-3 rounded-lg font-semibold transition">
+                            <i class="fab fa-google text-red-500"></i>
+                            <span>Continue with Google</span>
+                        </button>
+
+                        <button onclick="loginWithFacebook()"
+                            class="w-full flex items-center justify-center space-x-3 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition">
+                            <i class="fab fa-facebook-f"></i>
+                            <span>Continue with Facebook</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Toast -->
+    <div id="toast"
+        class="fixed bottom-8 right-8 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg transform translate-y-32 transition-transform duration-300 z-50">
+        <div class="flex items-center space-x-3">
+            <i class="fas fa-check-circle text-2xl"></i>
+            <span id="toastMessage">Success!</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-gem text-primary-500 text-2xl"></i>
+                        <span class="text-2xl font-display font-bold text-white">Luxe Beauty</span>
+                    </div>
+                    <p class="mb-4">Your trusted destination for premium beauty products.</p>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="hover:text-primary-500 transition">Home</a></li>
+                        <li><a href="products.html" class="hover:text-primary-500 transition">Products</a></li>
+                        <li><a href="about.html" class="hover:text-primary-500 transition">About</a></li>
+                        <li><a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-4">Customer Service</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-primary-500 transition">Shipping Info</a></li>
+                        <li><a href="#" class="hover:text-primary-500 transition">Returns</a></li>
+                        <li><a href="#" class="hover:text-primary-500 transition">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-4">Contact</h3>
+                    <ul class="space-y-2">
+                        <li><i class="fas fa-phone text-primary-500 mr-2"></i>+1 (555) 123-4567</li>
+                        <li><i class="fas fa-envelope text-primary-500 mr-2"></i>support@luxebeauty.com</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 pt-8 text-center text-sm">
+                <p>&copy; 2026 Luxe Beauty. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="init-products.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Tab Switching
+        function switchTab(tab) {
+            var loginForm = document.getElementById('loginForm');
+            var registerForm = document.getElementById('registerForm');
+            var loginTab = document.getElementById('loginTab');
+            var registerTab = document.getElementById('registerTab');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+            } else {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                loginTab.classList.remove('active');
+                registerTab.classList.add('active');
+            }
+        }
+
+        // Sign In Form
+        document.getElementById('signinForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            var email = document.getElementById('loginEmail').value;
+            var password = document.getElementById('loginPassword').value;
+
+            // Get all registered users
+            var users = JSON.parse(localStorage.getItem('luxe_users')) || [];
+
+            // Find user
+            var user = users.find(function (u) {
+                return u.email === email && u.password === password;
+            });
+
+            if (user) {
+                // Save current user
+                localStorage.setItem('luxe_currentUser', JSON.stringify(user));
+                showToast('Welcome back, ' + user.name + '!');
+
+                setTimeout(function () {
+                    window.location.href = 'profile.html';
+                }, 1000);
+            } else {
+                showToast('Invalid email or password!', 'error');
+            }
+        });
+
+        // Sign Up Form
+        document.getElementById('signupForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            var name = document.getElementById('registerName').value;
+            var email = document.getElementById('registerEmail').value;
+            var password = document.getElementById('registerPassword').value;
+            var confirmPassword = document.getElementById('registerPasswordConfirm').value;
+
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                showToast('Passwords do not match!', 'error');
+                return;
+            }
+
+            // Get existing users
+            var users = JSON.parse(localStorage.getItem('luxe_users')) || [];
+
+            // Check if email already exists
+            var existingUser = users.find(function (u) {
+                return u.email === email;
+            });
+
+            if (existingUser) {
+                showToast('Email already registered!', 'error');
+                return;
+            }
+
+            // Create new user
+            var newUser = {
+                id: Date.now(),
+                name: name,
+                email: email,
+                password: password,
+                createdAt: new Date().toISOString(),
+                orders: [],
+                wishlist: []
+            };
+
+            // Save to users array
+            users.push(newUser);
+            localStorage.setItem('luxe_users', JSON.stringify(users));
+
+            // Set as current user
+            localStorage.setItem('luxe_currentUser', JSON.stringify(newUser));
+
+            showToast('Account created successfully!');
+
+            setTimeout(function () {
+                window.location.href = 'profile.html';
+            }, 1000);
+        });
+
+        // Social Login
+        function loginWithGoogle() {
+            showToast('Google login coming soon!');
+        }
+
+        function loginWithFacebook() {
+            showToast('Facebook login coming soon!');
+        }
+
+        // Check if already logged in
+        var currentUser = JSON.parse(localStorage.getItem('luxe_currentUser'));
+        if (currentUser) {
+            window.location.href = 'profile.html';
+        }
+    </script>
+</body>
+
+</html>

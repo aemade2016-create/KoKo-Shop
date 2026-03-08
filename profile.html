@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Luxe Beauty</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .profile-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .profile-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .profile-card:hover {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fdf2f8',
+                            100: '#fce7f3',
+                            200: '#fbcfe8',
+                            300: '#f9a8d4',
+                            400: '#f472b6',
+                            500: '#ec4899',
+                            600: '#db2777',
+                            700: '#be185d',
+                            800: '#9d174d',
+                            900: '#831843',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+    <!-- Navbar -->
+    <nav
+        class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-md transition-colors duration-300">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <i class="fas fa-gem text-primary-500 text-2xl"></i>
+                    <span
+                        class="text-2xl font-display font-bold bg-gradient-to-r from-primary-500 to-pink-600 bg-clip-text text-transparent">Luxe
+                        Beauty</span>
+                </a>
+
+                <div class="hidden lg:flex items-center space-x-8">
+                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
+                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
+                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button id="themeToggle" class="hover:text-primary-500 transition">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+
+                    <!-- Admin Panel Icon -->
+                    <a href="admin-dashboard.html" id="adminPanelIcon"
+                        class="hidden text-purple-500 hover:text-purple-600 transition" title="Admin Dashboard">
+                        <i class="fas fa-cog text-xl"></i>
+                    </a>
+
+                    <a href="#" id="accountLink" class="text-primary-500 transition">
+                        <i class="fas fa-user"></i>
+                    </a>
+
+                    <a href="wishlist.html" class="relative hover:text-primary-500 transition">
+                        <i class="fas fa-heart"></i>
+                        <span id="wishlistCount"
+                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </a>
+
+                    <a href="cart.html" class="relative hover:text-primary-500 transition">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span id="cartCount"
+                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </a>
+
+                    <button id="mobileMenuBtn" class="lg:hidden hover:text-primary-500 transition">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="hidden lg:hidden mt-4 pb-4 border-t dark:border-gray-700 pt-4">
+                <div class="flex flex-col space-y-3">
+                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Shop</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
+                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
+                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Profile Header -->
+    <section class="bg-gradient-to-r from-primary-500 to-pink-600 text-white py-16">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                <div
+                    class="w-32 h-32 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-6xl">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="text-center md:text-left">
+                    <h1 id="userName" class="text-4xl font-display font-bold mb-2">Loading...</h1>
+                    <p id="userEmail" class="text-xl opacity-90 mb-4">Loading...</p>
+                    <div class="flex flex-wrap gap-4 justify-center md:justify-start">
+                        <span class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-sm">
+                            <i class="fas fa-calendar mr-2"></i>
+                            <span id="memberSince">Member since</span>
+                        </span>
+                        <span class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-sm">
+                            <i class="fas fa-shopping-bag mr-2"></i>
+                            <span id="totalOrders">0</span> Orders
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Profile Content -->
+    <section class="py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <!-- Sidebar -->
+                <aside class="lg:col-span-1">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+                        <h2 class="text-xl font-display font-bold mb-6">My Account</h2>
+                        <nav class="space-y-2">
+                            <button onclick="showTab('overview')"
+                                class="tab-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
+                                <i class="fas fa-th-large mr-3"></i>
+                                Overview
+                            </button>
+                            <button onclick="showTab('orders')"
+                                class="tab-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center">
+                                <i class="fas fa-shopping-bag mr-3"></i>
+                                My Orders
+                            </button>
+                            <button onclick="showTab('wishlist')"
+                                class="tab-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center">
+                                <i class="fas fa-heart mr-3"></i>
+                                Wishlist
+                            </button>
+                            <button onclick="showTab('settings')"
+                                class="tab-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center">
+                                <i class="fas fa-cog mr-3"></i>
+                                Settings
+                            </button>
+                            <button onclick="logout()"
+                                class="w-full text-left px-4 py-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition flex items-center">
+                                <i class="fas fa-sign-out-alt mr-3"></i>
+                                Logout
+                            </button>
+                        </nav>
+                    </div>
+                </aside>
+
+                <!-- Main Content -->
+                <main class="lg:col-span-3">
+                    <!-- Overview Tab -->
+                    <div id="overviewTab" class="tab-content">
+                        <!-- Dashboard Stats -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                            <div
+                                class="profile-card bg-gradient-to-br from-primary-500 to-pink-600 text-white rounded-2xl p-6 shadow-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div
+                                        class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center">
+                                        <i class="fas fa-shopping-bag text-xl"></i>
+                                    </div>
+                                    <i class="fas fa-arrow-up text-sm opacity-75"></i>
+                                </div>
+                                <h3 class="text-3xl font-bold mb-1" id="statsOrders">0</h3>
+                                <p class="opacity-90">Total Orders</p>
+                            </div>
+
+                            <div
+                                class="profile-card bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-2xl p-6 shadow-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div
+                                        class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center">
+                                        <i class="fas fa-heart text-xl"></i>
+                                    </div>
+                                    <i class="fas fa-heart text-sm opacity-75"></i>
+                                </div>
+                                <h3 class="text-3xl font-bold mb-1" id="statsWishlist">0</h3>
+                                <p class="opacity-90">Wishlist Items</p>
+                            </div>
+
+                            <div
+                                class="profile-card bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-2xl p-6 shadow-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div
+                                        class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center">
+                                        <i class="fas fa-shopping-cart text-xl"></i>
+                                    </div>
+                                    <i class="fas fa-shopping-cart text-sm opacity-75"></i>
+                                </div>
+                                <h3 class="text-3xl font-bold mb-1" id="statsCart">0</h3>
+                                <p class="opacity-90">Cart Items</p>
+                            </div>
+
+                            <div
+                                class="profile-card bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-2xl p-6 shadow-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div
+                                        class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center">
+                                        <i class="fas fa-dollar-sign text-xl"></i>
+                                    </div>
+                                    <i class="fas fa-chart-line text-sm opacity-75"></i>
+                                </div>
+                                <h3 class="text-3xl font-bold mb-1" id="statsSpent">$0</h3>
+                                <p class="opacity-90">Total Spent</p>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <a href="products.html"
+                                class="profile-card bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg text-center hover:shadow-xl transition">
+                                <div
+                                    class="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-shopping-bag text-primary-500 text-2xl"></i>
+                                </div>
+                                <h3 class="font-semibold text-lg mb-2">Browse Products</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Discover new beauty essentials</p>
+                            </a>
+
+                            <a href="wishlist.html"
+                                class="profile-card bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg text-center hover:shadow-xl transition">
+                                <div
+                                    class="w-16 h-16 bg-pink-100 dark:bg-pink-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-heart text-pink-500 text-2xl"></i>
+                                </div>
+                                <h3 class="font-semibold text-lg mb-2">My Wishlist</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">View saved favorites</p>
+                            </a>
+
+                            <a href="cart.html"
+                                class="profile-card bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg text-center hover:shadow-xl transition">
+                                <div
+                                    class="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-shopping-cart text-purple-500 text-2xl"></i>
+                                </div>
+                                <h3 class="font-semibold text-lg mb-2">Shopping Cart</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Complete your purchase</p>
+                            </a>
+                        </div>
+
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
+                            <h2 class="text-2xl font-display font-bold mb-6">Account Information</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label
+                                        class="block text-sm font-semibold mb-2 text-gray-600 dark:text-gray-400">Full
+                                        Name</label>
+                                    <p id="infoName" class="text-lg">Loading...</p>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-sm font-semibold mb-2 text-gray-600 dark:text-gray-400">Email
+                                        Address</label>
+                                    <p id="infoEmail" class="text-lg">Loading...</p>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-sm font-semibold mb-2 text-gray-600 dark:text-gray-400">Member
+                                        Since</label>
+                                    <p id="infoDate" class="text-lg">Loading...</p>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-sm font-semibold mb-2 text-gray-600 dark:text-gray-400">Account
+                                        Status</label>
+                                    <p class="text-lg"><span
+                                            class="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-3 py-1 rounded-full text-sm font-semibold">Active</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Orders Tab -->
+                    <div id="ordersTab" class="tab-content hidden">
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
+                            <h2 class="text-2xl font-display font-bold mb-6">My Orders</h2>
+                            <div id="ordersList" class="space-y-4">
+                                <div class="text-center py-12">
+                                    <i class="fas fa-shopping-bag text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+                                    <h3 class="text-xl font-semibold mb-2">No Orders Yet</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 mb-6">Start shopping to see your orders
+                                        here</p>
+                                    <a href="products.html"
+                                        class="inline-block bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-full font-semibold transition">Browse
+                                        Products</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wishlist Tab -->
+                    <div id="wishlistTab" class="tab-content hidden">
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
+                            <h2 class="text-2xl font-display font-bold mb-6">My Wishlist</h2>
+                            <div id="wishlistGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <!-- Wishlist items will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Tab -->
+                    <div id="settingsTab" class="tab-content hidden">
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
+                            <h2 class="text-2xl font-display font-bold mb-6">Account Settings</h2>
+                            <form id="settingsForm" class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Full Name</label>
+                                    <input type="text" id="settingsName"
+                                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Email Address</label>
+                                    <input type="email" id="settingsEmail"
+                                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">New Password (leave blank to keep
+                                        current)</label>
+                                    <input type="password" id="settingsPassword" placeholder="Enter new password"
+                                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition">
+                                </div>
+                                <button type="submit"
+                                    class="bg-primary-500 hover:bg-primary-600 text-white px-8 py-3 rounded-full font-semibold transition">
+                                    Save Changes
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </section>
+
+    <!-- Toast -->
+    <div id="toast"
+        class="fixed bottom-8 right-8 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg transform translate-y-32 transition-transform duration-300 z-50">
+        <div class="flex items-center space-x-3">
+            <i class="fas fa-check-circle text-2xl"></i>
+            <span id="toastMessage">Success!</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-12 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-gem text-primary-500 text-2xl"></i>
+                        <span class="text-2xl font-display font-bold text-white">Luxe Beauty</span>
+                    </div>
+                    <p class="mb-4">Your trusted destination for premium beauty products.</p>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="hover:text-primary-500 transition">Home</a></li>
+                        <li><a href="products.html" class="hover:text-primary-500 transition">Products</a></li>
+                        <li><a href="about.html" class="hover:text-primary-500 transition">About</a></li>
+                        <li><a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-4">Customer Service</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-primary-500 transition">Shipping Info</a></li>
+                        <li><a href="#" class="hover:text-primary-500 transition">Returns</a></li>
+                        <li><a href="#" class="hover:text-primary-500 transition">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-4">Contact</h3>
+                    <ul class="space-y-2">
+                        <li><i class="fas fa-phone text-primary-500 mr-2"></i>+1 (555) 123-4567</li>
+                        <li><i class="fas fa-envelope text-primary-500 mr-2"></i>support@luxebeauty.com</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 pt-8 text-center text-sm">
+                <p>&copy; 2026 Luxe Beauty. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="init-products.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Check authentication
+        var currentUser = getCurrentUser();
+
+        if (!currentUser) {
+            window.location.href = 'login.html';
+        }
+
+        // Load user data
+        function loadUserData() {
+            if (!currentUser) return;
+
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userEmail').textContent = currentUser.email;
+
+            var createdDate = new Date(currentUser.createdAt);
+            var formattedDate = createdDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            document.getElementById('memberSince').textContent = 'Member since ' + formattedDate;
+            document.getElementById('totalOrders').textContent = currentUser.orders ? currentUser.orders.length : 0;
+
+            document.getElementById('statsOrders').textContent = currentUser.orders ? currentUser.orders.length : 0;
+            document.getElementById('statsWishlist').textContent = getWishlist().length;
+            document.getElementById('statsCart').textContent = getCart().length;
+            document.getElementById('statsSpent').textContent = '$' + (currentUser.totalSpent || 0).toFixed(2);
+
+            document.getElementById('infoName').textContent = currentUser.name;
+            document.getElementById('infoEmail').textContent = currentUser.email;
+            document.getElementById('infoDate').textContent = formatDate(currentUser.createdAt);
+
+            document.getElementById('settingsName').value = currentUser.name;
+            document.getElementById('settingsEmail').value = currentUser.email;
+
+            loadWishlist();
+        }
+
+        // Load wishlist
+        function loadWishlist() {
+            var wishlist = getWishlist();
+            var wishlistGrid = document.getElementById('wishlistGrid');
+
+            if (wishlist.length === 0) {
+                wishlistGrid.innerHTML = '<div class="col-span-full text-center py-12"><i class="fas fa-heart text-6xl text-gray-300 dark:text-gray-600 mb-4"></i><h3 class="text-xl font-semibold mb-2">No Wishlist Items</h3><p class="text-gray-600 dark:text-gray-400 mb-6">Add products to your wishlist to see them here</p><a href="products.html" class="inline-block bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-full font-semibold transition">Browse Products</a></div>';
+                return;
+            }
+
+            var html = '';
+            wishlist.forEach(function (item) {
+                html += '<div class="bg-gray-50 dark:bg-gray-700 rounded-xl overflow-hidden">';
+                html += '<img src="' + item.image + '" alt="' + item.name + '" class="w-full h-48 object-cover">';
+                html += '<div class="p-4">';
+                html += '<h3 class="font-semibold mb-2">' + item.name + '</h3>';
+                html += '<p class="text-primary-500 font-bold mb-3">$' + item.price + '</p>';
+                html += '<button onclick="removeFromWishlistProfile(' + item.id + ')" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition text-sm">Remove</button>';
+                html += '</div>';
+                html += '</div>';
+            });
+
+            wishlistGrid.innerHTML = html;
+        }
+
+        // Remove from wishlist
+        function removeFromWishlistProfile(itemId) {
+            var wishlist = getWishlist();
+            wishlist = wishlist.filter(function (item) {
+                return item.id !== itemId;
+            });
+
+            saveWishlist(wishlist);
+            loadWishlist();
+            document.getElementById('statsWishlist').textContent = wishlist.length;
+        }
+
+        // Tab switching
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(function (tab) {
+                tab.classList.add('hidden');
+            });
+
+            document.querySelectorAll('.tab-btn').forEach(function (btn) {
+                btn.classList.remove('bg-primary-100', 'dark:bg-primary-900/30', 'text-primary-600', 'dark:text-primary-400');
+            });
+
+            document.getElementById(tabName + 'Tab').classList.remove('hidden');
+            event.target.closest('.tab-btn').classList.add('bg-primary-100', 'dark:bg-primary-900/30', 'text-primary-600', 'dark:text-primary-400');
+        }
+
+        // Settings form
+        document.getElementById('settingsForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            var newName = document.getElementById('settingsName').value;
+            var newEmail = document.getElementById('settingsEmail').value;
+            var newPassword = document.getElementById('settingsPassword').value;
+
+            currentUser.name = newName;
+            currentUser.email = newEmail;
+
+            if (newPassword) {
+                currentUser.password = newPassword;
+            }
+
+            // Update in users array
+            var users = JSON.parse(localStorage.getItem('luxe_users')) || [];
+            var userIndex = users.findIndex(function (u) { return u.id === currentUser.id; });
+            if (userIndex > -1) {
+                users[userIndex] = currentUser;
+                localStorage.setItem('luxe_users', JSON.stringify(users));
+            }
+
+            localStorage.setItem('luxe_currentUser', JSON.stringify(currentUser));
+            loadUserData();
+            showToast('Settings updated successfully!');
+            document.getElementById('settingsPassword').value = '';
+        });
+
+        // Initialize
+        loadUserData();
+    </script>
+</body>
+
+</html>

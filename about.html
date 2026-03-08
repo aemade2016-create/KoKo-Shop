@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Luxe Beauty</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .team-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .team-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .team-card:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .stat-card {
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fdf2f8',
+                            100: '#fce7f3',
+                            200: '#fbcfe8',
+                            300: '#f9a8d4',
+                            400: '#f472b6',
+                            500: '#ec4899',
+                            600: '#db2777',
+                            700: '#be185d',
+                            800: '#9d174d',
+                            900: '#831843',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+    <!-- Navbar -->
+    <nav
+        class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-md transition-colors duration-300">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <i class="fas fa-gem text-primary-500 text-2xl"></i>
+                    <span
+                        class="text-2xl font-display font-bold bg-gradient-to-r from-primary-500 to-pink-600 bg-clip-text text-transparent">Luxe
+                        Beauty</span>
+                </a>
+
+                <div class="hidden lg:flex items-center space-x-8">
+                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
+                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
+                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button id="themeToggle" class="hover:text-primary-500 transition">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+
+                    <!-- Admin Panel Icon -->
+                    <a href="admin-dashboard.html" id="adminPanelIcon"
+                        class="hidden text-purple-500 hover:text-purple-600 transition" title="Admin Dashboard">
+                        <i class="fas fa-cog text-xl"></i>
+                    </a>
+
+                    <a href="#" id="accountLink" class="text-primary-500 transition">
+                        <i class="fas fa-user"></i>
+                    </a>
+
+                    <a href="wishlist.html" class="relative hover:text-primary-500 transition">
+                        <i class="fas fa-heart"></i>
+                        <span id="wishlistCount"
+                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </a>
+
+                    <a href="cart.html" class="relative hover:text-primary-500 transition">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span id="cartCount"
+                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </a>
+
+                    <button id="mobileMenuBtn" class="lg:hidden hover:text-primary-500 transition">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="hidden lg:hidden mt-4 pb-4 border-t dark:border-gray-700 pt-4">
+                <div class="flex flex-col space-y-3">
+                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Shop</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
+                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
+                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative bg-gradient-to-r from-primary-500 to-pink-600 text-white py-24 overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-10 left-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>
+            <div class="absolute bottom-10 right-10 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+        </div>
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-5xl md:text-6xl font-display font-bold mb-6">About Luxe Beauty</h1>
+                <p class="text-xl md:text-2xl opacity-90 mb-8">Redefining beauty through premium, natural skincare
+                    solutions</p>
+                <div class="flex flex-wrap gap-4 justify-center">
+                    <span class="bg-white/20 backdrop-blur-md px-6 py-3 rounded-full">
+                        <i class="fas fa-leaf mr-2"></i>100% Natural
+                    </span>
+                    <span class="bg-white/20 backdrop-blur-md px-6 py-3 rounded-full">
+                        <i class="fas fa-flask mr-2"></i>Dermatologist Tested
+                    </span>
+                    <span class="bg-white/20 backdrop-blur-md px-6 py-3 rounded-full">
+                        <i class="fas fa-heart mr-2"></i>Cruelty Free
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Story -->
+    <section class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-4xl font-display font-bold mb-6">Our Story</h2>
+                    <p class="text-lg text-gray-600 dark:text-gray-400 mb-6">
+                        Founded in 2020, Luxe Beauty was born from a simple belief: everyone deserves access to premium,
+                        effective skincare that's both luxurious and natural.
+                    </p>
+                    <p class="text-lg text-gray-600 dark:text-gray-400 mb-6">
+                        Our journey began when our founder, after years of struggling with sensitive skin, discovered
+                        the transformative power of natural ingredients combined with cutting-edge skincare science.
+                    </p>
+                    <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
+                        Today, we're proud to serve thousands of customers worldwide, helping them achieve their best
+                        skin through our carefully curated collection of premium beauty products.
+                    </p>
+                    <a href="products.html"
+                        class="inline-block bg-primary-500 hover:bg-primary-600 text-white px-8 py-4 rounded-full font-semibold transition transform hover:scale-105">
+                        Explore Our Products
+                    </a>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <img src="https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=500&fit=crop"
+                        alt="Skincare" class="rounded-2xl shadow-lg w-full h-64 object-cover">
+                    <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=400&h=500&fit=crop"
+                        alt="Beauty" class="rounded-2xl shadow-lg w-full h-64 object-cover mt-8">
+                    <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=500&fit=crop"
+                        alt="Natural" class="rounded-2xl shadow-lg w-full h-64 object-cover">
+                    <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=500&fit=crop"
+                        alt="Products" class="rounded-2xl shadow-lg w-full h-64 object-cover mt-8">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics -->
+    <section class="py-20 bg-gray-50 dark:bg-gray-800/50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-display font-bold mb-4">Our Impact</h2>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Numbers that speak to our commitment to
+                    excellence</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="stat-card text-center">
+                    <div
+                        class="w-20 h-20 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-users text-primary-500 text-3xl"></i>
+                    </div>
+                    <h3 class="text-4xl font-bold mb-2">50K+</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Happy Customers</p>
+                </div>
+
+                <div class="stat-card text-center">
+                    <div
+                        class="w-20 h-20 bg-pink-100 dark:bg-pink-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-box text-pink-500 text-3xl"></i>
+                    </div>
+                    <h3 class="text-4xl font-bold mb-2">200+</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Premium Products</p>
+                </div>
+
+                <div class="stat-card text-center">
+                    <div
+                        class="w-20 h-20 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-globe text-purple-500 text-3xl"></i>
+                    </div>
+                    <h3 class="text-4xl font-bold mb-2">45+</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Countries Served</p>
+                </div>
+
+                <div class="stat-card text-center">
+                    <div
+                        class="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-star text-blue-500 text-3xl"></i>
+                    </div>
+                    <h3 class="text-4xl font-bold mb-2">4.9/5</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Average Rating</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Values -->
+    <section class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-display font-bold mb-4">Our Values</h2>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">The principles that guide everything we do
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg text-center">
+                    <div
+                        class="w-16 h-16 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-leaf text-primary-500 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-display font-bold mb-4">Natural & Pure</h3>
+                    <p class="text-gray-600 dark:text-gray-400">We believe in the power of nature. All our products are
+                        made with carefully selected natural ingredients.</p>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg text-center">
+                    <div
+                        class="w-16 h-16 bg-pink-100 dark:bg-pink-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-microscope text-pink-500 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-display font-bold mb-4">Science-Backed</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Every formula is developed with cutting-edge research
+                        and tested for maximum effectiveness.</p>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg text-center">
+                    <div
+                        class="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-heart text-purple-500 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-display font-bold mb-4">Cruelty-Free</h3>
+                    <p class="text-gray-600 dark:text-gray-400">We never test on animals. Beauty should never come at
+                        the cost of animal welfare.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="py-20 bg-gray-50 dark:bg-gray-800/50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-display font-bold mb-4">Meet Our Team</h2>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">The passionate people behind Luxe Beauty
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="team-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <img src="https://i.pravatar.cc/400?img=1" alt="Team Member" class="w-full h-64 object-cover">
+                    <div class="p-6 text-center">
+                        <h3 class="text-xl font-semibold mb-1">Sarah Johnson</h3>
+                        <p class="text-primary-500 mb-3">Founder & CEO</p>
+                        <div class="flex justify-center space-x-3">
+                            <a href="#" class="text-gray-400 hover:text-primary-500 transition"><i
+                                    class="fab fa-linkedin"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-primary-500 transition"><i
+                                    class="fab fa-twitter"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-primary-500 transition"><i
+                                    class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="team-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <img src="https://i.pravatar.cc/400?img=5" alt="Team Member" class="w-full h-64 object-cover">
+                    <div class="p-6 text-center">
+                        <h3 class="text-xl font-semibold mb-1">Emily Chen</h3>
+                        <p class="text-primary-500 mb-3">Head of Product</p>
+                        <div class="flex justify-center space-x-3">
+                            <a href="#" class="text-gray-400 hover:text-primary-500 transition"><i
+                                    class="fab fa-linkedin"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-primary-500 transition"><i
+                                    class="fab fa-twitter"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-primary-500 transition"><i
+                                    class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="team-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <img src="https://i.pravatar.cc/400?img=8" alt="Team Member" class="w-full h-64 object-cover">
+                    <div class="p-6 text-center">
+                        <h3 class="text-xl font-semibold mb-1">Michael Brown</h3>
+                        <p class="text-primary-500 mb-3">Chief Scientist</p>
+                        <div class="flex justify-center space-x-3">
+                            <a href="#" class="text-gray-400 hover:text-primary-500 transition"><i
+                                    class="fab fa-linkedin"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-primary-500 transition"><i
+                                    class="fab fa-twitter"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-primary-500 transition"><i
+                                    class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="team-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg">
+                    <img src="https://i.pravatar.cc/400?img=9" alt="Team Member" class="w-full h-64 object-cover">
+                    <div class="p-6 text-center">
+                        <h3 class="text-xl font-semibold mb-1">Maria Garcia</h3>
+                        <p class="text-primary-500 mb-3">Marketing Director</p>
+                        <div class="flex justify-center space-x-3">
+                            <a href="#" class="text-gray-400 hover:text-primary-500 transition"><i
+                                    class="fab fa-linkedin"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-primary-500 transition"><i
+                                    class="fab fa-twitter"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-primary-500 transition"><i
+                                    class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-gradient-to-r from-primary-500 to-pink-600 text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl font-display font-bold mb-6">Ready to Transform Your Skin?</h2>
+            <p class="text-xl opacity-90 mb-8 max-w-2xl mx-auto">Join thousands of satisfied customers and discover the
+                Luxe Beauty difference</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="products.html"
+                    class="bg-white text-primary-500 hover:bg-gray-100 px-8 py-4 rounded-full font-semibold transition transform hover:scale-105 shadow-lg">
+                    Shop Now
+                </a>
+                <a href="index.html#contact"
+                    class="bg-transparent border-2 border-white hover:bg-white/10 px-8 py-4 rounded-full font-semibold transition">
+                    Contact Us
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-gem text-primary-500 text-2xl"></i>
+                        <span class="text-2xl font-display font-bold text-white">Luxe Beauty</span>
+                    </div>
+                    <p class="mb-4">Your trusted destination for premium beauty products.</p>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="hover:text-primary-500 transition">Home</a></li>
+                        <li><a href="products.html" class="hover:text-primary-500 transition">Products</a></li>
+                        <li><a href="about.html" class="hover:text-primary-500 transition">About</a></li>
+                        <li><a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-4">Customer Service</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-primary-500 transition">Shipping Info</a></li>
+                        <li><a href="#" class="hover:text-primary-500 transition">Returns</a></li>
+                        <li><a href="#" class="hover:text-primary-500 transition">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-4">Contact</h3>
+                    <ul class="space-y-2">
+                        <li><i class="fas fa-phone text-primary-500 mr-2"></i>+1 (555) 123-4567</li>
+                        <li><i class="fas fa-envelope text-primary-500 mr-2"></i>support@luxebeauty.com</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 pt-8 text-center text-sm">
+                <p>&copy; 2026 Luxe Beauty. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="init-products.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Mobile Menu (app.js handles theme toggle)
+        var mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        var mobileMenu = document.getElementById('mobileMenu');
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', function () {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
+</body>
+
+</html>

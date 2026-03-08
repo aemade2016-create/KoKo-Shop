@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - Luxe Beauty</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="init-products.js"></script>
+    <script src="app.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fdf2f8',
+                            100: '#fce7f3',
+                            200: '#fbcfe8',
+                            300: '#f9a8d4',
+                            400: '#f472b6',
+                            500: '#ec4899',
+                            600: '#db2777',
+                            700: '#be185d',
+                            800: '#9d174d',
+                            900: '#831843',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+    <!-- Navbar -->
+    <nav
+        class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-md transition-colors duration-300">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <i class="fas fa-gem text-primary-500 text-2xl"></i>
+                    <span
+                        class="text-2xl font-display font-bold bg-gradient-to-r from-primary-500 to-pink-600 bg-clip-text text-transparent">Luxe
+                        Beauty</span>
+                </a>
+
+                <div class="hidden lg:flex items-center space-x-8">
+                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
+                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
+                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button id="themeToggle" class="hover:text-primary-500 transition">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+
+                    <!-- Admin Panel Icon -->
+                    <a href="admin-dashboard.html" id="adminPanelIcon"
+                        class="hidden text-purple-500 hover:text-purple-600 transition" title="Admin Dashboard">
+                        <i class="fas fa-cog text-xl"></i>
+                    </a>
+
+                    <a href="#" id="accountLink" class="text-primary-500 transition">
+                        <i class="fas fa-user"></i>
+                    </a>
+
+                    <a href="wishlist.html" class="relative hover:text-primary-500 transition">
+                        <i class="fas fa-heart"></i>
+                        <span id="wishlistCount"
+                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </a>
+
+                    <a href="cart.html" class="relative hover:text-primary-500 transition">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span id="cartCount"
+                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </a>
+
+                    <button id="mobileMenuBtn" class="lg:hidden hover:text-primary-500 transition">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="hidden lg:hidden mt-4 pb-4 border-t dark:border-gray-700 pt-4">
+                <div class="flex flex-col space-y-3">
+                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Shop</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
+                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
+                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-primary-500 to-pink-600 text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-5xl font-display font-bold mb-4">Our Products</h1>
+            <p class="text-xl opacity-90 max-w-2xl mx-auto">Discover our complete collection of premium skincare and
+                beauty products</p>
+            <div class="mt-8 flex items-center justify-center">
+                <div
+                    class="bg-white/20 backdrop-blur-md rounded-full px-6 py-3 flex items-center space-x-3 max-w-md w-full">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search products..."
+                        class="bg-transparent outline-none w-full placeholder-white/70">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="py-12">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Sidebar Filters -->
+                <aside class="lg:w-1/4">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg sticky top-24">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-2xl font-display font-bold">Filters</h2>
+                            <button onclick="resetFilters()"
+                                class="text-primary-500 text-sm hover:underline">Reset</button>
+                        </div>
+
+                        <!-- Category Filter -->
+                        <div class="mb-6">
+                            <h3 class="font-semibold mb-3 flex items-center">
+                                <i class="fas fa-tag text-primary-500 mr-2"></i>
+                                Category
+                            </h3>
+                            <div class="space-y-2">
+                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
+                                    <input type="checkbox" class="category-filter mr-2 rounded text-primary-500"
+                                        value="all" checked>
+                                    <span>All Products</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
+                                    <input type="checkbox" class="category-filter mr-2 rounded text-primary-500"
+                                        value="Serum">
+                                    <span>Serums</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
+                                    <input type="checkbox" class="category-filter mr-2 rounded text-primary-500"
+                                        value="Moisturizer">
+                                    <span>Moisturizers</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
+                                    <input type="checkbox" class="category-filter mr-2 rounded text-primary-500"
+                                        value="Cleanser">
+                                    <span>Cleansers</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
+                                    <input type="checkbox" class="category-filter mr-2 rounded text-primary-500"
+                                        value="Sunscreen">
+                                    <span>Sunscreen</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
+                                    <input type="checkbox" class="category-filter mr-2 rounded text-primary-500"
+                                        value="Mask">
+                                    <span>Masks</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="mb-6">
+                            <h3 class="font-semibold mb-3 flex items-center">
+                                <i class="fas fa-dollar-sign text-primary-500 mr-2"></i>
+                                Price Range
+                            </h3>
+                            <input type="range" id="priceRange" min="0" max="100" value="100"
+                                class="price-range-slider w-full">
+                            <div class="flex justify-between text-sm mt-2">
+                                <span>$0</span>
+                                <span id="priceValue" class="font-semibold text-primary-500">$100</span>
+                            </div>
+                        </div>
+
+                        <!-- Rating Filter -->
+                        <div class="mb-6">
+                            <h3 class="font-semibold mb-3 flex items-center">
+                                <i class="fas fa-star text-primary-500 mr-2"></i>
+                                Rating
+                            </h3>
+                            <div class="space-y-2">
+                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
+                                    <input type="radio" name="rating" class="rating-filter mr-2" value="0" checked>
+                                    <span>All Ratings</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
+                                    <input type="radio" name="rating" class="rating-filter mr-2" value="5">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                        <span class="ml-2">5 Stars</span>
+                                    </span>
+                                </label>
+                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
+                                    <input type="radio" name="rating" class="rating-filter mr-2" value="4">
+                                    <span class="flex items-center">
+                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                        <span class="ml-2">4+ Stars</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Skin Type -->
+                        <div class="mb-6">
+                            <h3 class="font-semibold mb-3 flex items-center">
+                                <i class="fas fa-spa text-primary-500 mr-2"></i>
+                                Skin Type
+                            </h3>
+                            <div class="space-y-2">
+                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
+                                    <input type="checkbox" class="skin-filter mr-2 rounded text-primary-500"
+                                        value="Dry">
+                                    <span>Dry Skin</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
+                                    <input type="checkbox" class="skin-filter mr-2 rounded text-primary-500"
+                                        value="Oily">
+                                    <span>Oily Skin</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
+                                    <input type="checkbox" class="skin-filter mr-2 rounded text-primary-500"
+                                        value="Sensitive">
+                                    <span>Sensitive Skin</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
+                                    <input type="checkbox" class="skin-filter mr-2 rounded text-primary-500"
+                                        value="All">
+                                    <span>All Skin Types</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Products Grid -->
+                <main class="lg:w-3/4">
+                    <!-- Sort & View Options -->
+                    <div class="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-gray-600 dark:text-gray-400">Sort by:</span>
+                            <select id="sortSelect"
+                                class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-primary-500">
+                                <option value="featured">Featured</option>
+                                <option value="price-low">Price: Low to High</option>
+                                <option value="price-high">Price: High to Low</option>
+                                <option value="name">Name: A to Z</option>
+                                <option value="rating">Highest Rated</option>
+                            </select>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <span id="productCount" class="text-gray-600 dark:text-gray-400">Showing 20 products</span>
+                        </div>
+                    </div>
+
+                    <!-- Products Grid -->
+                    <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Products will be loaded here -->
+                    </div>
+
+                    <!-- No Results -->
+                    <div id="noResults" class="hidden text-center py-16">
+                        <i class="fas fa-search text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+                        <h3 class="text-2xl font-semibold mb-2">No Products Found</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">Try adjusting your filters or search terms</p>
+                        <button onclick="resetFilters()"
+                            class="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-full font-semibold transition">Reset
+                            Filters</button>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Detail Modal -->
+    <div id="productModal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4"
+        style="display: none;">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
+            <button onclick="closeProductModal()"
+                class="absolute top-4 right-4 z-10 bg-white dark:bg-gray-700 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="productModalContent" class="p-8"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast"
+        class="fixed bottom-8 right-8 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg transform translate-y-32 transition-transform duration-300 z-50">
+        <div class="flex items-center space-x-3">
+            <i class="fas fa-check-circle text-2xl"></i>
+            <span id="toastMessage">Success!</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-12 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-gem text-primary-500 text-2xl"></i>
+                        <span class="text-2xl font-display font-bold text-white">Luxe Beauty</span>
+                    </div>
+                    <p class="mb-4">Your trusted destination for premium beauty products.</p>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="hover:text-primary-500 transition">Home</a></li>
+                        <li><a href="products.html" class="hover:text-primary-500 transition">Products</a></li>
+                        <li><a href="about.html" class="hover:text-primary-500 transition">About</a></li>
+                        <li><a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-4">Customer Service</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-primary-500 transition">Shipping Info</a></li>
+                        <li><a href="#" class="hover:text-primary-500 transition">Returns</a></li>
+                        <li><a href="#" class="hover:text-primary-500 transition">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-4">Contact</h3>
+                    <ul class="space-y-2">
+                        <li><i class="fas fa-phone text-primary-500 mr-2"></i>+1 (555) 123-4567</li>
+                        <li><i class="fas fa-envelope text-primary-500 mr-2"></i>support@luxebeauty.com</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 pt-8 text-center text-sm">
+                <p>&copy; 2026 Luxe Beauty. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Load Products from localStorage
+        var allProducts = JSON.parse(localStorage.getItem('luxe_products')) || [];
+
+        var filteredProducts = allProducts.slice();
+
+        // Generate Stars
+        function generateStars(rating) {
+            var stars = '';
+            for (var i = 0; i < 5; i++) {
+                stars += '<i class="fas fa-star ' + (i < rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600') + '"></i>';
+            }
+            return stars;
+        }
+
+        // Render Products
+        function renderProducts() {
+            var grid = document.getElementById('productsGrid');
+            var noResults = document.getElementById('noResults');
+
+            if (filteredProducts.length === 0) {
+                grid.innerHTML = '';
+                noResults.classList.remove('hidden');
+                document.getElementById('productCount').textContent = 'No products found';
+                return;
+            }
+
+            noResults.classList.add('hidden');
+            document.getElementById('productCount').textContent = 'Showing ' + filteredProducts.length + ' products';
+
+            var html = '';
+            filteredProducts.forEach(function (product) {
+                html += '<div class="product-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg cursor-pointer" onclick="showProductDetail(' + product.id + ')">';
+                html += '<div class="relative aspect-square overflow-hidden">';
+                html += '<img src="' + product.image + '" alt="' + product.name + '" class="w-full h-full object-cover" loading="lazy">';
+                html += '<button onclick="event.stopPropagation(); toggleWishlistFromProducts(' + product.id + ')" class="absolute top-4 right-4 bg-white dark:bg-gray-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary-500 hover:text-white transition">';
+                html += '<i class="far fa-heart" data-wishlist-id="' + product.id + '"></i>';
+                html += '</button>';
+                html += '<span class="absolute top-4 left-4 bg-primary-500 text-white px-3 py-1 rounded-full text-xs font-semibold">' + product.category + '</span>';
+                html += '</div>';
+                html += '<div class="p-6">';
+                html += '<h3 class="font-semibold text-lg mb-2">' + product.name + '</h3>';
+                html += '<div class="flex items-center mb-3">';
+                html += generateStars(product.rating);
+                html += '<span class="text-sm text-gray-500 ml-2">(' + product.reviews + ')</span>';
+                html += '</div>';
+                html += '<p class="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">' + product.description + '</p>';
+                html += '<div class="flex items-center justify-between">';
+                html += '<span class="text-2xl font-bold text-primary-500">$' + product.price + '</span>';
+                html += '<button onclick="event.stopPropagation(); addToCartFromProducts(' + product.id + ')" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-full transition">';
+                html += '<i class="fas fa-shopping-cart"></i>';
+                html += '</button>';
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+            });
+
+            grid.innerHTML = html;
+        }
+
+        // Filter Products
+        function filterProducts() {
+            var searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            var maxPrice = parseFloat(document.getElementById('priceRange').value);
+            var selectedRating = parseInt(document.querySelector('input[name="rating"]:checked').value);
+
+            var selectedCategories = [];
+            document.querySelectorAll('.category-filter:checked').forEach(function (cb) {
+                selectedCategories.push(cb.value);
+            });
+
+            var selectedSkinTypes = [];
+            document.querySelectorAll('.skin-filter:checked').forEach(function (cb) {
+                selectedSkinTypes.push(cb.value);
+            });
+
+            filteredProducts = allProducts.filter(function (product) {
+                var matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
+                    product.description.toLowerCase().includes(searchTerm);
+                var matchesPrice = product.price <= maxPrice;
+                var matchesRating = selectedRating === 0 || product.rating >= selectedRating;
+                var matchesCategory = selectedCategories.length === 0 ||
+                    selectedCategories.includes('all') ||
+                    selectedCategories.includes(product.category);
+                var matchesSkinType = selectedSkinTypes.length === 0 ||
+                    selectedSkinTypes.includes(product.skinType) ||
+                    product.skinType === 'All';
+
+                return matchesSearch && matchesPrice && matchesRating && matchesCategory && matchesSkinType;
+            });
+
+            sortProducts();
+            renderProducts();
+        }
+
+        // Sort Products
+        function sortProducts() {
+            var sortBy = document.getElementById('sortSelect').value;
+
+            switch (sortBy) {
+                case 'price-low':
+                    filteredProducts.sort(function (a, b) { return a.price - b.price; });
+                    break;
+                case 'price-high':
+                    filteredProducts.sort(function (a, b) { return b.price - a.price; });
+                    break;
+                case 'name':
+                    filteredProducts.sort(function (a, b) { return a.name.localeCompare(b.name); });
+                    break;
+                case 'rating':
+                    filteredProducts.sort(function (a, b) { return b.rating - a.rating; });
+                    break;
+            }
+        }
+
+        // Reset Filters
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('priceRange').value = 100;
+            document.getElementById('priceValue').textContent = '$100';
+            document.querySelectorAll('.category-filter').forEach(function (cb) {
+                cb.checked = cb.value === 'all';
+            });
+            document.querySelectorAll('.skin-filter').forEach(function (cb) {
+                cb.checked = false;
+            });
+            document.querySelector('input[name="rating"][value="0"]').checked = true;
+            document.getElementById('sortSelect').value = 'featured';
+            filterProducts();
+        }
+
+        // Event Listeners
+        document.getElementById('searchInput').addEventListener('input', filterProducts);
+        document.getElementById('priceRange').addEventListener('input', function () {
+            document.getElementById('priceValue').textContent = '$' + this.value;
+            filterProducts();
+        });
+        document.getElementById('sortSelect').addEventListener('change', function () {
+            sortProducts();
+            renderProducts();
+        });
+        document.querySelectorAll('.category-filter, .skin-filter, .rating-filter').forEach(function (el) {
+            el.addEventListener('change', filterProducts);
+        });
+
+        // Add to cart using app.js
+        function addToCartFromProducts(productId) {
+            var product = allProducts.find(function (p) { return p.id === productId; });
+            if (product) {
+                addToCart(productId, {
+                    name: product.name,
+                    price: product.price,
+                    image: product.image
+                });
+            }
+        }
+
+        // Toggle wishlist using app.js
+        function toggleWishlistFromProducts(productId) {
+            var product = allProducts.find(function (p) { return p.id === productId; });
+            if (product) {
+                toggleWishlist(productId, {
+                    name: product.name,
+                    price: product.price,
+                    image: product.image
+                });
+            }
+        }
+
+        // Product Modal
+        function showProductDetail(productId) {
+            var product = allProducts.find(function (p) { return p.id === productId; });
+            if (!product) return;
+
+            var modal = document.getElementById('productModal');
+            var content = document.getElementById('productModalContent');
+
+            var html = '<div class="grid md:grid-cols-2 gap-8">';
+            html += '<div><img src="' + product.image + '" alt="' + product.name + '" class="w-full rounded-2xl"></div>';
+            html += '<div>';
+            html += '<span class="text-sm text-primary-500 font-semibold">' + product.category + '</span>';
+            html += '<h2 class="text-3xl font-display font-bold mt-2 mb-4">' + product.name + '</h2>';
+            html += '<div class="flex items-center mb-4">';
+            html += generateStars(product.rating);
+            html += '<span class="text-sm text-gray-500 ml-2">(' + product.reviews + ' reviews)</span>';
+            html += '</div>';
+            html += '<p class="text-gray-600 dark:text-gray-400 mb-4">' + product.description + '</p>';
+            html += '<div class="mb-4"><span class="text-sm font-semibold">Skin Type:</span> <span class="text-gray-600 dark:text-gray-400">' + product.skinType + '</span></div>';
+            html += '<div class="text-4xl font-bold text-primary-500 mb-6">$' + product.price + '</div>';
+            html += '<div class="space-y-4">';
+            html += '<button onclick="addToCartFromProducts(' + product.id + '); closeProductModal();" class="w-full bg-primary-500 hover:bg-primary-600 text-white py-4 rounded-full font-semibold transition">';
+            html += '<i class="fas fa-shopping-cart mr-2"></i>Add to Cart';
+            html += '</button>';
+            html += '<button onclick="toggleWishlistFromProducts(' + product.id + ')" class="w-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 py-4 rounded-full font-semibold transition">';
+            html += '<i class="far fa-heart mr-2"></i>Add to Wishlist';
+            html += '</button>';
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+
+            content.innerHTML = html;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            modal.style.display = 'flex';
+        }
+
+        function closeProductModal() {
+            var modal = document.getElementById('productModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            modal.style.display = 'none';
+        }
+
+        // Toast
+        function showToast(message) {
+            var toast = document.getElementById('toast');
+            var toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+            toast.style.transform = 'translateY(0)';
+
+            setTimeout(function () {
+                toast.style.transform = 'translateY(8rem)';
+            }, 3000);
+        }
+
+        // Initialize
+        renderProducts();
+    </script>
+</body>
+
+</html>

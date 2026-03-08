@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxe Beauty - Premium Cosmetics & Skincare</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="init-products.js"></script>
+    <script src="app.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fdf2f8',
+                            100: '#fce7f3',
+                            200: '#fbcfe8',
+                            300: '#f9a8d4',
+                            400: '#f472b6',
+                            500: '#ec4899',
+                            600: '#db2777',
+                            700: '#be185d',
+                            800: '#9d174d',
+                            900: '#831843',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+    <!-- Navbar -->
+    <nav
+        class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-md transition-colors duration-300">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <i class="fas fa-gem text-primary-500 text-2xl"></i>
+                    <span
+                        class="text-2xl font-display font-bold bg-gradient-to-r from-primary-500 to-pink-600 bg-clip-text text-transparent">Luxe
+                        Beauty</span>
+                </a>
+
+                <div class="hidden lg:flex items-center space-x-8">
+                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
+                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
+                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button id="themeToggle" class="hover:text-primary-500 transition">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+
+                    <!-- Admin Panel Icon (Hidden by default, shown only for admin) -->
+                    <a href="admin-dashboard.html" id="adminPanelIcon"
+                        class="hidden text-purple-500 hover:text-purple-600 transition" title="Admin Dashboard">
+                        <i class="fas fa-cog text-xl"></i>
+                    </a>
+
+                    <a href="./profile.html" id="accountLink" class="text-primary-500 transition">
+                        <i class="fas fa-user"></i>
+                    </a>
+
+                    <a href="wishlist.html" class="relative hover:text-primary-500 transition">
+                        <i class="fas fa-heart"></i>
+                        <span id="wishlistCount"
+                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </a>
+
+                    <a href="cart.html" class="relative hover:text-primary-500 transition">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span id="cartCount"
+                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </a>
+
+                    <button id="mobileMenuBtn" class="lg:hidden hover:text-primary-500 transition">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="hidden lg:hidden mt-4 pb-4 border-t dark:border-gray-700 pt-4">
+                <div class="flex flex-col space-y-3">
+                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Shop</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
+                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
+                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section with Carousel -->
+    <section id="home" class="hero-gradient py-20 lg:py-32">
+        <div class="container mx-auto px-4">
+            <div class="relative">
+                <!-- Carousel Container -->
+                <div id="heroCarousel" class="relative overflow-hidden rounded-3xl">
+                    <!-- Slide 1 -->
+                    <div class="carousel-slide active flex flex-col lg:flex-row items-center justify-between">
+                        <div class="lg:w-1/2 mb-10 lg:mb-0 text-center lg:text-left">
+                            <span
+                                class="inline-block bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 px-4 py-2 rounded-full text-sm font-semibold mb-4">New
+                                Arrivals 2026</span>
+                            <h1 class="text-4xl lg:text-6xl font-display font-bold mb-6 leading-tight">
+                                Discover Your <br>
+                                <span
+                                    class="bg-gradient-to-r from-primary-500 to-pink-600 bg-clip-text text-transparent">Natural
+                                    Glow</span>
+                            </h1>
+                            <p class="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-xl">Premium skincare and
+                                cosmetics crafted with natural ingredients for radiant, healthy skin.</p>
+                            <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                                <a href="products.html"
+                                    class="bg-primary-500 hover:bg-primary-600 text-white px-8 py-4 rounded-full font-semibold transition transform hover:scale-105 shadow-lg">Shop
+                                    Now</a>
+                                <a href="products.html"
+                                    class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white px-8 py-4 rounded-full font-semibold transition border-2 border-gray-200 dark:border-gray-700">Discover
+                                    Products</a>
+                            </div>
+                        </div>
+                        <div class="lg:w-1/2 flex justify-center">
+                            <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&h=600&fit=crop"
+                                alt="Beauty Products" class="rounded-3xl shadow-2xl max-w-md w-full object-cover"
+                                loading="lazy">
+                        </div>
+                    </div>
+
+                    <!-- Slide 2 -->
+                    <div class="carousel-slide hidden flex flex-col lg:flex-row items-center justify-between">
+                        <div class="lg:w-1/2 mb-10 lg:mb-0 text-center lg:text-left">
+                            <span
+                                class="inline-block bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 px-4 py-2 rounded-full text-sm font-semibold mb-4">Limited
+                                Offer</span>
+                            <h1 class="text-4xl lg:text-6xl font-display font-bold mb-6 leading-tight">
+                                Up to 40% Off <br>
+                                <span
+                                    class="bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">Spring
+                                    Collection</span>
+                            </h1>
+                            <p class="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-xl">Refresh your beauty
+                                routine with our exclusive spring collection. Limited time only!</p>
+                            <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                                <a href="products.html"
+                                    class="bg-pink-500 hover:bg-pink-600 text-white px-8 py-4 rounded-full font-semibold transition transform hover:scale-105 shadow-lg">Shop
+                                    Sale</a>
+                            </div>
+                        </div>
+                        <div class="lg:w-1/2 flex justify-center">
+                            <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&h=600&fit=crop"
+                                alt="Spring Collection" class="rounded-3xl shadow-2xl max-w-md w-full object-cover"
+                                loading="lazy">
+                        </div>
+                    </div>
+
+                    <!-- Slide 3 -->
+                    <div class="carousel-slide hidden flex flex-col lg:flex-row items-center justify-between">
+                        <div class="lg:w-1/2 mb-10 lg:mb-0 text-center lg:text-left">
+                            <span
+                                class="inline-block bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 px-4 py-2 rounded-full text-sm font-semibold mb-4">Personalized
+                                Care</span>
+                            <h1 class="text-4xl lg:text-6xl font-display font-bold mb-6 leading-tight">
+                                Find Your Perfect <br>
+                                <span
+                                    class="bg-gradient-to-r from-purple-500 to-primary-600 bg-clip-text text-transparent">Skincare
+                                    Match</span>
+                            </h1>
+                            <p class="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-xl">Take our skin quiz and get
+                                personalized product recommendations tailored to your unique needs.</p>
+                            <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                                <a href="#skin-quiz"
+                                    class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-full font-semibold transition transform hover:scale-105 shadow-lg">Take
+                                    Skin Quiz</a>
+                            </div>
+                        </div>
+                        <div class="lg:w-1/2 flex justify-center">
+                            <img src="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=600&h=600&fit=crop"
+                                alt="Skincare" class="rounded-3xl shadow-2xl max-w-md w-full object-cover"
+                                loading="lazy">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carousel Controls -->
+                <button id="prevSlide"
+                    class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 p-3 rounded-full shadow-lg transition">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button id="nextSlide"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 p-3 rounded-full shadow-lg transition">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+
+                <!-- Carousel Indicators -->
+                <div class="flex justify-center mt-6 space-x-2">
+                    <button class="carousel-indicator active w-3 h-3 rounded-full bg-primary-500"
+                        data-slide="0"></button>
+                    <button class="carousel-indicator w-3 h-3 rounded-full bg-gray-300 dark:bg-gray-600"
+                        data-slide="1"></button>
+                    <button class="carousel-indicator w-3 h-3 rounded-full bg-gray-300 dark:bg-gray-600"
+                        data-slide="2"></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust Badges -->
+    <section class="py-12 bg-gray-50 dark:bg-gray-800/50">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div class="flex flex-col items-center">
+                    <i class="fas fa-shield-alt text-4xl text-primary-500 mb-3"></i>
+                    <h3 class="font-semibold mb-1">100% Original</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Authentic Products</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i class="fas fa-truck text-4xl text-primary-500 mb-3"></i>
+                    <h3 class="font-semibold mb-1">Free Shipping</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Orders Over $50</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i class="fas fa-undo text-4xl text-primary-500 mb-3"></i>
+                    <h3 class="font-semibold mb-1">Easy Returns</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">30-Day Policy</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i class="fas fa-headset text-4xl text-primary-500 mb-3"></i>
+                    <h3 class="font-semibold mb-1">24/7 Support</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Always Here to Help</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section id="products" class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-display font-bold mb-4">Featured Products</h2>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Discover our handpicked selection of
+                    premium beauty essentials</p>
+            </div>
+
+            <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Products will be dynamically loaded -->
+            </div>
+
+            <div class="text-center mt-12">
+                <a href="products.html"
+                    class="inline-block bg-primary-500 hover:bg-primary-600 text-white px-8 py-3 rounded-full font-semibold transition">View
+                    All Products</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Shop by Skin Type -->
+    <section class="py-20 bg-gray-50 dark:bg-gray-800/50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-display font-bold mb-4">Shop by Skin Type</h2>
+                <p class="text-gray-600 dark:text-gray-400">Find products perfect for your unique skin</p>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="group cursor-pointer">
+                    <div class="relative overflow-hidden rounded-2xl mb-4 aspect-square">
+                        <img src="https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=400&fit=crop"
+                            alt="Dry Skin"
+                            class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                            loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+                            <h3 class="text-white font-semibold text-xl">Dry Skin</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="group cursor-pointer">
+                    <div class="relative overflow-hidden rounded-2xl mb-4 aspect-square">
+                        <img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=400&h=400&fit=crop"
+                            alt="Oily Skin"
+                            class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                            loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+                            <h3 class="text-white font-semibold text-xl">Oily Skin</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="group cursor-pointer">
+                    <div class="relative overflow-hidden rounded-2xl mb-4 aspect-square">
+                        <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400&h=400&fit=crop"
+                            alt="Sensitive Skin"
+                            class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                            loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+                            <h3 class="text-white font-semibold text-xl">Sensitive Skin</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="group cursor-pointer">
+                    <div class="relative overflow-hidden rounded-2xl mb-4 aspect-square">
+                        <img src="https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=400&h=400&fit=crop"
+                            alt="Combination Skin"
+                            class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                            loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+                            <h3 class="text-white font-semibold text-xl">Combination</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Best Sellers -->
+    <section class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-display font-bold mb-4">Best Sellers</h2>
+                <p class="text-gray-600 dark:text-gray-400">Our most loved products</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div
+                    class="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 rounded-2xl p-8 text-center">
+                    <div class="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=300&h=300&fit=crop"
+                            alt="Serum" class="w-full h-full object-cover" loading="lazy">
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Vitamin C Serum</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Brightening & Anti-Aging</p>
+                    <div class="flex items-center justify-center mb-4">
+                        <span class="text-2xl font-bold text-primary-500">$45.99</span>
+                    </div>
+                    <button class="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-full transition">Add
+                        to Cart</button>
+                </div>
+
+                <div
+                    class="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-2xl p-8 text-center">
+                    <div class="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=300&h=300&fit=crop"
+                            alt="Moisturizer" class="w-full h-full object-cover" loading="lazy">
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Hydrating Moisturizer</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">24-Hour Hydration</p>
+                    <div class="flex items-center justify-center mb-4">
+                        <span class="text-2xl font-bold text-primary-500">$38.99</span>
+                    </div>
+                    <button class="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-full transition">Add
+                        to Cart</button>
+                </div>
+
+                <div
+                    class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-2xl p-8 text-center">
+                    <div class="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1571875257727-256c39da42af?w=300&h=300&fit=crop"
+                            alt="Sunscreen" class="w-full h-full object-cover" loading="lazy">
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">SPF 50 Sunscreen</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Broad Spectrum Protection</p>
+                    <div class="flex items-center justify-center mb-4">
+                        <span class="text-2xl font-bold text-primary-500">$32.99</span>
+                    </div>
+                    <button class="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-full transition">Add
+                        to Cart</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Popular Brands -->
+    <section class="py-20 bg-gray-50 dark:bg-gray-800/50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-display font-bold mb-4">Popular Brands</h2>
+                <p class="text-gray-600 dark:text-gray-400">Trusted by millions worldwide</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 items-center">
+                <div
+                    class="bg-white dark:bg-gray-800 p-6 rounded-xl flex items-center justify-center h-24 hover:shadow-lg transition">
+                    <span class="font-display font-bold text-xl text-gray-700 dark:text-gray-300">GLOW</span>
+                </div>
+                <div
+                    class="bg-white dark:bg-gray-800 p-6 rounded-xl flex items-center justify-center h-24 hover:shadow-lg transition">
+                    <span class="font-display font-bold text-xl text-gray-700 dark:text-gray-300">RADIANCE</span>
+                </div>
+                <div
+                    class="bg-white dark:bg-gray-800 p-6 rounded-xl flex items-center justify-center h-24 hover:shadow-lg transition">
+                    <span class="font-display font-bold text-xl text-gray-700 dark:text-gray-300">PURE</span>
+                </div>
+                <div
+                    class="bg-white dark:bg-gray-800 p-6 rounded-xl flex items-center justify-center h-24 hover:shadow-lg transition">
+                    <span class="font-display font-bold text-xl text-gray-700 dark:text-gray-300">ESSENCE</span>
+                </div>
+                <div
+                    class="bg-white dark:bg-gray-800 p-6 rounded-xl flex items-center justify-center h-24 hover:shadow-lg transition">
+                    <span class="font-display font-bold text-xl text-gray-700 dark:text-gray-300">BLOOM</span>
+                </div>
+                <div
+                    class="bg-white dark:bg-gray-800 p-6 rounded-xl flex items-center justify-center h-24 hover:shadow-lg transition">
+                    <span class="font-display font-bold text-xl text-gray-700 dark:text-gray-300">LUXE</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skin Quiz Preview -->
+    <section id="skin-quiz" class="py-20 bg-gradient-to-r from-primary-500 to-pink-600 text-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <i class="fas fa-clipboard-list text-6xl mb-6 opacity-90"></i>
+                <h2 class="text-4xl font-display font-bold mb-6">Find Your Perfect Skincare Match</h2>
+                <p class="text-xl mb-8 opacity-90">Take our personalized skin quiz and discover products tailored
+                    specifically for your unique skin type, concerns, and goals. Get expert recommendations in just 2
+                    minutes!</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button onclick="startSkinQuiz()"
+                        class="bg-white text-primary-500 hover:bg-gray-100 px-8 py-4 rounded-full font-semibold transition transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-play-circle mr-2"></i>Start Skin Quiz
+                    </button>
+                    <a href="#education"
+                        class="bg-transparent border-2 border-white hover:bg-white/10 px-8 py-4 rounded-full font-semibold transition">Learn
+                        More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Beauty Education -->
+    <section id="education" class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-display font-bold mb-4">Beauty Education</h2>
+                <p class="text-gray-600 dark:text-gray-400">Expert tips and guides for your skincare journey</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <a href="#blog" class="group">
+                    <div class="relative overflow-hidden rounded-2xl mb-4 aspect-video">
+                        <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&h=400&fit=crop"
+                            alt="Beauty Blog"
+                            class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                            loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
+                            <div>
+                                <span
+                                    class="inline-block bg-primary-500 text-white px-3 py-1 rounded-full text-xs mb-2">Blog</span>
+                                <h3 class="text-white font-semibold text-xl">Beauty Blog</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400">Latest trends, tips, and product reviews from beauty
+                        experts</p>
+                </a>
+
+                <a href="#guides" class="group">
+                    <div class="relative overflow-hidden rounded-2xl mb-4 aspect-video">
+                        <img src="https://images.unsplash.com/photo-1556228852-80a3c4e6d1f7?w=600&h=400&fit=crop"
+                            alt="Skincare Guides"
+                            class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                            loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
+                            <div>
+                                <span
+                                    class="inline-block bg-purple-500 text-white px-3 py-1 rounded-full text-xs mb-2">Guides</span>
+                                <h3 class="text-white font-semibold text-xl">Skincare Guides</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400">Step-by-step routines and ingredient breakdowns</p>
+                </a>
+
+                <a href="#skin-quiz" class="group">
+                    <div class="relative overflow-hidden rounded-2xl mb-4 aspect-video">
+                        <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&h=400&fit=crop"
+                            alt="Skin Quiz"
+                            class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                            loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
+                            <div>
+                                <span
+                                    class="inline-block bg-pink-500 text-white px-3 py-1 rounded-full text-xs mb-2">Quiz</span>
+                                <h3 class="text-white font-semibold text-xl">Skin Quiz</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400">Personalized product recommendations for your skin</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Customer Testimonials -->
+    <section class="py-20 bg-gray-50 dark:bg-gray-800/50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-display font-bold mb-4">What Our Customers Say</h2>
+                <p class="text-gray-600 dark:text-gray-400">Real reviews from real people</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <img src="https://i.pravatar.cc/100?img=1" alt="Customer" class="w-16 h-16 rounded-full mr-4"
+                            loading="lazy">
+                        <div>
+                            <h4 class="font-semibold">Sarah Johnson</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400">"The Vitamin C serum transformed my skin! I've noticed a
+                        visible reduction in dark spots and my complexion looks so much brighter. Highly recommend!"</p>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <img src="https://i.pravatar.cc/100?img=5" alt="Customer" class="w-16 h-16 rounded-full mr-4"
+                            loading="lazy">
+                        <div>
+                            <h4 class="font-semibold">Emily Chen</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400">"Best skincare shopping experience! Fast shipping,
+                        authentic products, and the skin quiz helped me find exactly what I needed for my sensitive
+                        skin."</p>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <img src="https://i.pravatar.cc/100?img=9" alt="Customer" class="w-16 h-16 rounded-full mr-4"
+                            loading="lazy">
+                        <div>
+                            <h4 class="font-semibold">Maria Garcia</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400">"I'm obsessed with their moisturizer! My dry skin has
+                        never felt so hydrated. Plus, their customer service is amazing. Will definitely order again!"
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Registration Section -->
+    <!-- <section id="account" class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8">
+                <div class="text-center mb-8">
+                    <i class="fas fa-user-circle text-5xl text-primary-500 mb-4"></i>
+                    <h2 class="text-3xl font-display font-bold mb-2">Create Account</h2>
+                    <p class="text-gray-600 dark:text-gray-400">Join us and get exclusive benefits</p>
+                </div>
+
+                <form id="registrationForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Full Name</label>
+                        <input type="text" id="fullName" required
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
+                            placeholder="Enter your name">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Email Address</label>
+                        <input type="email" id="email" required
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
+                            placeholder="your@email.com">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Password</label>
+                        <input type="password" id="password" required
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
+                            placeholder="Create a password">
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-primary-500 hover:bg-primary-600 text-white py-3 rounded-lg font-semibold transition transform hover:scale-105">Create
+                        Account</button>
+                </form>
+
+                <div class="relative my-6">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-4 bg-white dark:bg-gray-800 text-gray-500">Or continue with</span>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <button onclick="loginWithGoogle()"
+                        class="w-full flex items-center justify-center space-x-3 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 py-3 rounded-lg font-semibold transition">
+                        <i class="fab fa-google text-red-500"></i>
+                        <span>Continue with Google</span>
+                    </button>
+
+                    <button onclick="loginWithFacebook()"
+                        class="w-full flex items-center justify-center space-x-3 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition">
+                        <i class="fab fa-facebook-f"></i>
+                        <span>Continue with Facebook</span>
+                    </button>
+                </div>
+
+                <p class="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
+                    Already have an account? <a href="#" class="text-primary-500 hover:underline font-semibold">Sign
+                        In</a>
+                </p>
+            </div>
+        </div>
+    </section> -->
+
+    <!-- Newsletter Section -->
+    <section class="py-20 bg-gradient-to-r from-primary-500 to-pink-600 text-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto text-center">
+                <i class="fas fa-envelope-open-text text-5xl mb-6 opacity-90"></i>
+                <h2 class="text-4xl font-display font-bold mb-4">Join Our Beauty Community</h2>
+                <p class="text-xl mb-8 opacity-90">Subscribe to our newsletter and get 10% off your first order plus
+                    exclusive beauty tips!</p>
+
+                <form id="newsletterForm" class="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto">
+                    <input type="email" id="newsletterEmail" required placeholder="Enter your email"
+                        class="flex-1 px-6 py-4 rounded-full text-gray-900 outline-none">
+                    <button type="submit"
+                        class="bg-white text-primary-500 hover:bg-gray-100 px-8 py-4 rounded-full font-semibold transition transform hover:scale-105 shadow-lg">Subscribe</button>
+                </form>
+
+                <p class="text-sm mt-4 opacity-75">We respect your privacy. Unsubscribe anytime.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-gray-900 text-gray-300 py-16">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+                <!-- Brand -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-gem text-primary-500 text-2xl"></i>
+                        <span class="text-2xl font-display font-bold text-white">Luxe Beauty</span>
+                    </div>
+                    <p class="mb-6">Your trusted destination for premium beauty and skincare products.</p>
+                    <div class="flex space-x-4">
+                        <a href="#"
+                            class="w-10 h-10 bg-gray-800 hover:bg-primary-500 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#"
+                            class="w-10 h-10 bg-gray-800 hover:bg-primary-500 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#"
+                            class="w-10 h-10 bg-gray-800 hover:bg-primary-500 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#"
+                            class="w-10 h-10 bg-gray-800 hover:bg-primary-500 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                        <a href="#"
+                            class="w-10 h-10 bg-gray-800 hover:bg-primary-500 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-tiktok"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="hover:text-primary-500 transition">Home</a></li>
+                        <li><a href="products.html" class="hover:text-primary-500 transition">Shop All</a></li>
+                        <li><a href="products.html" class="hover:text-primary-500 transition">Products</a></li>
+                        <li><a href="about.html" class="hover:text-primary-500 transition">About Us</a></li>
+                        <li><a href="#contact" class="hover:text-primary-500 transition">Contact Us</a></li>
+                        <li><a href="profile.html" class="hover:text-primary-500 transition">My Account</a></li>
+                    </ul>
+                </div>
+
+                <!-- Customer Service -->
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-4">Customer Service</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-primary-500 transition">Shipping Information</a></li>
+                        <li><a href="#" class="hover:text-primary-500 transition">Return Policy</a></li>
+                        <li><a href="#" class="hover:text-primary-500 transition">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-primary-500 transition">Terms & Conditions</a></li>
+                        <li><a href="#" class="hover:text-primary-500 transition">FAQ</a></li>
+                        <li><a href="#" class="hover:text-primary-500 transition">Track Order</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-4">Get In Touch</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt text-primary-500 mt-1 mr-3"></i>
+                            <span>123 Beauty Street, Fashion District, NY 10001</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone text-primary-500 mr-3"></i>
+                            <span>+1 (555) 123-4567</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope text-primary-500 mr-3"></i>
+                            <span>support@luxebeauty.com</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-clock text-primary-500 mr-3"></i>
+                            <span>Mon-Fri: 9AM-6PM EST</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Payment Methods -->
+            <div class="border-t border-gray-800 pt-8 mb-8">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="mb-4 md:mb-0">
+                        <p class="text-sm mb-2">Secure Payment Methods:</p>
+                        <div class="flex space-x-3">
+                            <i class="fab fa-cc-visa text-3xl"></i>
+                            <i class="fab fa-cc-mastercard text-3xl"></i>
+                            <i class="fab fa-cc-amex text-3xl"></i>
+                            <i class="fab fa-cc-paypal text-3xl"></i>
+                            <i class="fab fa-apple-pay text-3xl"></i>
+                            <i class="fab fa-google-pay text-3xl"></i>
+                        </div>
+                    </div>
+                    <div class="text-center md:text-right">
+                        <p class="text-sm mb-2">Download Our App:</p>
+                        <div class="flex space-x-3">
+                            <a href="#" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg transition text-sm">
+                                <i class="fab fa-apple mr-2"></i>App Store
+                            </a>
+                            <a href="#" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg transition text-sm">
+                                <i class="fab fa-google-play mr-2"></i>Google Play
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Copyright -->
+            <div class="border-t border-gray-800 pt-8 text-center text-sm">
+                <p>&copy; 2026 Luxe Beauty. All rights reserved. Made with <i class="fas fa-heart text-primary-500"></i>
+                    for beauty lovers worldwide.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Skin Quiz Modal -->
+    <div id="skinQuizModal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 relative">
+            <button onclick="closeSkinQuiz()"
+                class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+
+            <div id="quizContent">
+                <!-- Quiz questions will be dynamically loaded -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div id="productModal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
+            <button onclick="closeProductModal()"
+                class="absolute top-4 right-4 z-10 bg-white dark:bg-gray-700 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div id="productModalContent" class="p-8">
+                <!-- Product details will be dynamically loaded -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div id="toast"
+        class="fixed bottom-8 right-8 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg transform translate-y-32 transition-transform duration-300 z-50">
+        <div class="flex items-center space-x-3">
+            <i class="fas fa-check-circle text-2xl"></i>
+            <span id="toastMessage">Success!</span>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Hero Carousel
+        var currentSlide = 0;
+        var slides = document.querySelectorAll('.carousel-slide');
+        var indicators = document.querySelectorAll('.carousel-indicator');
+
+        function showSlide(index) {
+            slides.forEach(function (slide, i) {
+                if (i === index) {
+                    slide.classList.add('active');
+                    slide.classList.remove('hidden');
+                } else {
+                    slide.classList.remove('active');
+                    slide.classList.add('hidden');
+                }
+            });
+
+            indicators.forEach(function (indicator, i) {
+                if (i === index) {
+                    indicator.classList.remove('bg-gray-300', 'dark:bg-gray-600');
+                    indicator.classList.add('bg-primary-500');
+                } else {
+                    indicator.classList.add('bg-gray-300', 'dark:bg-gray-600');
+                    indicator.classList.remove('bg-primary-500');
+                }
+            });
+        }
+
+        document.getElementById('nextSlide').addEventListener('click', function () {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        });
+
+        document.getElementById('prevSlide').addEventListener('click', function () {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        });
+
+        indicators.forEach(function (indicator, index) {
+            indicator.addEventListener('click', function () {
+                currentSlide = index;
+                showSlide(currentSlide);
+            });
+        });
+
+        // Auto-advance carousel
+        setInterval(function () {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }, 5000);
+
+        // Load Products from localStorage
+        var products = JSON.parse(localStorage.getItem('luxe_products')) || [];
+
+        // Render Products
+        function renderProducts() {
+            var grid = document.getElementById('productsGrid');
+            var html = '';
+
+            // Show only first 8 products on homepage
+            var displayProducts = products.slice(0, 8);
+
+            displayProducts.forEach(function (product) {
+                html += '<div class="product-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg cursor-pointer" onclick="showProductDetail(' + product.id + ')">';
+                html += '<div class="relative aspect-square overflow-hidden">';
+                html += '<img src="' + product.image + '" alt="' + product.name + '" class="w-full h-full object-cover" loading="lazy">';
+                html += '<button onclick="event.stopPropagation(); toggleWishlistFromIndex(' + product.id + ')" class="absolute top-4 right-4 bg-white dark:bg-gray-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary-500 hover:text-white transition">';
+                html += '<i class="far fa-heart" data-wishlist-id="' + product.id + '"></i>';
+                html += '</button>';
+                html += '</div>';
+                html += '<div class="p-6">';
+                html += '<span class="text-xs text-primary-500 font-semibold">' + product.category + '</span>';
+                html += '<h3 class="font-semibold text-lg mb-2 mt-1">' + product.name + '</h3>';
+                html += '<div class="flex items-center mb-3">';
+                html += generateStars(product.rating);
+                html += '<span class="text-sm text-gray-500 ml-2">(' + Math.floor(Math.random() * 500 + 100) + ')</span>';
+                html += '</div>';
+                html += '<div class="flex items-center justify-between">';
+                html += '<span class="text-2xl font-bold text-primary-500">$' + product.price + '</span>';
+                html += '<button onclick="event.stopPropagation(); addToCartFromIndex(' + product.id + ')" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-full transition">';
+                html += '<i class="fas fa-shopping-cart"></i>';
+                html += '</button>';
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+            });
+
+            grid.innerHTML = html;
+        }
+
+        function generateStars(rating) {
+            var stars = '';
+            for (var i = 0; i < 5; i++) {
+                stars += '<i class="fas fa-star ' + (i < rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600') + '"></i>';
+            }
+            return stars;
+        }
+
+        renderProducts();
+
+        // Add to cart function using app.js
+        function addToCartFromIndex(productId) {
+            var product = products.find(function (p) { return p.id === productId; });
+            if (product) {
+                addToCart(productId, {
+                    name: product.name,
+                    price: product.price,
+                    image: product.image
+                });
+            }
+        }
+
+        // Toggle wishlist function using app.js
+        function toggleWishlistFromIndex(productId) {
+            var product = products.find(function (p) { return p.id === productId; });
+            if (product) {
+                toggleWishlist(productId, {
+                    name: product.name,
+                    price: product.price,
+                    image: product.image
+                });
+            }
+        }
+
+        // Product Detail Modal
+        function showProductDetail(productId) {
+            var product = products.find(function (p) { return p.id === productId; });
+            if (!product) return;
+
+            var modal = document.getElementById('productModal');
+            var content = document.getElementById('productModalContent');
+
+            var html = '<div class="grid md:grid-cols-2 gap-8">';
+            html += '<div><img src="' + product.image + '" alt="' + product.name + '" class="w-full rounded-2xl"></div>';
+            html += '<div>';
+            html += '<span class="text-sm text-primary-500 font-semibold">' + product.category + '</span>';
+            html += '<h2 class="text-3xl font-display font-bold mt-2 mb-4">' + product.name + '</h2>';
+            html += '<div class="flex items-center mb-4">';
+            html += generateStars(product.rating);
+            html += '<span class="text-sm text-gray-500 ml-2">(' + Math.floor(Math.random() * 500 + 100) + ' reviews)</span>';
+            html += '</div>';
+            html += '<p class="text-gray-600 dark:text-gray-400 mb-6">' + product.description + '</p>';
+            html += '<div class="text-4xl font-bold text-primary-500 mb-6">$' + product.price + '</div>';
+            html += '<div class="space-y-4">';
+            html += '<button onclick="addToCartFromIndex(' + product.id + '); closeProductModal();" class="w-full bg-primary-500 hover:bg-primary-600 text-white py-4 rounded-full font-semibold transition">';
+            html += '<i class="fas fa-shopping-cart mr-2"></i>Add to Cart';
+            html += '</button>';
+            html += '<button onclick="toggleWishlistFromIndex(' + product.id + ')" class="w-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 py-4 rounded-full font-semibold transition">';
+            html += '<i class="far fa-heart mr-2"></i>Add to Wishlist';
+            html += '</button>';
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+
+            content.innerHTML = html;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            modal.style.display = 'flex';
+        }
+
+        function closeProductModal() {
+            var modal = document.getElementById('productModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            modal.style.display = 'none';
+        }
+
+        // Skin Quiz
+        var quizQuestions = [
+            {
+                question: "What is your skin type?",
+                options: ["Dry", "Oily", "Combination", "Sensitive", "Normal"]
+            },
+            {
+                question: "What is your main skin concern?",
+                options: ["Acne", "Aging", "Dark Spots", "Dryness", "Redness"]
+            },
+            {
+                question: "How often do you cleanse your face?",
+                options: ["Once a day", "Twice a day", "More than twice", "Rarely"]
+            }
+        ];
+
+        var currentQuestion = 0;
+        var quizAnswers = [];
+
+        function startSkinQuiz() {
+            currentQuestion = 0;
+            quizAnswers = [];
+            var modal = document.getElementById('skinQuizModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            modal.style.display = 'flex';
+            showQuizQuestion();
+        }
+
+        function showQuizQuestion() {
+            var content = document.getElementById('quizContent');
+            var question = quizQuestions[currentQuestion];
+
+            var html = '<div class="text-center mb-8">';
+            html += '<h3 class="text-2xl font-display font-bold mb-2">Question ' + (currentQuestion + 1) + ' of ' + quizQuestions.length + '</h3>';
+            html += '<p class="text-gray-600 dark:text-gray-400">' + question.question + '</p>';
+            html += '</div>';
+            html += '<div class="space-y-3">';
+
+            question.options.forEach(function (option) {
+                html += '<button onclick="selectAnswer(\'' + option + '\')" class="w-full bg-gray-100 dark:bg-gray-700 hover:bg-primary-500 hover:text-white py-4 rounded-lg font-semibold transition">';
+                html += option;
+                html += '</button>';
+            });
+
+            html += '</div>';
+            html += '<div class="mt-6 flex justify-between">';
+            html += '<button onclick="previousQuestion()" class="text-gray-500 hover:text-primary-500 ' + (currentQuestion === 0 ? 'invisible' : '') + '">';
+            html += '<i class="fas fa-arrow-left mr-2"></i>Previous';
+            html += '</button>';
+            html += '<span class="text-sm text-gray-500">' + (currentQuestion + 1) + ' / ' + quizQuestions.length + '</span>';
+            html += '</div>';
+
+            content.innerHTML = html;
+        }
+
+        function selectAnswer(answer) {
+            quizAnswers[currentQuestion] = answer;
+            if (currentQuestion < quizQuestions.length - 1) {
+                currentQuestion++;
+                showQuizQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuizQuestion();
+            }
+        }
+
+        function showQuizResults() {
+            var content = document.getElementById('quizContent');
+            var html = '<div class="text-center">';
+            html += '<i class="fas fa-check-circle text-6xl text-green-500 mb-6"></i>';
+            html += '<h3 class="text-3xl font-display font-bold mb-4">Your Personalized Results</h3>';
+            html += '<p class="text-gray-600 dark:text-gray-400 mb-8">Based on your answers, we recommend the following products:</p>';
+            html += '<div class="space-y-4 mb-8">';
+            html += '<div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">';
+            html += '<h4 class="font-semibold mb-2">Recommended Routine</h4>';
+            html += '<ul class="text-left text-sm space-y-2">';
+            html += '<li><i class="fas fa-check text-primary-500 mr-2"></i>Gentle Cleansing Foam</li>';
+            html += '<li><i class="fas fa-check text-primary-500 mr-2"></i>Hydrating Toner</li>';
+            html += '<li><i class="fas fa-check text-primary-500 mr-2"></i>Vitamin C Serum</li>';
+            html += '<li><i class="fas fa-check text-primary-500 mr-2"></i>Moisturizer with SPF</li>';
+            html += '</ul>';
+            html += '</div>';
+            html += '</div>';
+            html += '<button onclick="closeSkinQuiz()" class="bg-primary-500 hover:bg-primary-600 text-white px-8 py-3 rounded-full font-semibold transition">';
+            html += 'View Recommended Products';
+            html += '</button>';
+            html += '</div>';
+
+            content.innerHTML = html;
+        }
+
+        function closeSkinQuiz() {
+            var modal = document.getElementById('skinQuizModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            modal.style.display = 'none';
+        }
+
+        // Registration Form
+        document.getElementById('registrationForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            var name = document.getElementById('fullName').value;
+            var email = document.getElementById('email').value;
+            var password = document.getElementById('password').value;
+
+            // Save user data to localStorage
+            var userData = {
+                name: name,
+                email: email,
+                password: password,
+                createdAt: new Date().toISOString(),
+                orders: [],
+                wishlist: []
+            };
+
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            showToast('Welcome ' + name + '! Account created successfully.');
+
+            // Redirect to profile page after 1 second
+            setTimeout(function () {
+                window.location.href = 'profile.html';
+            }, 1000);
+        });
+
+        // Newsletter Form
+        document.getElementById('newsletterForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            showToast('Thank you for subscribing! Check your email for your 10% discount code.');
+            document.getElementById('newsletterForm').reset();
+        });
+
+        // Social Login Functions
+        function loginWithGoogle() {
+            showToast('Google login coming soon!');
+        }
+
+        function loginWithFacebook() {
+            showToast('Facebook login coming soon!');
+        }
+
+        // Toast Notification
+        function showToast(message) {
+            var toast = document.getElementById('toast');
+            var toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+            toast.style.transform = 'translateY(0)';
+
+            setTimeout(function () {
+                toast.style.transform = 'translateY(8rem)';
+            }, 3000);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            // Show first slide
+            showSlide(0);
+
+            // Load saved language
+            if (currentLang === 'AR') {
+                document.body.setAttribute('dir', 'rtl');
+            }
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                var target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    var mobileMenu = document.getElementById('mobileMenu');
+                    if (mobileMenu) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

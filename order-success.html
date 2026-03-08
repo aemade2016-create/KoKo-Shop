@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed - Luxe Beauty</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .success-animation {
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fdf2f8',
+                            100: '#fce7f3',
+                            200: '#fbcfe8',
+                            300: '#f9a8d4',
+                            400: '#f472b6',
+                            500: '#ec4899',
+                            600: '#db2777',
+                            700: '#be185d',
+                            800: '#9d174d',
+                            900: '#831843',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+    <!-- Navbar -->
+    <nav
+        class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-md transition-colors duration-300">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <i class="fas fa-gem text-primary-500 text-2xl"></i>
+                    <span
+                        class="text-2xl font-display font-bold bg-gradient-to-r from-primary-500 to-pink-600 bg-clip-text text-transparent">Luxe
+                        Beauty</span>
+                </a>
+
+                <div class="hidden lg:flex items-center space-x-8">
+                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
+                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
+                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button id="themeToggle" class="hover:text-primary-500 transition">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+
+                    <!-- Admin Panel Icon -->
+                    <a href="admin-dashboard.html" id="adminPanelIcon"
+                        class="hidden text-purple-500 hover:text-purple-600 transition" title="Admin Dashboard">
+                        <i class="fas fa-cog text-xl"></i>
+                    </a>
+
+                    <a href="#" id="accountLink" class="text-primary-500 transition">
+                        <i class="fas fa-user"></i>
+                    </a>
+
+                    <a href="wishlist.html" class="relative hover:text-primary-500 transition">
+                        <i class="fas fa-heart"></i>
+                        <span id="wishlistCount"
+                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </a>
+
+                    <a href="cart.html" class="relative hover:text-primary-500 transition">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span id="cartCount"
+                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </a>
+
+                    <button id="mobileMenuBtn" class="lg:hidden hover:text-primary-500 transition">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="hidden lg:hidden mt-4 pb-4 border-t dark:border-gray-700 pt-4">
+                <div class="flex flex-col space-y-3">
+                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Shop</a>
+                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
+                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
+                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Success Content -->
+    <section class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto">
+                <!-- Success Icon -->
+                <div class="text-center mb-8">
+                    <div
+                        class="success-animation inline-block w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-check text-white text-5xl"></i>
+                    </div>
+                    <h1 class="text-4xl font-display font-bold mb-4">Order Confirmed!</h1>
+                    <p class="text-xl text-gray-600 dark:text-gray-400">Thank you for your purchase</p>
+                </div>
+
+                <!-- Order Details Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg mb-6">
+                    <div class="border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Order Number</p>
+                                <p class="text-2xl font-bold" id="orderNumber">Loading...</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Order Date</p>
+                                <p class="font-semibold" id="orderDate">Loading...</p>
+                            </div>
+                        </div>
+
+                        <div
+                            class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                            <p class="text-sm text-blue-800 dark:text-blue-300">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                A confirmation email has been sent to <span id="customerEmail"
+                                    class="font-semibold"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Order Items -->
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold mb-4">Order Items</h3>
+                        <div id="orderItemsList" class="space-y-4">
+                            <!-- Items will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Shipping Address -->
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold mb-4">Shipping Address</h3>
+                        <div id="shippingAddress" class="text-gray-600 dark:text-gray-400">
+                            <!-- Address will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                        <h3 class="text-xl font-semibold mb-4">Order Summary</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Subtotal</span>
+                                <span class="font-semibold" id="orderSubtotal">$0.00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Shipping</span>
+                                <span class="font-semibold" id="orderShipping">$0.00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Tax</span>
+                                <span class="font-semibold" id="orderTax">$0.00</span>
+                            </div>
+                            <div class="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xl font-bold">Total</span>
+                                    <span class="text-2xl font-bold text-primary-500" id="orderTotal">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <a href="profile.html"
+                        class="bg-primary-500 hover:bg-primary-600 text-white py-4 rounded-lg font-semibold text-center transition">
+                        <i class="fas fa-user mr-2"></i>View My Orders
+                    </a>
+                    <a href="products.html"
+                        class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 py-4 rounded-lg font-semibold text-center transition">
+                        <i class="fas fa-shopping-bag mr-2"></i>Continue Shopping
+                    </a>
+                </div>
+
+                <!-- What's Next -->
+                <div class="mt-8 bg-gradient-to-r from-primary-500 to-pink-600 text-white rounded-2xl p-6">
+                    <h3 class="text-xl font-semibold mb-4">What's Next?</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <i class="fas fa-check-circle text-2xl mr-3 mt-1"></i>
+                            <div>
+                                <p class="font-semibold">Order Confirmation</p>
+                                <p class="text-sm opacity-90">You'll receive an email confirmation shortly</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-box text-2xl mr-3 mt-1"></i>
+                            <div>
+                                <p class="font-semibold">Processing</p>
+                                <p class="text-sm opacity-90">We'll prepare your order for shipment</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-truck text-2xl mr-3 mt-1"></i>
+                            <div>
+                                <p class="font-semibold">Shipping</p>
+                                <p class="text-sm opacity-90">Track your order from your account</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-home text-2xl mr-3 mt-1"></i>
+                            <div>
+                                <p class="font-semibold">Delivery</p>
+                                <p class="text-sm opacity-90">Enjoy your Luxe Beauty products!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-12">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <i class="fas fa-gem text-primary-500 text-2xl"></i>
+                    <span class="text-2xl font-display font-bold text-white">Luxe Beauty</span>
+                </div>
+                <p class="mb-4">Thank you for choosing Luxe Beauty</p>
+                <p class="text-sm">&copy; 2026 Luxe Beauty. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="init-products.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Get order ID from URL
+        var urlParams = new URLSearchParams(window.location.search);
+        var orderId = urlParams.get('orderId');
+
+        if (!orderId) {
+            window.location.href = 'index.html';
+        }
+
+        // Load order details
+        function loadOrderDetails() {
+            var orders = JSON.parse(localStorage.getItem('luxe_orders')) || [];
+            var order = orders.find(function (o) { return o.orderId === orderId; });
+
+            if (!order) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Display order number and date
+            document.getElementById('orderNumber').textContent = order.orderId;
+            document.getElementById('orderDate').textContent = new Date(order.createdAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('customerEmail').textContent = order.customerInfo.email;
+
+            // Display order items
+            var itemsHtml = '';
+            order.items.forEach(function (item) {
+                itemsHtml += '<div class="flex items-center space-x-4 pb-4 border-b border-gray-200 dark:border-gray-700">';
+                itemsHtml += '<img src="' + item.image + '" alt="' + item.name + '" class="w-20 h-20 object-cover rounded-lg">';
+                itemsHtml += '<div class="flex-1">';
+                itemsHtml += '<h4 class="font-semibold">' + item.name + '</h4>';
+                itemsHtml += '<p class="text-sm text-gray-500">Quantity: ' + item.quantity + '</p>';
+                itemsHtml += '</div>';
+                itemsHtml += '<span class="font-bold text-primary-500">$' + (item.price * item.quantity).toFixed(2) + '</span>';
+                itemsHtml += '</div>';
+            });
+            document.getElementById('orderItemsList').innerHTML = itemsHtml;
+
+            // Display shipping address
+            var address = order.customerInfo.address;
+            var addressHtml = '<p class="font-semibold">' + order.customerInfo.name + '</p>';
+            addressHtml += '<p>' + address.street + '</p>';
+            if (address.apartment) {
+                addressHtml += '<p>' + address.apartment + '</p>';
+            }
+            addressHtml += '<p>' + address.city + ', ' + address.state + ' ' + address.zip + '</p>';
+            addressHtml += '<p>' + address.country + '</p>';
+            addressHtml += '<p class="mt-2">Phone: ' + order.customerInfo.phone + '</p>';
+            document.getElementById('shippingAddress').innerHTML = addressHtml;
+
+            // Display pricing
+            document.getElementById('orderSubtotal').textContent = '$' + order.pricing.subtotal.toFixed(2);
+            document.getElementById('orderShipping').textContent = order.pricing.shipping > 0 ? '$' + order.pricing.shipping.toFixed(2) : 'FREE';
+            document.getElementById('orderTax').textContent = '$' + order.pricing.tax.toFixed(2);
+            document.getElementById('orderTotal').textContent = '$' + order.pricing.total.toFixed(2);
+        }
+
+        // Initialize
+        loadOrderDetails();
+    </script>
+</body>
+
+</html>

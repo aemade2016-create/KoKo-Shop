@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Luxe Beauty</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .sidebar-link.active {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fdf2f8',
+                            100: '#fce7f3',
+                            200: '#fbcfe8',
+                            300: '#f9a8d4',
+                            400: '#f472b6',
+                            500: '#ec4899',
+                            600: '#db2777',
+                            700: '#be185d',
+                            800: '#9d174d',
+                            900: '#831843',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+
+    <!-- Top Navigation -->
+    <nav class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
+        <div class="px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebarToggle"
+                        class="lg:hidden text-gray-600 dark:text-gray-300 hover:text-primary-500">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-gem text-primary-500 text-2xl"></i>
+                        <span
+                            class="text-xl font-display font-bold bg-gradient-to-r from-primary-500 to-pink-600 bg-clip-text text-transparent">Luxe
+                            Beauty Admin</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" target="_blank"
+                        class="text-sm text-gray-600 dark:text-gray-300 hover:text-primary-500 transition">
+                        <i class="fas fa-external-link-alt mr-2"></i>View Site
+                    </a>
+                    <div class="flex items-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                        <i class="fas fa-user-shield text-primary-500"></i>
+                        <span id="adminEmailDisplay" class="text-sm font-semibold">Admin</span>
+                    </div>
+                    <button onclick="logout()" class="text-red-500 hover:text-red-600 transition">
+                        <i class="fas fa-sign-out-alt text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside id="sidebar"
+            class="fixed lg:static inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 w-64 bg-white dark:bg-gray-800 shadow-lg z-40 mt-16 lg:mt-0">
+            <div class="p-6 space-y-2">
+                <button onclick="showTab('overview')"
+                    class="sidebar-link active w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center">
+                    <i class="fas fa-th-large mr-3 w-5"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button onclick="showTab('products')"
+                    class="sidebar-link w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center">
+                    <i class="fas fa-box mr-3 w-5"></i>
+                    <span>Products</span>
+                </button>
+                <button onclick="showTab('orders')"
+                    class="sidebar-link w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center">
+                    <i class="fas fa-shopping-cart mr-3 w-5"></i>
+                    <span>Orders</span>
+                </button>
+                <button onclick="showTab('users')"
+                    class="sidebar-link w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center">
+                    <i class="fas fa-users mr-3 w-5"></i>
+                    <span>Users</span>
+                </button>
+                <button onclick="showTab('settings')"
+                    class="sidebar-link w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center">
+                    <i class="fas fa-cog mr-3 w-5"></i>
+                    <span>Settings</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 lg:ml-0">
+            <!-- Overview Tab -->
+            <div id="overviewTab" class="tab-content active">
+                <h1 class="text-3xl font-display font-bold mb-6">Dashboard Overview</h1>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-gradient-to-br from-primary-500 to-pink-600 text-white rounded-2xl p-6 shadow-lg">
+                        <div class="flex items-center justify-between mb-4">
+                            <div
+                                class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center">
+                                <i class="fas fa-box text-2xl"></i>
+                            </div>
+                            <i class="fas fa-arrow-up text-sm opacity-75"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-1" id="totalProducts">0</h3>
+                        <p class="opacity-90">Total Products</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded-2xl p-6 shadow-lg">
+                        <div class="flex items-center justify-between mb-4">
+                            <div
+                                class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center">
+                                <i class="fas fa-shopping-cart text-2xl"></i>
+                            </div>
+                            <i class="fas fa-arrow-up text-sm opacity-75"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-1" id="totalOrders">0</h3>
+                        <p class="opacity-90">Total Orders</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-2xl p-6 shadow-lg">
+                        <div class="flex items-center justify-between mb-4">
+                            <div
+                                class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center">
+                                <i class="fas fa-users text-2xl"></i>
+                            </div>
+                            <i class="fas fa-arrow-up text-sm opacity-75"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-1" id="totalUsers">0</h3>
+                        <p class="opacity-90">Total Users</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-2xl p-6 shadow-lg">
+                        <div class="flex items-center justify-between mb-4">
+                            <div
+                                class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center">
+                                <i class="fas fa-dollar-sign text-2xl"></i>
+                            </div>
+                            <i class="fas fa-chart-line text-sm opacity-75"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold mb-1" id="totalRevenue">$0</h3>
+                        <p class="opacity-90">Total Revenue</p>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+                    <h2 class="text-2xl font-display font-bold mb-6">Recent Orders</h2>
+                    <div id="recentOrdersList" class="space-y-4">
+                        <p class="text-gray-500 text-center py-8">No orders yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Tab -->
+            <div id="productsTab" class="tab-content">
+                <div class="flex items-center justify-between mb-6">
+                    <h1 class="text-3xl font-display font-bold">Products Management</h1>
+                    <button onclick="showAddProductModal()"
+                        class="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold transition">
+                        <i class="fas fa-plus mr-2"></i>Add New Product
+                    </button>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Image</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Name</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Price</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Category</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Stock</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr>
+                                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">No products found</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Tab -->
+            <div id="ordersTab" class="tab-content">
+                <h1 class="text-3xl font-display font-bold mb-6">Orders Management</h1>
+
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Order ID</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Customer</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Items</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Total</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Status</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr>
+                                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">No orders found</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="usersTab" class="tab-content">
+                <h1 class="text-3xl font-display font-bold mb-6">Users Management</h1>
+
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Name</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Email</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Joined</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Orders</th>
+                                    <th class="px-6 py-4 text-left text-sm font-semibold">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">No users found</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settingsTab" class="tab-content">
+                <h1 class="text-3xl font-display font-bold mb-6">Site Settings</h1>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Maintenance Mode -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+                        <h2 class="text-xl font-semibold mb-4">Maintenance Mode</h2>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Enable maintenance mode to prevent
+                                    customer access</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="maintenanceToggle" class="sr-only peer">
+                                <div
+                                    class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-gray-600 peer-checked:bg-primary-500">
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Site Banner -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+                        <h2 class="text-xl font-semibold mb-4">Site Banner</h2>
+                        <input type="text" id="siteBanner" placeholder="Enter banner text..."
+                            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none">
+                        <button onclick="saveBanner()"
+                            class="mt-3 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                            Save Banner
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div id="productModal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 id="modalTitle" class="text-2xl font-display font-bold">Add New Product</h2>
+                    <button onclick="closeProductModal()"
+                        class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+
+                <form id="productForm" class="space-y-4">
+                    <input type="hidden" id="productId">
+
+                    <!-- Image Upload -->
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Product Image</label>
+                        <div
+                            class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center">
+                            <input type="file" id="productImage" accept="image/*" class="hidden"
+                                onchange="previewImage(event)">
+                            <div id="imagePreview" class="mb-4 hidden">
+                                <img id="previewImg" src="" alt="Preview" class="max-h-48 mx-auto rounded-lg">
+                            </div>
+                            <button type="button" onclick="document.getElementById('productImage').click()"
+                                class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-4 py-2 rounded-lg transition">
+                                <i class="fas fa-upload mr-2"></i>Choose Image
+                            </button>
+                            <p class="text-xs text-gray-500 mt-2">PNG, JPG up to 5MB</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Product Name</label>
+                            <input type="text" id="productName" required
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Price ($)</label>
+                            <input type="number" id="productPrice" step="0.01" required
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Description</label>
+                        <textarea id="productDescription" rows="3" required
+                            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Category</label>
+                            <select id="productCategory" required
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none">
+                                <option value="Serum">Serum</option>
+                                <option value="Moisturizer">Moisturizer</option>
+                                <option value="Cleanser">Cleanser</option>
+                                <option value="Sunscreen">Sunscreen</option>
+                                <option value="Mask">Mask</option>
+                                <option value="Toner">Toner</option>
+                                <option value="Eye Cream">Eye Cream</option>
+                                <option value="Face Oil">Face Oil</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Skin Type</label>
+                            <select id="productSkinType" required
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none">
+                                <option value="All">All Skin Types</option>
+                                <option value="Dry">Dry</option>
+                                <option value="Oily">Oily</option>
+                                <option value="Sensitive">Sensitive</option>
+                                <option value="Combination">Combination</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Rating (1-5)</label>
+                            <input type="number" id="productRating" min="1" max="5" value="5" required
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold mb-2">Stock</label>
+                            <input type="number" id="productStock" min="0" value="100" required
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 pt-4">
+                        <button type="submit"
+                            class="flex-1 bg-primary-500 hover:bg-primary-600 text-white py-3 rounded-lg font-semibold transition">
+                            <i class="fas fa-save mr-2"></i>Save Product
+                        </button>
+                        <button type="button" onclick="closeProductModal()"
+                            class="px-6 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg font-semibold transition">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"
+        class="fixed bottom-8 right-8 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg transform translate-y-32 transition-transform duration-300 z-50">
+        <div class="flex items-center space-x-3">
+            <i class="fas fa-check-circle text-2xl"></i>
+            <span id="toastMessage">Success!</span>
+        </div>
+    </div>
+
+    <script src="init-products.js"></script>
+    <script src="admin-script.js"></script>
+</body>
+
+</html>
