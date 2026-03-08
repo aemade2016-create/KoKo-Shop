@@ -36,7 +36,7 @@ function loadOrderSummary() {
         html += '<h4 class="font-semibold text-sm">' + item.name + '</h4>';
         html += '<p class="text-xs text-gray-500">Qty: ' + (item.quantity || 1) + '</p>';
         html += '</div>';
-        html += '<span class="font-bold text-primary-500">$' + (item.price * (item.quantity || 1)).toFixed(2) + '</span>';
+        html += '<span class="font-bold text-primary-500">$' + (item.price * (item.quantity || 1)).toFixed(2) + '</span>';$' + (item.price * (item.quantity || 1)).toFixed(2) + '</span > ';
         html += '</div>';
     });
 

@@ -319,6 +319,7 @@ document.addEventListener('DOMContentLoaded', function () {
 // ============================================
 function formatPrice(price) {
     return '$' + parseFloat(price).toFixed(2);
+}$' + parseFloat(price).toFixed(2);
 }
 
 function formatDate(dateString) {
