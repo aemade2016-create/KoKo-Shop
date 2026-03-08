@@ -365,12 +365,32 @@
             }
         }
 
-        // Sign In Form with Firebase (INTEGRATED ADMIN SYSTEM)
+        // Smart redirect after login
+        function redirectAfterLogin(isAdmin) {
+            // Check if there's a saved redirect destination
+            var redirectTo = sessionStorage.getItem('redirect_after_login');
+
+            if (redirectTo) {
+                // Clear the saved destination
+                sessionStorage.removeItem('redirect_after_login');
+                // Redirect to saved destination
+                window.location.href = redirectTo;
+            } else {
+                // Default redirect based on user type
+                window.location.href = isAdmin ? 'admin-dashboard.html' : 'profile.html';
+            }
+        }
+
+        // Sign In Form with Firebase (INTEGRATED ADMIN SYSTEM - FIXED)
         document.getElementById('signinForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
             var email = document.getElementById('loginEmail').value;
             var password = document.getElementById('loginPassword').value;
+
+            // Clear any redirect flags
+            sessionStorage.removeItem('redirecting_to_login');
+            sessionStorage.removeItem('redirecting_from_admin');
 
             const result = await signInWithEmail(email, password);
 
@@ -396,15 +416,16 @@
                     showToast('Welcome back, ' + userData.name + '!');
                 }
 
+                // Redirect after a short delay
                 setTimeout(function () {
-                    window.location.href = isAdmin ? 'admin-dashboard.html' : 'profile.html';
+                    redirectAfterLogin(isAdmin);
                 }, 1000);
             } else {
                 showToast('Invalid email or password!', 'error');
             }
         });
 
-        // Sign Up Form with Firebase (INTEGRATED ADMIN SYSTEM)
+        // Sign Up Form with Firebase (INTEGRATED ADMIN SYSTEM - FIXED)
         document.getElementById('signupForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
@@ -418,6 +439,10 @@
                 showToast('Passwords do not match!', 'error');
                 return;
             }
+
+            // Clear any redirect flags
+            sessionStorage.removeItem('redirecting_to_login');
+            sessionStorage.removeItem('redirecting_from_admin');
 
             const result = await signUpWithEmail(name, email, password);
 
@@ -438,15 +463,19 @@
 
                 showToast('Account created successfully!');
                 setTimeout(function () {
-                    window.location.href = isAdmin ? 'admin-dashboard.html' : 'profile.html';
+                    redirectAfterLogin(isAdmin);
                 }, 1000);
             } else {
                 showToast(result.error, 'error');
             }
         });
 
-        // Social Login with Firebase (INTEGRATED ADMIN SYSTEM)
+        // Social Login with Firebase (INTEGRATED ADMIN SYSTEM - FIXED)
         window.loginWithGoogle = async function () {
+            // Clear any redirect flags
+            sessionStorage.removeItem('redirecting_to_login');
+            sessionStorage.removeItem('redirecting_from_admin');
+
             const result = await signInWithGoogle();
             if (result.success) {
                 // Check if user is admin
@@ -466,7 +495,7 @@
 
                 showToast('Signed in with Google!');
                 setTimeout(function () {
-                    window.location.href = isAdmin ? 'admin-dashboard.html' : 'profile.html';
+                    redirectAfterLogin(isAdmin);
                 }, 1000);
             } else {
                 showToast(result.error, 'error');
@@ -474,6 +503,10 @@
         }
 
         window.loginWithFacebook = async function () {
+            // Clear any redirect flags
+            sessionStorage.removeItem('redirecting_to_login');
+            sessionStorage.removeItem('redirecting_from_admin');
+
             const result = await signInWithFacebook();
             if (result.success) {
                 // Check if user is admin
@@ -493,19 +526,20 @@
 
                 showToast('Signed in with Facebook!');
                 setTimeout(function () {
-                    window.location.href = isAdmin ? 'admin-dashboard.html' : 'profile.html';
+                    redirectAfterLogin(isAdmin);
                 }, 1000);
             } else {
                 showToast(result.error, 'error');
             }
         }
 
-        // Check if already logged in
-        onAuthStateChange((user) => {
-            if (user) {
-                window.location.href = 'profile.html';
-            }
-        });
+        // Check if already logged in (FIXED - No redirect loop)
+        // Only check localStorage, don't use Firebase observer here
+        var currentUser = JSON.parse(localStorage.getItem('luxe_currentUser'));
+        if (currentUser) {
+            // User is already logged in, redirect once
+            redirectAfterLogin(currentUser.isAdmin);
+        }
     </script>
 </body>
 

@@ -229,6 +229,25 @@
     <script src="init-products.js"></script>
     <script src="app.js"></script>
     <script>
+            // Check authentication before showing wishlist
+            (function () {
+                var currentUser = JSON.parse(localStorage.getItem('luxe_currentUser'));
+
+                if (!currentUser) {
+                    // Not logged in - redirect to login
+                    if (!sessionStorage.getItem('redirecting_to_login')) {
+                        sessionStorage.setItem('redirecting_to_login', 'true');
+                        sessionStorage.setItem('redirect_after_login', 'wishlist.html');
+                        alert('Please login to view your wishlist');
+                        window.location.href = 'login.html';
+                    }
+                    return;
+                }
+
+                // Clear redirect flag
+                sessionStorage.removeItem('redirecting_to_login');
+            })();
+
         // Load and display wishlist items
         function loadWishlist() {
             var wishlist = getWishlist();

@@ -2,28 +2,37 @@
 // ADMIN DASHBOARD - LUXE BEAUTY (INTEGRATED SYSTEM)
 // ============================================
 
-// Check authentication (INTEGRATED WITH MAIN SYSTEM)
+// Check authentication (INTEGRATED WITH MAIN SYSTEM - FIXED)
 function checkAuth() {
     var currentUser = JSON.parse(localStorage.getItem('luxe_currentUser'));
 
     // Check if user is logged in and is admin
     if (!currentUser || !currentUser.isAdmin || currentUser.email !== 'aemade2016@gmail.com') {
-        alert('Access Denied! Admin privileges required.');
-        window.location.href = 'login.html';
+        // Prevent redirect loop
+        if (!sessionStorage.getItem('redirecting_from_admin')) {
+            sessionStorage.setItem('redirecting_from_admin', 'true');
+            alert('Access Denied! Admin privileges required.');
+            window.location.href = 'login.html';
+        }
         return false;
     }
+    // Clear redirect flag
+    sessionStorage.removeItem('redirecting_from_admin');
     return true;
 }
 
-// Initialize
+// Initialize (FIXED - Don't throw error, just redirect)
 if (!checkAuth()) {
-    throw new Error('Unauthorized');
-}
-
-// Display admin email
-var currentUser = JSON.parse(localStorage.getItem('luxe_currentUser'));
-if (currentUser && currentUser.email) {
-    document.getElementById('adminEmailDisplay').textContent = currentUser.email;
+    // Redirect handled in checkAuth()
+} else {
+    // Display admin email
+    var currentUser = JSON.parse(localStorage.getItem('luxe_currentUser'));
+    if (currentUser && currentUser.email) {
+        var emailDisplay = document.getElementById('adminEmailDisplay');
+        if (emailDisplay) {
+            emailDisplay.textContent = currentUser.email;
+        }
+    }
 }
 
 // ============================================

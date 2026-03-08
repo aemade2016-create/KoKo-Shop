@@ -437,11 +437,18 @@
     <script src="init-products.js"></script>
     <script src="app.js"></script>
     <script>
-        // Check authentication
+        // Check authentication (FIXED - Prevent redirect loop)
         var currentUser = getCurrentUser();
 
         if (!currentUser) {
-            window.location.href = 'login.html';
+            // Add a flag to prevent infinite loops
+            if (!sessionStorage.getItem('redirecting_to_login')) {
+                sessionStorage.setItem('redirecting_to_login', 'true');
+                window.location.href = 'login.html';
+            }
+        } else {
+            // Clear the redirect flag
+            sessionStorage.removeItem('redirecting_to_login');
         }
 
         // Load user data

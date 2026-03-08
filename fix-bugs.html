@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Bugs - Luxe Beauty</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full bg-gray-800 rounded-2xl p-8 shadow-2xl">
+        <div class="text-center mb-8">
+            <i class="fas fa-tools text-6xl text-yellow-500 mb-4"></i>
+            <h1 class="text-3xl font-bold mb-2">🔧 Bug Fix Tool</h1>
+            <p class="text-gray-400">Fix redirect loops and authentication issues</p>
+        </div>
+
+        <div class="space-y-4 mb-8">
+            <div class="bg-gray-700 p-4 rounded-lg">
+                <h3 class="font-semibold mb-2">Current Status:</h3>
+                <div id="status" class="space-y-2 text-sm">
+                    <p>🔍 Checking...</p>
+                </div>
+            </div>
+
+            <div class="bg-gray-700 p-4 rounded-lg">
+                <h3 class="font-semibold mb-2">User Data:</h3>
+                <pre id="userData" class="text-xs bg-gray-900 p-3 rounded overflow-auto">Loading...</pre>
+            </div>
+        </div>
+
+        <div class="space-y-3">
+            <button onclick="clearRedirectFlags()"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition">
+                <i class="fas fa-sync mr-2"></i>Clear Redirect Flags
+            </button>
+
+            <button onclick="clearUserData()"
+                class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition">
+                <i class="fas fa-trash mr-2"></i>Clear User Data (Logout)
+            </button>
+
+            <button onclick="testAdminIcon()"
+                class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold transition">
+                <i class="fas fa-cog mr-2"></i>Test Admin Icon
+            </button>
+
+            <button onclick="fixAll()"
+                class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition">
+                <i class="fas fa-magic mr-2"></i>Fix All Issues
+            </button>
+        </div>
+
+        <div class="mt-6 text-center">
+            <a href="index.html" class="text-blue-400 hover:text-blue-300">
+                <i class="fas fa-home mr-2"></i>Back to Home
+            </a>
+        </div>
+
+        <div id="log" class="mt-6 bg-gray-900 p-4 rounded-lg text-xs font-mono max-h-64 overflow-auto hidden">
+            <div class="text-green-400 mb-2">📝 Log:</div>
+            <div id="logContent"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const logContent = document.getElementById('logContent');
+            logDiv.classList.remove('hidden');
+
+            const color = type === 'error' ? 'text-red-400' : type === 'success' ? 'text-green-400' : 'text-blue-400';
+            const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+
+            logContent.innerHTML += `<div class="${color}">${icon} ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function checkStatus() {
+            const statusDiv = document.getElementById('status');
+            const userDataDiv = document.getElementById('userData');
+
+            // Check redirect flags
+            const redirectToLogin = sessionStorage.getItem('redirecting_to_login');
+            const redirectFromAdmin = sessionStorage.getItem('redirecting_from_admin');
+
+            // Check user data
+            const currentUser = localStorage.getItem('luxe_currentUser');
+            let user = null;
+
+            try {
+                user = currentUser ? JSON.parse(currentUser) : null;
+            } catch (e) {
+                log('Error parsing user data: ' + e.message, 'error');
+            }
+
+            // Display status
+            let statusHTML = '';
+            statusHTML += `<p>🚩 Redirect to Login Flag: ${redirectToLogin ? '❌ SET' : '✅ Clear'}</p>`;
+            statusHTML += `<p>🚩 Redirect from Admin Flag: ${redirectFromAdmin ? '❌ SET' : '✅ Clear'}</p>`;
+            statusHTML += `<p>👤 User Logged In: ${user ? '✅ Yes' : '❌ No'}</p>`;
+            if (user) {
+                statusHTML += `<p>🔧 Is Admin: ${user.isAdmin ? '✅ Yes' : '❌ No'}</p>`;
+            }
+
+            statusDiv.innerHTML = statusHTML;
+
+            // Display user data
+            if (user) {
+                userDataDiv.textContent = JSON.stringify(user, null, 2);
+            } else {
+                userDataDiv.textContent = 'No user data found';
+            }
+        }
+
+        function clearRedirectFlags() {
+            sessionStorage.removeItem('redirecting_to_login');
+            sessionStorage.removeItem('redirecting_from_admin');
+            log('Cleared all redirect flags', 'success');
+            checkStatus();
+        }
+
+        function clearUserData() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('luxe_currentUser');
+                sessionStorage.clear();
+                log('Cleared user data and session', 'success');
+                checkStatus();
+            }
+        }
+
+        function testAdminIcon() {
+            const user = JSON.parse(localStorage.getItem('luxe_currentUser'));
+            if (!user) {
+                log('No user logged in', 'error');
+                return;
+            }
+
+            log('Testing admin icon visibility...', 'info');
+            log(`Email: ${user.email}`, 'info');
+            log(`Is Admin: ${user.isAdmin}`, 'info');
+
+            if (user.isAdmin && user.email === 'aemade2016@gmail.com') {
+                log('✅ Admin icon SHOULD be visible', 'success');
+            } else {
+                log('❌ Admin icon should NOT be visible', 'info');
+            }
+        }
+
+        function fixAll() {
+            log('Starting fix process...', 'info');
+
+            // Clear redirect flags
+            sessionStorage.removeItem('redirecting_to_login');
+            sessionStorage.removeItem('redirecting_from_admin');
+            log('✅ Cleared redirect flags', 'success');
+
+            // Check user data
+            const currentUser = localStorage.getItem('luxe_currentUser');
+            if (currentUser) {
+                try {
+                    const user = JSON.parse(currentUser);
+                    log('✅ User data is valid', 'success');
+                    log(`User: ${user.email}`, 'info');
+                    log(`Admin: ${user.isAdmin}`, 'info');
+                } catch (e) {
+                    log('❌ User data corrupted, clearing...', 'error');
+                    localStorage.removeItem('luxe_currentUser');
+                }
+            }
+
+            log('✅ All fixes applied!', 'success');
+            log('You can now login normally', 'success');
+
+            checkStatus();
+
+            setTimeout(() => {
+                if (confirm('Fixes applied! Go to login page?')) {
+                    window.location.href = 'login.html';
+                }
+            }, 1000);
+        }
+
+        // Check status on load
+        checkStatus();
+    </script>
+</body>
+
+</html>
