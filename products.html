@@ -69,10 +69,14 @@
                         <i class="fas fa-sun hidden dark:inline"></i>
                     </button>
 
-                    <!-- Admin Panel Icon -->
+                    <!-- Admin Panel Icon (Visible ONLY for admin@aemade2016@gmail.com) -->
                     <a href="admin-dashboard.html" id="adminPanelIcon"
-                        class="hidden text-purple-500 hover:text-purple-600 transition" title="Admin Dashboard">
-                        <i class="fas fa-cog text-xl"></i>
+                        class="hidden text-purple-500 hover:text-purple-600 transition group relative"
+                        title="Admin Dashboard">
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-cog text-xl group-hover:rotate-90 transition-transform duration-300"></i>
+                            <span class="text-xs font-semibold">Admin</span>
+                        </div>
                     </a>
 
                     <a href="#" id="accountLink" class="text-primary-500 transition">

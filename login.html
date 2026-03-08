@@ -80,10 +80,14 @@
                         <i class="fas fa-sun hidden dark:inline"></i>
                     </button>
 
-                    <!-- Admin Panel Icon -->
+                    <!-- Admin Panel Icon (Visible ONLY for admin@aemade2016@gmail.com) -->
                     <a href="admin-dashboard.html" id="adminPanelIcon"
-                        class="hidden text-purple-500 hover:text-purple-600 transition" title="Admin Dashboard">
-                        <i class="fas fa-cog text-xl"></i>
+                        class="hidden text-purple-500 hover:text-purple-600 transition group relative"
+                        title="Admin Dashboard">
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-cog text-xl group-hover:rotate-90 transition-transform duration-300"></i>
+                            <span class="text-xs font-semibold">Admin</span>
+                        </div>
                     </a>
 
                     <a href="#" id="accountLink" class="text-primary-500 transition">
@@ -361,7 +365,7 @@
             }
         }
 
-        // Sign In Form with Firebase
+        // Sign In Form with Firebase (INTEGRATED ADMIN SYSTEM)
         document.getElementById('signinForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
@@ -371,16 +375,36 @@
             const result = await signInWithEmail(email, password);
 
             if (result.success) {
-                showToast('Welcome back, ' + result.user.displayName + '!');
+                // Check if user is admin
+                var isAdmin = email === 'aemade2016@gmail.com';
+
+                // Save user data with admin flag
+                var userData = {
+                    uid: result.user.uid,
+                    email: result.user.email,
+                    name: result.user.displayName || 'User',
+                    isAdmin: isAdmin,
+                    createdAt: new Date().toISOString()
+                };
+
+                localStorage.setItem('luxe_currentUser', JSON.stringify(userData));
+
+                // Show appropriate message
+                if (isAdmin) {
+                    showToast('Welcome Admin! 🔧');
+                } else {
+                    showToast('Welcome back, ' + userData.name + '!');
+                }
+
                 setTimeout(function () {
-                    window.location.href = 'profile.html';
+                    window.location.href = isAdmin ? 'admin-dashboard.html' : 'profile.html';
                 }, 1000);
             } else {
                 showToast('Invalid email or password!', 'error');
             }
         });
 
-        // Sign Up Form with Firebase
+        // Sign Up Form with Firebase (INTEGRATED ADMIN SYSTEM)
         document.getElementById('signupForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
@@ -398,22 +422,51 @@
             const result = await signUpWithEmail(name, email, password);
 
             if (result.success) {
+                // Check if user is admin
+                var isAdmin = email === 'aemade2016@gmail.com';
+
+                // Save user data with admin flag
+                var userData = {
+                    uid: result.user.uid,
+                    email: result.user.email,
+                    name: name,
+                    isAdmin: isAdmin,
+                    createdAt: new Date().toISOString()
+                };
+
+                localStorage.setItem('luxe_currentUser', JSON.stringify(userData));
+
                 showToast('Account created successfully!');
                 setTimeout(function () {
-                    window.location.href = 'profile.html';
+                    window.location.href = isAdmin ? 'admin-dashboard.html' : 'profile.html';
                 }, 1000);
             } else {
                 showToast(result.error, 'error');
             }
         });
 
-        // Social Login with Firebase
+        // Social Login with Firebase (INTEGRATED ADMIN SYSTEM)
         window.loginWithGoogle = async function () {
             const result = await signInWithGoogle();
             if (result.success) {
+                // Check if user is admin
+                var isAdmin = result.user.email === 'aemade2016@gmail.com';
+
+                // Save user data with admin flag
+                var userData = {
+                    uid: result.user.uid,
+                    email: result.user.email,
+                    name: result.user.displayName || 'User',
+                    photoURL: result.user.photoURL,
+                    isAdmin: isAdmin,
+                    createdAt: new Date().toISOString()
+                };
+
+                localStorage.setItem('luxe_currentUser', JSON.stringify(userData));
+
                 showToast('Signed in with Google!');
                 setTimeout(function () {
-                    window.location.href = 'profile.html';
+                    window.location.href = isAdmin ? 'admin-dashboard.html' : 'profile.html';
                 }, 1000);
             } else {
                 showToast(result.error, 'error');
@@ -423,9 +476,24 @@
         window.loginWithFacebook = async function () {
             const result = await signInWithFacebook();
             if (result.success) {
+                // Check if user is admin
+                var isAdmin = result.user.email === 'aemade2016@gmail.com';
+
+                // Save user data with admin flag
+                var userData = {
+                    uid: result.user.uid,
+                    email: result.user.email,
+                    name: result.user.displayName || 'User',
+                    photoURL: result.user.photoURL,
+                    isAdmin: isAdmin,
+                    createdAt: new Date().toISOString()
+                };
+
+                localStorage.setItem('luxe_currentUser', JSON.stringify(userData));
+
                 showToast('Signed in with Facebook!');
                 setTimeout(function () {
-                    window.location.href = 'profile.html';
+                    window.location.href = isAdmin ? 'admin-dashboard.html' : 'profile.html';
                 }, 1000);
             } else {
                 showToast(result.error, 'error');

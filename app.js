@@ -175,7 +175,7 @@ function updateAllWishlistIcons() {
 }
 
 // ============================================
-// 5. USER AUTHENTICATION
+// 5. USER AUTHENTICATION (INTEGRATED WITH ADMIN)
 // ============================================
 function getCurrentUser() {
     return JSON.parse(localStorage.getItem('luxe_currentUser'));
@@ -183,6 +183,11 @@ function getCurrentUser() {
 
 function isLoggedIn() {
     return getCurrentUser() !== null;
+}
+
+function isAdmin() {
+    var user = getCurrentUser();
+    return user && user.isAdmin === true;
 }
 
 function logout() {
@@ -210,20 +215,26 @@ function updateAccountLink() {
 }
 
 // ============================================
-// 5B. ADMIN PANEL ICON
+// 5B. ADMIN PANEL ICON (INTEGRATED SYSTEM)
 // ============================================
 function updateAdminPanelIcon() {
     var adminIcon = document.getElementById('adminPanelIcon');
-    var isAdmin = localStorage.getItem('luxe_isAdmin') === 'true';
-    var adminEmail = localStorage.getItem('luxe_adminEmail');
 
     if (adminIcon) {
-        if (isAdmin && adminEmail === 'aemade2016@gmail.com') {
+        if (isAdmin()) {
             adminIcon.classList.remove('hidden');
         } else {
             adminIcon.classList.add('hidden');
         }
     }
+}
+
+// ============================================
+// 5C. CHECK ADMIN CREDENTIALS
+// ============================================
+function checkAdminCredentials(email) {
+    // Admin email check
+    return email === 'aemade2016@gmail.com';
 }
 
 // ============================================

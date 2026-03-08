@@ -1,11 +1,15 @@
 // ============================================
-// ADMIN DASHBOARD - LUXE BEAUTY
+// ADMIN DASHBOARD - LUXE BEAUTY (INTEGRATED SYSTEM)
 // ============================================
 
-// Check authentication
+// Check authentication (INTEGRATED WITH MAIN SYSTEM)
 function checkAuth() {
-    if (localStorage.getItem('luxe_isAdmin') !== 'true') {
-        window.location.href = 'admin-login.html';
+    var currentUser = JSON.parse(localStorage.getItem('luxe_currentUser'));
+
+    // Check if user is logged in and is admin
+    if (!currentUser || !currentUser.isAdmin || currentUser.email !== 'aemade2016@gmail.com') {
+        alert('Access Denied! Admin privileges required.');
+        window.location.href = 'login.html';
         return false;
     }
     return true;
@@ -17,9 +21,9 @@ if (!checkAuth()) {
 }
 
 // Display admin email
-var adminEmail = localStorage.getItem('luxe_adminEmail');
-if (adminEmail) {
-    document.getElementById('adminEmailDisplay').textContent = adminEmail;
+var currentUser = JSON.parse(localStorage.getItem('luxe_currentUser'));
+if (currentUser && currentUser.email) {
+    document.getElementById('adminEmailDisplay').textContent = currentUser.email;
 }
 
 // ============================================
