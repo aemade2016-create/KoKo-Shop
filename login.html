@@ -10,6 +10,10 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
+
+    <!-- Firebase Configuration -->
+    <script type="module" src="firebase-config.js"></script>
+
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -328,9 +332,17 @@
 
     <script src="init-products.js"></script>
     <script src="app.js"></script>
-    <script>
+    <script type="module">
+        import {
+            signUpWithEmail,
+            signInWithEmail,
+            signInWithGoogle,
+            signInWithFacebook,
+            onAuthStateChange
+        } from './firebase-auth.js';
+
         // Tab Switching
-        function switchTab(tab) {
+        window.switchTab = function (tab) {
             var loginForm = document.getElementById('loginForm');
             var registerForm = document.getElementById('registerForm');
             var loginTab = document.getElementById('loginTab');
@@ -349,26 +361,17 @@
             }
         }
 
-        // Sign In Form
-        document.getElementById('signinForm').addEventListener('submit', function (e) {
+        // Sign In Form with Firebase
+        document.getElementById('signinForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
             var email = document.getElementById('loginEmail').value;
             var password = document.getElementById('loginPassword').value;
 
-            // Get all registered users
-            var users = JSON.parse(localStorage.getItem('luxe_users')) || [];
+            const result = await signInWithEmail(email, password);
 
-            // Find user
-            var user = users.find(function (u) {
-                return u.email === email && u.password === password;
-            });
-
-            if (user) {
-                // Save current user
-                localStorage.setItem('luxe_currentUser', JSON.stringify(user));
-                showToast('Welcome back, ' + user.name + '!');
-
+            if (result.success) {
+                showToast('Welcome back, ' + result.user.displayName + '!');
                 setTimeout(function () {
                     window.location.href = 'profile.html';
                 }, 1000);
@@ -377,8 +380,8 @@
             }
         });
 
-        // Sign Up Form
-        document.getElementById('signupForm').addEventListener('submit', function (e) {
+        // Sign Up Form with Firebase
+        document.getElementById('signupForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
             var name = document.getElementById('registerName').value;
@@ -392,58 +395,49 @@
                 return;
             }
 
-            // Get existing users
-            var users = JSON.parse(localStorage.getItem('luxe_users')) || [];
+            const result = await signUpWithEmail(name, email, password);
 
-            // Check if email already exists
-            var existingUser = users.find(function (u) {
-                return u.email === email;
-            });
-
-            if (existingUser) {
-                showToast('Email already registered!', 'error');
-                return;
+            if (result.success) {
+                showToast('Account created successfully!');
+                setTimeout(function () {
+                    window.location.href = 'profile.html';
+                }, 1000);
+            } else {
+                showToast(result.error, 'error');
             }
-
-            // Create new user
-            var newUser = {
-                id: Date.now(),
-                name: name,
-                email: email,
-                password: password,
-                createdAt: new Date().toISOString(),
-                orders: [],
-                wishlist: []
-            };
-
-            // Save to users array
-            users.push(newUser);
-            localStorage.setItem('luxe_users', JSON.stringify(users));
-
-            // Set as current user
-            localStorage.setItem('luxe_currentUser', JSON.stringify(newUser));
-
-            showToast('Account created successfully!');
-
-            setTimeout(function () {
-                window.location.href = 'profile.html';
-            }, 1000);
         });
 
-        // Social Login
-        function loginWithGoogle() {
-            showToast('Google login coming soon!');
+        // Social Login with Firebase
+        window.loginWithGoogle = async function () {
+            const result = await signInWithGoogle();
+            if (result.success) {
+                showToast('Signed in with Google!');
+                setTimeout(function () {
+                    window.location.href = 'profile.html';
+                }, 1000);
+            } else {
+                showToast(result.error, 'error');
+            }
         }
 
-        function loginWithFacebook() {
-            showToast('Facebook login coming soon!');
+        window.loginWithFacebook = async function () {
+            const result = await signInWithFacebook();
+            if (result.success) {
+                showToast('Signed in with Facebook!');
+                setTimeout(function () {
+                    window.location.href = 'profile.html';
+                }, 1000);
+            } else {
+                showToast(result.error, 'error');
+            }
         }
 
         // Check if already logged in
-        var currentUser = JSON.parse(localStorage.getItem('luxe_currentUser'));
-        if (currentUser) {
-            window.location.href = 'profile.html';
-        }
+        onAuthStateChange((user) => {
+            if (user) {
+                window.location.href = 'profile.html';
+            }
+        });
     </script>
 </body>
 
