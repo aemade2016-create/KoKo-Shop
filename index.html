@@ -966,11 +966,26 @@
 
         renderProducts();
 
+        // Get products function
+        function getProducts() {
+            return JSON.parse(localStorage.getItem('luxe_products')) || [];
+        }
+
         // Add to cart function using app.js
         function addToCartFromIndex(productId) {
+            // Check if user is logged in
+            if (!window.LuxeBeauty || !window.LuxeBeauty.isLoggedIn()) {
+                showToast('Please login to add items to cart');
+                setTimeout(function () {
+                    window.location.href = 'login.html';
+                }, 1500);
+                return;
+            }
+
+            var products = getProducts();
             var product = products.find(function (p) { return p.id === productId; });
             if (product) {
-                addToCart(productId, {
+                window.LuxeBeauty.addToCart(productId, {
                     name: product.name,
                     price: product.price,
                     image: product.image
@@ -980,9 +995,19 @@
 
         // Toggle wishlist function using app.js
         function toggleWishlistFromIndex(productId) {
+            // Check if user is logged in
+            if (!window.LuxeBeauty || !window.LuxeBeauty.isLoggedIn()) {
+                showToast('Please login to add items to wishlist');
+                setTimeout(function () {
+                    window.location.href = 'login.html';
+                }, 1500);
+                return;
+            }
+
+            var products = getProducts();
             var product = products.find(function (p) { return p.id === productId; });
             if (product) {
-                toggleWishlist(productId, {
+                window.LuxeBeauty.toggleWishlist(productId, {
                     name: product.name,
                     price: product.price,
                     image: product.image
@@ -1140,22 +1165,40 @@
 
         // Add to cart from index page
         function addToCartFromIndex(productId) {
+            // Check if user is logged in
+            if (!window.LuxeBeauty || !window.LuxeBeauty.isLoggedIn()) {
+                showToast('Please login to add items to cart');
+                setTimeout(function () {
+                    window.location.href = 'login.html';
+                }, 1500);
+                return;
+            }
+
             var products = getProducts();
             var product = products.find(function (p) { return p.id === productId; });
 
             if (product) {
-                addToCart(productId, product);
+                window.LuxeBeauty.addToCart(productId, product);
             }
         }
 
         // Toggle wishlist from index page
         function toggleWishlistFromIndex(productId) {
+            // Check if user is logged in
+            if (!window.LuxeBeauty || !window.LuxeBeauty.isLoggedIn()) {
+                showToast('Please login to add items to wishlist');
+                setTimeout(function () {
+                    window.location.href = 'login.html';
+                }, 1500);
+                return;
+            }
+
             var products = getProducts();
             var product = products.find(function (p) { return p.id === productId; });
 
             if (product) {
-                toggleWishlist(productId, product);
-                updateAllWishlistIcons();
+                window.LuxeBeauty.toggleWishlist(productId, product);
+                window.LuxeBeauty.updateAllWishlistIcons();
             }
         }
 

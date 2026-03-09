@@ -364,6 +364,7 @@ window.LuxeBeauty = {
 
     // UI
     showToast: showToast,
+    updateAllWishlistIcons: updateAllWishlistIcons,
 
     // Utils
     formatPrice: formatPrice,
