@@ -192,20 +192,20 @@
                         <div class="space-y-2">
                             <div class="flex justify-between">
                                 <span class="text-gray-600 dark:text-gray-400">Subtotal</span>
-                                <span class="font-semibold" id="orderSubtotal">$0.00</span>
+                                <span class="font-semibold" id="orderSubtotal">EGP 0.00</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600 dark:text-gray-400">Shipping</span>
-                                <span class="font-semibold" id="orderShipping">$0.00</span>
+                                <span class="font-semibold" id="orderShipping">EGP 0.00</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600 dark:text-gray-400">Tax</span>
-                                <span class="font-semibold" id="orderTax">$0.00</span>
+                                <span class="font-semibold" id="orderTax">EGP 0.00</span>
                             </div>
                             <div class="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
                                 <div class="flex justify-between items-center">
                                     <span class="text-xl font-bold">Total</span>
-                                    <span class="text-2xl font-bold text-primary-500" id="orderTotal">$0.00</span>
+                                    <span class="text-2xl font-bold text-primary-500" id="orderTotal">EGP 0.00</span>
                                 </div>
                             </div>
                         </div>
@@ -333,10 +333,10 @@
             document.getElementById('shippingAddress').innerHTML = addressHtml;
 
             // Display pricing
-            document.getElementById('orderSubtotal').textContent = '$' + order.pricing.subtotal.toFixed(2);
-            document.getElementById('orderShipping').textContent = order.pricing.shipping > 0 ? '$' + order.pricing.shipping.toFixed(2) : 'FREE';
-            document.getElementById('orderTax').textContent = '$' + order.pricing.tax.toFixed(2);
-            document.getElementById('orderTotal').textContent = '$' + order.pricing.total.toFixed(2);
+            document.getElementById('orderSubtotal').textContent = 'EGP ' + order.pricing.subtotal.toFixed(2);
+            document.getElementById('orderShipping').textContent = order.pricing.shipping > 0 ? 'EGP ' + order.pricing.shipping.toFixed(2) : 'FREE';
+            document.getElementById('orderTax').textContent = 'EGP ' + order.pricing.tax.toFixed(2);
+            document.getElementById('orderTotal').textContent = 'EGP ' + order.pricing.total.toFixed(2);
         }
 
         // Initialize

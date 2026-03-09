@@ -318,7 +318,26 @@ document.addEventListener('DOMContentLoaded', function () {
 // 9. UTILITY FUNCTIONS
 // ============================================
 function formatPrice(price) {
-    return '$' + parseFloat(price).toFixed(2);
+    return 'EGP ' + parseFloat(price).toFixed(2);
+}
+
+// ============================================
+// 10. BEST SELLERS CART HANDLER
+// ============================================
+function addToCartBestSeller(productId) {
+    // Get products from localStorage
+    var products = JSON.parse(localStorage.getItem('luxe_products')) || [];
+    var product = products.find(function (p) { return p.id === productId; });
+
+    if (product) {
+        addToCart(productId, {
+            name: product.name,
+            price: product.price,
+            image: product.image
+        });
+    } else {
+        showToast('Product not found', 'error');
+    }
 }
 
 function formatDate(dateString) {

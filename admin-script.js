@@ -147,7 +147,7 @@ function loadDashboardStats() {
     var revenue = orders.reduce(function (sum, order) {
         return sum + (order.total || 0);
     }, 0);
-    document.getElementById('totalRevenue').textContent = '$' + revenue.toFixed(2);
+    document.getElementById('totalRevenue').textContent = 'EGP ' + revenue.toFixed(2);
 
     // Load recent orders
     loadRecentOrders();
@@ -171,7 +171,7 @@ function loadRecentOrders() {
         html += '<p class="text-sm text-gray-600 dark:text-gray-400">' + order.customerName + '</p>';
         html += '</div>';
         html += '<div class="text-right">';
-        html += '<p class="font-bold text-primary-500">$' + order.total.toFixed(2) + '</p>';
+        html += '<p class="font-bold text-primary-500">EGP ' + order.total.toFixed(2) + '</p>';
         html += '<span class="text-xs px-2 py-1 rounded-full ' + getStatusClass(order.status) + '">' + order.status + '</span>';
         html += '</div>';
         html += '</div>';
@@ -216,7 +216,7 @@ function loadProducts() {
         html += '<img src="' + product.image + '" alt="' + product.name + '" class="w-16 h-16 object-cover rounded-lg">';
         html += '</td>';
         html += '<td class="px-6 py-4 font-semibold">' + product.name + '</td>';
-        html += '<td class="px-6 py-4 text-primary-500 font-bold">$' + product.price.toFixed(2) + '</td>';
+        html += '<td class="px-6 py-4 text-primary-500 font-bold">EGP ' + product.price.toFixed(2) + '</td>';
         html += '<td class="px-6 py-4">' + product.category + '</td>';
         html += '<td class="px-6 py-4">' + (product.stock || 0) + '</td>';
         html += '<td class="px-6 py-4">';
@@ -364,7 +364,7 @@ function loadOrders() {
         html += '<td class="px-6 py-4 font-mono text-sm">#' + order.id + '</td>';
         html += '<td class="px-6 py-4">' + order.customerName + '<br><span class="text-xs text-gray-500">' + order.customerEmail + '</span></td>';
         html += '<td class="px-6 py-4">' + order.items.length + ' items</td>';
-        html += '<td class="px-6 py-4 font-bold text-primary-500">$' + order.total.toFixed(2) + '</td>';
+        html += '<td class="px-6 py-4 font-bold text-primary-500">EGP ' + order.total.toFixed(2) + '</td>';
         html += '<td class="px-6 py-4">';
         html += '<select onchange="updateOrderStatus(' + order.id + ', this.value)" class="px-3 py-1 rounded-full text-sm ' + getStatusClass(order.status) + '">';
         html += '<option value="Pending" ' + (order.status === 'Pending' ? 'selected' : '') + '>Pending</option>';
@@ -408,9 +408,9 @@ function viewOrderDetails(orderId) {
     details += 'Email: ' + order.customerEmail + '\n\n';
     details += 'Items:\n';
     order.items.forEach(function (item) {
-        details += '- ' + item.name + ' x' + item.quantity + ' = $' + (item.price * item.quantity).toFixed(2) + '\n';
+        details += '- ' + item.name + ' x' + item.quantity + ' = EGP ' + (item.price * item.quantity).toFixed(2) + '\n';
     });
-    details += '\nTotal: $' + order.total.toFixed(2);
+    details += '\nTotal: EGP ' + order.total.toFixed(2);
     details += '\nStatus: ' + order.status;
 
     alert(details);

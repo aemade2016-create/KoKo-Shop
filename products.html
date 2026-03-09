@@ -193,8 +193,8 @@
                             <input type="range" id="priceRange" min="0" max="100" value="100"
                                 class="price-range-slider w-full">
                             <div class="flex justify-between text-sm mt-2">
-                                <span>$0</span>
-                                <span id="priceValue" class="font-semibold text-primary-500">$100</span>
+                                <span>EGP 0</span>
+                                <span id="priceValue" class="font-semibold text-primary-500">EGP 100</span>
                             </div>
                         </div>
 
@@ -492,7 +492,7 @@
         function resetFilters() {
             document.getElementById('searchInput').value = '';
             document.getElementById('priceRange').value = 100;
-            document.getElementById('priceValue').textContent = '$100';
+            document.getElementById('priceValue').textContent = 'EGP 100';
             document.querySelectorAll('.category-filter').forEach(function (cb) {
                 cb.checked = cb.value === 'all';
             });
@@ -507,7 +507,7 @@
         // Event Listeners
         document.getElementById('searchInput').addEventListener('input', filterProducts);
         document.getElementById('priceRange').addEventListener('input', function () {
-            document.getElementById('priceValue').textContent = '$' + this.value;
+            document.getElementById('priceValue').textContent = 'EGP ' + this.value;
             filterProducts();
         });
         document.getElementById('sortSelect').addEventListener('change', function () {

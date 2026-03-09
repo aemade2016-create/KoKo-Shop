@@ -30,13 +30,18 @@ function loadOrderSummary() {
     // Render cart items
     var html = '';
     cart.forEach(function (item) {
+        // Parse price and quantity to ensure they're numbers
+        var price = parseFloat(item.price) || 0;
+        var quantity = parseInt(item.quantity) || 1;
+        var itemTotal = price * quantity;
+
         html += '<div class="flex items-center space-x-3 pb-4 border-b border-gray-200 dark:border-gray-700">';
         html += '<img src="' + item.image + '" alt="' + item.name + '" class="w-16 h-16 object-cover rounded-lg">';
         html += '<div class="flex-1">';
         html += '<h4 class="font-semibold text-sm">' + item.name + '</h4>';
-        html += '<p class="text-xs text-gray-500">Qty: ' + (item.quantity || 1) + '</p>';
+        html += '<p class="text-xs text-gray-500">Qty: ' + quantity + '</p>';
         html += '</div>';
-        html += '<span class="font-bold text-primary-500">$' + (item.price * (item.quantity || 1)).toFixed(2) + '</span>';$' + (item.price * (item.quantity || 1)).toFixed(2) + '</span > ';
+        html += '<span class="font-bold text-primary-500">EGP ' + itemTotal.toFixed(2) + '</span>';
         html += '</div>';
     });
 
@@ -46,22 +51,26 @@ function loadOrderSummary() {
     calculateTotals();
 }
 
+
 function calculateTotals() {
     var cart = getCart();
     var subtotal = 0;
 
     cart.forEach(function (item) {
-        subtotal += item.price * (item.quantity || 1);
+        // Ensure price is a number
+        var price = parseFloat(item.price) || 0;
+        var quantity = parseInt(item.quantity) || 1;
+        subtotal += price * quantity;
     });
 
     var shipping = subtotal > 50 ? 0 : 5.99;
     var tax = subtotal * 0.1; // 10% tax
     var total = subtotal + shipping + tax;
 
-    document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
-    document.getElementById('shipping').textContent = shipping > 0 ? '$' + shipping.toFixed(2) : 'FREE';
-    document.getElementById('tax').textContent = '$' + tax.toFixed(2);
-    document.getElementById('total').textContent = '$' + total.toFixed(2);
+    document.getElementById('subtotal').textContent = 'EGP ' + subtotal.toFixed(2);
+    document.getElementById('shipping').textContent = shipping > 0 ? 'EGP ' + shipping.toFixed(2) : 'FREE';
+    document.getElementById('tax').textContent = 'EGP ' + tax.toFixed(2);
+    document.getElementById('total').textContent = 'EGP ' + total.toFixed(2);
 }
 
 // ============================================
@@ -258,7 +267,10 @@ function createOrder(formData) {
     var subtotal = 0;
 
     cart.forEach(function (item) {
-        subtotal += item.price * (item.quantity || 1);
+        // Ensure price is a number
+        var price = parseFloat(item.price) || 0;
+        var quantity = parseInt(item.quantity) || 1;
+        subtotal += price * quantity;
     });
 
     var shipping = subtotal > 50 ? 0 : 5.99;
@@ -281,8 +293,8 @@ function createOrder(formData) {
             return {
                 productId: item.id,
                 name: item.name,
-                price: item.price,
-                quantity: item.quantity || 1,
+                price: parseFloat(item.price) || 0,
+                quantity: parseInt(item.quantity) || 1,
                 image: item.image
             };
         }),

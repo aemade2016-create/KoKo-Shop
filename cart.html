@@ -165,7 +165,7 @@
                         <div class="space-y-4 mb-6">
                             <div class="flex justify-between">
                                 <span class="text-gray-600 dark:text-gray-400">Subtotal</span>
-                                <span class="font-semibold" id="subtotal">$0.00</span>
+                                <span class="font-semibold" id="subtotal">EGP 0.00</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600 dark:text-gray-400">Shipping</span>
@@ -173,12 +173,12 @@
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600 dark:text-gray-400">Tax</span>
-                                <span class="font-semibold" id="tax">$0.00</span>
+                                <span class="font-semibold" id="tax">EGP 0.00</span>
                             </div>
                             <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
                                 <div class="flex justify-between items-center">
                                     <span class="text-xl font-bold">Total</span>
-                                    <span class="text-2xl font-bold text-primary-500" id="total">$0.00</span>
+                                    <span class="text-2xl font-bold text-primary-500" id="total">EGP 0.00</span>
                                 </div>
                             </div>
                         </div>
@@ -361,10 +361,10 @@
             var shipping = subtotal > 50 ? 0 : 5.99;
             var total = subtotal + tax + (shipping > 0 ? shipping : 0);
 
-            document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
-            document.getElementById('tax').textContent = '$' + tax.toFixed(2);
-            document.getElementById('shipping').textContent = shipping > 0 ? '$' + shipping.toFixed(2) : 'FREE';
-            document.getElementById('total').textContent = '$' + total.toFixed(2);
+            document.getElementById('subtotal').textContent = 'EGP ' + subtotal.toFixed(2);
+            document.getElementById('tax').textContent = 'EGP ' + tax.toFixed(2);
+            document.getElementById('shipping').textContent = shipping > 0 ? 'EGP ' + shipping.toFixed(2) : 'FREE';
+            document.getElementById('total').textContent = 'EGP ' + total.toFixed(2);
         }
 
         // Checkout
