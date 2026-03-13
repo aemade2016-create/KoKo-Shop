@@ -81,10 +81,10 @@
         <div class="container mx-auto px-4 py-4">
             <div class="flex items-center justify-between">
                 <a href="index.html" class="flex items-center space-x-2">
-                    <i class="fas fa-gem text-primary-500 text-2xl"></i>
+                    <i class="fa-brands fa-shopify text-primary-500 text-4xl"></i>
                     <span
-                        class="text-2xl font-display font-bold bg-gradient-to-r from-primary-500 to-pink-600 bg-clip-text text-transparent">Luxe
-                        Beauty</span>
+                        class="text-3xl font-display font-bold bg-gradient-to-r from-primary-500 to-pink-600 bg-clip-text text-transparent">Koko
+                        Shop</span>
                 </a>
 
                 <div class="hidden lg:flex items-center space-x-8">
@@ -158,13 +158,13 @@
                                 class="inline-block bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 px-4 py-2 rounded-full text-sm font-semibold mb-4">New
                                 Arrivals 2026</span>
                             <h1 class="text-4xl lg:text-6xl font-display font-bold mb-6 leading-tight">
-                                Discover Your <br>
+                                ATTRACTIVE Fragrance Collection <br>
                                 <span
-                                    class="bg-gradient-to-r from-primary-500 to-pink-600 bg-clip-text text-transparent">Natural
-                                    Glow</span>
+                                    class="bg-gradient-to-r from-primary-500 to-pink-600 bg-clip-text text-transparent">Essence
+                                    of Elegance</span>
                             </h1>
-                            <p class="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-xl">Premium skincare and
-                                cosmetics crafted with natural ingredients for radiant, healthy skin.</p>
+                            <p class="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-xl">Because your scent is your invisible signature, we present the new ATTRACTIVE collection. A unique olfactory journey
+                            blending floral delicacy with sweet notes to suit every mood and occasion.</p>
                             <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                                 <a href="products.html"
                                     class="bg-primary-500 hover:bg-primary-600 text-white px-8 py-4 rounded-full font-semibold transition transform hover:scale-105 shadow-lg">Shop
@@ -175,9 +175,8 @@
                             </div>
                         </div>
                         <div class="lg:w-1/2 flex justify-center">
-                            <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&h=600&fit=crop"
-                                alt="Beauty Products" class="rounded-3xl shadow-2xl max-w-md w-full object-cover"
-                                loading="lazy">
+                            <img src="./images/slider 1.jpeg" alt="Beauty Products"
+                                class="rounded-3xl shadow-2xl max-w-md w-full object-cover" loading="lazy">
                         </div>
                     </div>
 
@@ -947,7 +946,7 @@
                 html += '<span class="text-sm text-gray-500 ml-2">(' + Math.floor(Math.random() * 500 + 100) + ')</span>';
                 html += '</div>';
                 html += '<div class="flex items-center justify-between">';
-                html += '<span class="text-2xl font-bold text-primary-500">$' + product.price + '</span>';
+                html += '<span class="text-2xl font-bold text-primary-500">EGP' + product.price + '</span>';
                 html += '<button onclick="event.stopPropagation(); addToCartFromIndex(' + product.id + ')" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-full transition">';
                 html += '<i class="fas fa-shopping-cart"></i>';
                 html += '</button>';
@@ -1036,7 +1035,7 @@
             html += '<span class="text-sm text-gray-500 ml-2">(' + Math.floor(Math.random() * 500 + 100) + ' reviews)</span>';
             html += '</div>';
             html += '<p class="text-gray-600 dark:text-gray-400 mb-6">' + product.description + '</p>';
-            html += '<div class="text-4xl font-bold text-primary-500 mb-6">$' + product.price + '</div>';
+            html += '<div class="text-4xl font-bold text-primary-500 mb-6">EGP' + product.price + '</div>';
             html += '<div class="space-y-4">';
             html += '<button onclick="addToCartFromIndex(' + product.id + '); closeProductModal();" class="w-full bg-primary-500 hover:bg-primary-600 text-white py-4 rounded-full font-semibold transition">';
             html += '<i class="fas fa-shopping-cart mr-2"></i>Add to Cart';

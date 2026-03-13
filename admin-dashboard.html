@@ -113,6 +113,13 @@
                     <i class="fas fa-shopping-cart mr-3 w-5"></i>
                     <span>Orders</span>
                 </button>
+                <button onclick="showTab('notifications')"
+                    class="sidebar-link w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center relative">
+                    <i class="fas fa-bell mr-3 w-5"></i>
+                    <span>Notifications</span>
+                    <span id="notificationBadge"
+                        class="hidden absolute right-3 top-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                </button>
                 <button onclick="showTab('users')"
                     class="sidebar-link w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center">
                     <i class="fas fa-users mr-3 w-5"></i>
@@ -248,6 +255,30 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Tab -->
+            <div id="notificationsTab" class="tab-content">
+                <div class="flex items-center justify-between mb-6">
+                    <h1 class="text-3xl font-display font-bold">Notifications</h1>
+                    <div class="flex gap-3">
+                        <button onclick="markAllNotificationsAsRead()"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold transition text-sm">
+                            <i class="fas fa-check-double mr-2"></i>Mark All as Read
+                        </button>
+                        <button onclick="clearAllNotifications()"
+                            class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition text-sm">
+                            <i class="fas fa-trash mr-2"></i>Clear All
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                    <div id="notificationsList">
+                        <!-- Notifications will be loaded here -->
+                        <div class="text-center py-8 text-gray-500">Loading notifications...</div>
                     </div>
                 </div>
             </div>

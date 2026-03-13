@@ -329,23 +329,10 @@ function createOrder(formData) {
 // ============================================
 
 function saveOrder(order) {
-    // Save to user's orders
+    // Save to luxe_orders (single source of truth)
     var orders = JSON.parse(localStorage.getItem('luxe_orders')) || [];
     orders.push(order);
     localStorage.setItem('luxe_orders', JSON.stringify(orders));
-
-    // Save to admin orders
-    var adminOrders = JSON.parse(localStorage.getItem('luxe_admin_orders')) || [];
-    adminOrders.push({
-        id: parseInt(order.orderId.replace('ORD-', '')),
-        customerName: order.customerInfo.name,
-        customerEmail: order.customerInfo.email,
-        items: order.items,
-        total: order.pricing.total,
-        status: order.status,
-        date: order.createdAt
-    });
-    localStorage.setItem('luxe_admin_orders', JSON.stringify(adminOrders));
 
     // Update user's order history if logged in
     var currentUser = getCurrentUser();

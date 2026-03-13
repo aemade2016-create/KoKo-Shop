@@ -51,12 +51,44 @@ function saveProducts(products) {
 
 // Get all orders
 function getOrders() {
-    return JSON.parse(localStorage.getItem('luxe_admin_orders')) || [];
+    // Get orders from the new system (luxe_orders)
+    var orders = JSON.parse(localStorage.getItem('luxe_orders')) || [];
+
+    // Convert to admin format for display
+    var adminOrders = orders.map(function (order) {
+        return {
+            id: parseInt(order.orderId.replace('ORD-', '')),
+            orderId: order.orderId,
+            customerName: order.customerInfo.name,
+            customerEmail: order.customerInfo.email,
+            items: order.items,
+            total: order.pricing.total,
+            status: capitalizeFirstLetter(order.status),
+            date: order.createdAt,
+            fullOrder: order // Keep full order data
+        };
+    });
+
+    return adminOrders;
+}
+
+// Helper function to capitalize first letter
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 // Save orders
 function saveOrders(orders) {
-    localStorage.setItem('luxe_admin_orders', JSON.stringify(orders));
+    // Convert back to luxe_orders format and save
+    var luxeOrders = orders.map(function (order) {
+        if (order.fullOrder) {
+            // Update the full order with new status
+            order.fullOrder.status = order.status.toLowerCase();
+            return order.fullOrder;
+        }
+        return order;
+    });
+    localStorage.setItem('luxe_orders', JSON.stringify(luxeOrders));
 }
 
 // Get all users
@@ -167,7 +199,7 @@ function loadRecentOrders() {
     recentOrders.forEach(function (order) {
         html += '<div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">';
         html += '<div>';
-        html += '<p class="font-semibold">#' + order.id + '</p>';
+        html += '<p class="font-semibold">#' + order.orderId + '</p>';
         html += '<p class="text-sm text-gray-600 dark:text-gray-400">' + order.customerName + '</p>';
         html += '</div>';
         html += '<div class="text-right">';
@@ -387,31 +419,38 @@ function loadOrders() {
 }
 
 function updateOrderStatus(orderId, newStatus) {
-    var orders = getOrders();
-    var order = orders.find(function (o) { return o.id === orderId; });
-
-    if (order) {
-        order.status = newStatus;
-        saveOrders(orders);
-        showToast('Order status updated to ' + newStatus);
-    }
+    // Use the notification-enabled version
+    updateOrderStatusWithNotification('ORD-' + orderId, newStatus);
 }
 
 function viewOrderDetails(orderId) {
     var orders = getOrders();
     var order = orders.find(function (o) { return o.id === orderId; });
 
-    if (!order) return;
+    if (!order || !order.fullOrder) return;
 
-    var details = 'Order #' + order.id + '\n\n';
-    details += 'Customer: ' + order.customerName + '\n';
-    details += 'Email: ' + order.customerEmail + '\n\n';
+    var fullOrder = order.fullOrder;
+    var details = 'Order #' + fullOrder.orderId + '\n\n';
+    details += 'Customer: ' + fullOrder.customerInfo.name + '\n';
+    details += 'Email: ' + fullOrder.customerInfo.email + '\n';
+    details += 'Phone: ' + fullOrder.customerInfo.phone + '\n\n';
+    details += 'Shipping Address:\n';
+    details += fullOrder.customerInfo.address.street + '\n';
+    if (fullOrder.customerInfo.address.apartment) {
+        details += fullOrder.customerInfo.address.apartment + '\n';
+    }
+    details += fullOrder.customerInfo.address.city + ', ' + fullOrder.customerInfo.address.state + ' ' + fullOrder.customerInfo.address.zip + '\n';
+    details += fullOrder.customerInfo.address.country + '\n\n';
     details += 'Items:\n';
-    order.items.forEach(function (item) {
+    fullOrder.items.forEach(function (item) {
         details += '- ' + item.name + ' x' + item.quantity + ' = EGP ' + (item.price * item.quantity).toFixed(2) + '\n';
     });
-    details += '\nTotal: EGP ' + order.total.toFixed(2);
-    details += '\nStatus: ' + order.status;
+    details += '\nSubtotal: EGP ' + fullOrder.pricing.subtotal.toFixed(2);
+    details += '\nShipping: ' + (fullOrder.pricing.shipping > 0 ? 'EGP ' + fullOrder.pricing.shipping.toFixed(2) : 'FREE');
+    details += '\nTax: EGP ' + fullOrder.pricing.tax.toFixed(2);
+    details += '\nTotal: EGP ' + fullOrder.pricing.total.toFixed(2);
+    details += '\n\nPayment Method: ' + fullOrder.payment.method.toUpperCase();
+    details += '\nStatus: ' + fullOrder.status;
 
     alert(details);
 }
@@ -419,11 +458,15 @@ function viewOrderDetails(orderId) {
 function deleteOrder(orderId) {
     if (!confirm('Are you sure you want to delete this order?')) return;
 
-    var orders = getOrders();
-    orders = orders.filter(function (o) { return o.id !== orderId; });
-    saveOrders(orders);
-    loadOrders();
-    showToast('Order deleted successfully');
+    var orders = JSON.parse(localStorage.getItem('luxe_orders')) || [];
+    var order = orders.find(function (o) { return o.orderId === 'ORD-' + orderId; });
+
+    if (order) {
+        orders = orders.filter(function (o) { return o.orderId !== 'ORD-' + orderId; });
+        localStorage.setItem('luxe_orders', JSON.stringify(orders));
+        loadOrders();
+        showToast('Order deleted successfully');
+    }
 }
 
 // ============================================
@@ -533,3 +576,171 @@ function logout() {
 document.addEventListener('DOMContentLoaded', function () {
     loadDashboardStats();
 });
+
+
+// ============================================
+// NOTIFICATION SYSTEM
+// ============================================
+
+function loadAdminNotifications() {
+    var notifications = JSON.parse(localStorage.getItem('luxe_adminNotifications')) || [];
+    var container = document.getElementById('notificationsList');
+
+    if (!container) return;
+
+    if (notifications.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-gray-500">No notifications</div>';
+        return;
+    }
+
+    var html = '';
+    notifications.forEach(function (notification, index) {
+        var bgClass = notification.isRead ? 'bg-gray-50 dark:bg-gray-700' : 'bg-blue-50 dark:bg-blue-900/20';
+        var iconClass = getNotificationIcon(notification.type);
+        var iconColor = getNotificationColor(notification.type);
+
+        html += '<div class="' + bgClass + ' rounded-lg p-4 mb-3 cursor-pointer hover:shadow-md transition" onclick="markNotificationAsRead(' + index + ')">';
+        html += '<div class="flex items-start space-x-3">';
+        html += '<div class="w-10 h-10 rounded-full ' + iconColor + ' flex items-center justify-center flex-shrink-0">';
+        html += '<i class="' + iconClass + '"></i>';
+        html += '</div>';
+        html += '<div class="flex-1">';
+        html += '<p class="font-semibold mb-1">' + notification.message + '</p>';
+        html += '<p class="text-sm text-gray-500">' + formatNotificationTime(notification.timestamp) + '</p>';
+        if (notification.orderTotal) {
+            html += '<p class="text-sm text-primary-500 font-semibold mt-1">Order Total: EGP ' + notification.orderTotal.toFixed(2) + '</p>';
+        }
+        html += '</div>';
+        if (!notification.isRead) {
+            html += '<div class="w-2 h-2 bg-blue-500 rounded-full"></div>';
+        }
+        html += '</div>';
+        html += '</div>';
+    });
+
+    container.innerHTML = html;
+    updateNotificationBadge();
+}
+
+function getNotificationIcon(type) {
+    var icons = {
+        'order_cancelled': 'fas fa-times-circle',
+        'order_placed': 'fas fa-shopping-bag',
+        'order_updated': 'fas fa-sync-alt',
+        'new_user': 'fas fa-user-plus'
+    };
+    return icons[type] || 'fas fa-bell';
+}
+
+function getNotificationColor(type) {
+    var colors = {
+        'order_cancelled': 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400',
+        'order_placed': 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
+        'order_updated': 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
+        'new_user': 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400'
+    };
+    return colors[type] || 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400';
+}
+
+function formatNotificationTime(timestamp) {
+    var date = new Date(timestamp);
+    var now = new Date();
+    var diff = now - date;
+    var minutes = Math.floor(diff / 60000);
+    var hours = Math.floor(diff / 3600000);
+    var days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return minutes + ' minutes ago';
+    if (hours < 24) return hours + ' hours ago';
+    if (days < 7) return days + ' days ago';
+    return date.toLocaleDateString();
+}
+
+function markNotificationAsRead(index) {
+    var notifications = JSON.parse(localStorage.getItem('luxe_adminNotifications')) || [];
+    if (notifications[index]) {
+        notifications[index].isRead = true;
+        localStorage.setItem('luxe_adminNotifications', JSON.stringify(notifications));
+        loadAdminNotifications();
+    }
+}
+
+function markAllNotificationsAsRead() {
+    var notifications = JSON.parse(localStorage.getItem('luxe_adminNotifications')) || [];
+    notifications.forEach(function (n) { n.isRead = true; });
+    localStorage.setItem('luxe_adminNotifications', JSON.stringify(notifications));
+    loadAdminNotifications();
+    showToast('All notifications marked as read');
+}
+
+function clearAllNotifications() {
+    if (!confirm('Are you sure you want to clear all notifications?')) return;
+    localStorage.setItem('luxe_adminNotifications', JSON.stringify([]));
+    loadAdminNotifications();
+    showToast('All notifications cleared');
+}
+
+function updateNotificationBadge() {
+    var notifications = JSON.parse(localStorage.getItem('luxe_adminNotifications')) || [];
+    var unreadCount = notifications.filter(function (n) { return !n.isRead; }).length;
+
+    var badge = document.getElementById('notificationBadge');
+    if (badge) {
+        badge.textContent = unreadCount;
+        if (unreadCount > 0) {
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+}
+
+// Update order status with notification
+function updateOrderStatusWithNotification(orderId, newStatus) {
+    var orders = JSON.parse(localStorage.getItem('luxe_orders')) || [];
+    var order = orders.find(function (o) { return o.orderId === orderId; });
+
+    if (order) {
+        var oldStatus = order.status;
+        order.status = newStatus;
+        order.updatedAt = new Date().toISOString();
+        order.statusHistory.push({
+            status: newStatus,
+            timestamp: new Date().toISOString(),
+            note: 'Status updated by admin',
+            updatedBy: 'admin'
+        });
+
+        localStorage.setItem('luxe_orders', JSON.stringify(orders));
+
+        // Create notification for customer
+        createCustomerNotificationFromAdmin(order.customerInfo.email, {
+            type: 'order_updated',
+            orderId: orderId,
+            newStatus: newStatus,
+            timestamp: new Date().toISOString(),
+            message: 'Your order #' + orderId.split('-')[1] + ' status has been updated to ' + newStatus,
+            isRead: false
+        });
+
+        showToast('Order status updated to ' + newStatus + '. Customer has been notified.');
+        loadOrders();
+    }
+}
+
+function createCustomerNotificationFromAdmin(customerEmail, notification) {
+    var key = 'luxe_customerNotifications_' + customerEmail;
+    var notifications = JSON.parse(localStorage.getItem(key)) || [];
+    notifications.unshift(notification);
+    localStorage.setItem(key, JSON.stringify(notifications));
+}
+
+// Initialize notifications on page load
+if (document.getElementById('notificationsList')) {
+    loadAdminNotifications();
+    // Refresh notifications every 30 seconds
+    setInterval(function () {
+        updateNotificationBadge();
+    }, 30000);
+}
