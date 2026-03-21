@@ -57,7 +57,20 @@ function updateCartCount() {
     });
 }
 
+function requireLogin(redirectBack) {
+    if (!isLoggedIn()) {
+        if (redirectBack) {
+            sessionStorage.setItem('loginRedirect', redirectBack);
+        }
+        window.location.href = 'login.html';
+        return false;
+    }
+    return true;
+}
+
 function addToCart(productId, productData) {
+    if (!requireLogin(window.location.href)) return;
+
     var cart = getCart();
 
     // Check if product already in cart
