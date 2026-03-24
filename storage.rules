@@ -1,0 +1,31 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isLoggedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isLoggedIn() && request.auth.token.email == 'aemade2016@gmail.com';
+    }
+
+    // Product images — anyone can read, only admin can upload/delete
+    match /products/{imageId} {
+      allow read: if true;
+      allow write: if isAdmin()
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+    // User profile pictures — owner or admin
+    match /users/{userId}/{imageId} {
+      allow read: if true;
+      allow write: if (isLoggedIn() && request.auth.uid == userId)
+                   && request.resource.size < 2 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+  }
+}

@@ -205,11 +205,21 @@ function isAdmin() {
 
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('luxe_currentUser');
-        showToast('Logged out successfully');
-        setTimeout(function () {
-            window.location.href = 'index.html';
-        }, 1000);
+        // Sign out from Firebase first, then clear localStorage
+        import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js')
+            .then(function (firebaseAuth) {
+                return import('./firebase-config.js').then(function (config) {
+                    return firebaseAuth.signOut(config.auth);
+                });
+            })
+            .catch(function () { /* ignore if firebase not available */ })
+            .finally(function () {
+                localStorage.removeItem('luxe_currentUser');
+                showToast('Logged out successfully');
+                setTimeout(function () {
+                    window.location.href = 'index.html';
+                }, 1000);
+            });
     }
 }
 

@@ -562,10 +562,20 @@ function showToast(message) {
 
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('luxe_isAdmin');
-        localStorage.removeItem('luxe_adminEmail');
-        localStorage.removeItem('luxe_adminLoginTime');
-        window.location.href = 'admin-login.html';
+        import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js')
+            .then(function (firebaseAuth) {
+                return import('./firebase-config.js').then(function (config) {
+                    return firebaseAuth.signOut(config.auth);
+                });
+            })
+            .catch(function () { /* ignore if firebase not available */ })
+            .finally(function () {
+                localStorage.removeItem('luxe_currentUser');
+                localStorage.removeItem('luxe_isAdmin');
+                localStorage.removeItem('luxe_adminEmail');
+                localStorage.removeItem('luxe_adminLoginTime');
+                window.location.href = 'login.html';
+            });
     }
 }
 

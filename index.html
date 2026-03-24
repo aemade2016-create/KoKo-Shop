@@ -28,7 +28,7 @@
                         email: user.email,
                         name: user.displayName || userData.data.name,
                         photoURL: user.photoURL,
-                        isAdmin: user.email === 'admin@aemade2016@gmail.com', // Check admin email
+                        isAdmin: user.email === 'aemade2016@gmail.com',
                         ...userData.data
                     };
                     localStorage.setItem('luxe_currentUser', JSON.stringify(localUserData));

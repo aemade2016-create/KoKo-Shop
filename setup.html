@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Setup - Koko Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .step-card {
+            transition: all 0.3s ease;
+        }
+
+        .log-entry {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+
+    <div class="max-w-3xl mx-auto px-4 py-12">
+
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-pink-500/20 rounded-2xl mb-4">
+                <i class="fas fa-database text-pink-400 text-2xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">Database Setup</h1>
+            <p class="text-gray-400">Initialize Firestore collections for Koko Shop</p>
+            <div class="mt-3 inline-flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-full text-sm">
+                <i class="fas fa-project-diagram text-blue-400"></i>
+                <span class="text-gray-300">Project: <span class="text-blue-400 font-medium">koko-97681</span></span>
+            </div>
+        </div>
+
+        <!-- Steps Overview -->
+        <div class="grid grid-cols-3 gap-3 mb-8">
+            <div id="step1Card" class="step-card bg-gray-800/50 border border-gray-700 rounded-xl p-4 text-center">
+                <div id="step1Icon" class="text-2xl mb-2">🔌</div>
+                <div class="text-xs font-medium text-gray-400">Connection</div>
+            </div>
+            <div id="step2Card" class="step-card bg-gray-800/50 border border-gray-700 rounded-xl p-4 text-center">
+                <div id="step2Icon" class="text-2xl mb-2">📦</div>
+                <div class="text-xs font-medium text-gray-400">Products</div>
+            </div>
+            <div id="step3Card" class="step-card bg-gray-800/50 border border-gray-700 rounded-xl p-4 text-center">
+                <div id="step3Icon" class="text-2xl mb-2">⚙️</div>
+                <div class="text-xs font-medium text-gray-400">Collections</div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-3 mb-6">
+            <button id="startBtn" onclick="runSetup()"
+                class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-3 px-6 rounded-xl font-semibold transition flex items-center justify-center gap-2">
+                <i class="fas fa-play"></i>
+                Start Setup
+            </button>
+            <button onclick="clearLog()"
+                class="bg-gray-700 hover:bg-gray-600 text-white py-3 px-4 rounded-xl transition">
+                <i class="fas fa-trash"></i>
+            </button>
+            <a href="admin-dashboard.html"
+                class="bg-gray-700 hover:bg-gray-600 text-white py-3 px-4 rounded-xl transition flex items-center gap-2">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="bg-gray-800 rounded-full h-2 mb-6 overflow-hidden">
+            <div id="progressBar"
+                class="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full transition-all duration-500"
+                style="width: 0%"></div>
+        </div>
+
+        <!-- Log Console -->
+        <div class="bg-gray-900 border border-gray-700 rounded-2xl overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-700 bg-gray-800/50">
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                </div>
+                <span class="text-xs text-gray-500 font-mono">setup.log</span>
+            </div>
+            <div id="logContainer" class="p-4 font-mono text-sm min-h-64 max-h-96 overflow-y-auto space-y-1">
+                <div class="text-gray-500">// Ready. Click "Start Setup" to begin...</div>
+            </div>
+        </div>
+
+        <!-- Summary Card (hidden until done) -->
+        <div id="summaryCard" class="hidden mt-6 bg-green-500/10 border border-green-500/30 rounded-2xl p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <i class="fas fa-check-circle text-green-400 text-2xl"></i>
+                <h2 class="text-lg font-bold text-green-400">Setup Complete!</h2>
+            </div>
+            <div id="summaryContent" class="text-sm text-gray-300 space-y-1"></div>
+            <div class="mt-4 flex gap-3">
+                <a href="admin-dashboard.html"
+                    class="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg font-semibold transition text-sm">
+                    Go to Dashboard <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+                <a href="index.html"
+                    class="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-lg font-semibold transition text-sm">
+                    Go to Store
+                </a>
+            </div>
+        </div>
+
+        <!-- Error Card (hidden until error) -->
+        <div id="errorCard" class="hidden mt-6 bg-red-500/10 border border-red-500/30 rounded-2xl p-6">
+            <div class="flex items-center gap-3 mb-2">
+                <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
+                <h2 class="text-lg font-bold text-red-400">Setup Failed</h2>
+            </div>
+            <p id="errorMessage" class="text-sm text-gray-300"></p>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { db, auth } from './firebase-config.js';
+        import {
+            collection, doc, setDoc, getDocs, getDoc, writeBatch, serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // ── Products Data ──────────────────────────────────────────
+        const PRODUCTS = [
+            { id: '1', name: 'Radiant Glow Serum', price: 49.99, rating: 5, category: 'Serum', skinType: 'All', stock: 50, featured: true, image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop', description: 'Brightening serum with Vitamin C and hyaluronic acid for radiant, youthful skin.' },
+            { id: '2', name: 'Hydra Boost Moisturizer', price: 39.99, rating: 5, category: 'Moisturizer', skinType: 'Dry', stock: 45, featured: true, image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=400&h=400&fit=crop', description: '24-hour hydration with ceramides and peptides for smooth, supple skin.' },
+            { id: '3', name: 'Gentle Cleansing Foam', price: 24.99, rating: 4, category: 'Cleanser', skinType: 'Sensitive', stock: 60, featured: false, image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&h=400&fit=crop', description: 'pH-balanced cleanser that removes impurities without stripping natural oils.' },
+            { id: '4', name: 'Age-Defying Night Cream', price: 59.99, rating: 5, category: 'Night Cream', skinType: 'All', stock: 30, featured: true, image: 'https://images.unsplash.com/photo-1571875257727-256c39da42af?w=400&h=400&fit=crop', description: 'Rich night cream with retinol and peptides to reduce fine lines and wrinkles.' },
+            { id: '5', name: 'Vitamin C Eye Cream', price: 34.99, rating: 4, category: 'Eye Cream', skinType: 'All', stock: 40, featured: false, image: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=400&h=400&fit=crop', description: 'Brightens dark circles and reduces puffiness for refreshed, youthful eyes.' },
+            { id: '6', name: 'Exfoliating Toner', price: 29.99, rating: 5, category: 'Toner', skinType: 'Oily', stock: 55, featured: false, image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=400&fit=crop', description: 'Gentle AHA/BHA toner that refines pores and improves skin texture.' },
+            { id: '7', name: 'Nourishing Face Oil', price: 44.99, rating: 5, category: 'Face Oil', skinType: 'Dry', stock: 35, featured: true, image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=400&h=400&fit=crop', description: 'Luxurious blend of botanical oils for deep nourishment and radiance.' },
+            { id: '8', name: 'SPF 50 Sunscreen', price: 32.99, rating: 5, category: 'Sunscreen', skinType: 'All', stock: 70, featured: true, image: 'https://images.unsplash.com/photo-1556228852-80a3c4e6d1f7?w=400&h=400&fit=crop', description: 'Broad-spectrum protection with a lightweight, non-greasy formula.' },
+            { id: '9', name: 'Hydrating Sheet Mask', price: 19.99, rating: 4, category: 'Mask', skinType: 'All', stock: 100, featured: false, image: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=400&h=400&fit=crop', description: 'Intensive hydration mask with hyaluronic acid and aloe vera.' },
+            { id: '10', name: 'Lip Treatment Balm', price: 16.99, rating: 5, category: 'Lip Care', skinType: 'All', stock: 80, featured: false, image: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=400&h=400&fit=crop', description: 'Nourishing lip balm with shea butter and vitamin E for soft, smooth lips.' }
+        ];
+
+        // ── Logging Helpers ────────────────────────────────────────
+        function log(msg, type = 'info') {
+            const container = document.getElementById('logContainer');
+            const colors = { info: 'text-gray-300', success: 'text-green-400', error: 'text-red-400', warn: 'text-yellow-400', dim: 'text-gray-500' };
+            const icons = { info: '›', success: '✓', error: '✗', warn: '⚠', dim: '#' };
+            const el = document.createElement('div');
+            el.className = `log-entry ${colors[type]}`;
+            el.innerHTML = `<span class="text-gray-600">${new Date().toLocaleTimeString()}</span> <span>${icons[type]}</span> ${msg}`;
+            container.appendChild(el);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function setProgress(pct) {
+            document.getElementById('progressBar').style.width = pct + '%';
+        }
+
+        function setStepStatus(step, status) {
+            const card = document.getElementById(`step${step}Card`);
+            const icon = document.getElementById(`step${step}Icon`);
+            const states = {
+                loading: { border: 'border-blue-500', icon: '<i class="fas fa-circle-notch spinner text-blue-400 text-xl"></i>' },
+                success: { border: 'border-green-500', icon: '<i class="fas fa-check-circle text-green-400 text-xl"></i>' },
+                error: { border: 'border-red-500', icon: '<i class="fas fa-times-circle text-red-400 text-xl"></i>' }
+            };
+            card.className = `step-card bg-gray-800/50 border ${states[status].border} rounded-xl p-4 text-center`;
+            icon.innerHTML = states[status].icon;
+        }
+
+        // ── Main Setup ─────────────────────────────────────────────
+        window.runSetup = async function () {
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('startBtn').innerHTML = '<i class="fas fa-circle-notch spinner"></i> Running...';
+            document.getElementById('summaryCard').classList.add('hidden');
+            document.getElementById('errorCard').classList.add('hidden');
+            document.getElementById('logContainer').innerHTML = '';
+
+            let productsAdded = 0, skipped = 0;
+
+            try {
+                // ── Step 1: Test Connection ────────────────────────
+                setStepStatus(1, 'loading');
+                log('Testing Firestore connection...', 'info');
+                setProgress(10);
+
+                // Test connection by writing a ping doc (admin only)
+                await setDoc(doc(db, '_meta', 'ping'), { ts: new Date().toISOString() });
+                setStepStatus(1, 'success');
+                log('Firestore connected successfully', 'success');
+                setProgress(25);
+
+                // ── Step 2: Upload Products ────────────────────────
+                setStepStatus(2, 'loading');
+                log(`Preparing to upload ${PRODUCTS.length} products...`, 'info');
+                setProgress(30);
+
+                const batch = writeBatch(db);
+
+                for (const product of PRODUCTS) {
+                    const ref = doc(db, 'products', product.id);
+                    const existing = await getDoc(ref);
+
+                    if (existing.exists()) {
+                        log(`Skipped: "${product.name}" (already exists)`, 'dim');
+                        skipped++;
+                    } else {
+                        batch.set(ref, { ...product, createdAt: new Date().toISOString() });
+                        log(`Queued: "${product.name}"`, 'info');
+                        productsAdded++;
+                    }
+                    setProgress(30 + Math.round((PRODUCTS.indexOf(product) / PRODUCTS.length) * 40));
+                }
+
+                if (productsAdded > 0) {
+                    await batch.commit();
+                    log(`${productsAdded} products uploaded to Firestore`, 'success');
+                } else {
+                    log('All products already exist, nothing to upload', 'warn');
+                }
+
+                setStepStatus(2, 'success');
+                setProgress(75);
+
+                // ── Step 3: Setup Collections Meta ────────────────
+                setStepStatus(3, 'loading');
+                log('Setting up collections metadata...', 'info');
+
+                await setDoc(doc(db, '_meta', 'setup'), {
+                    setupAt: new Date().toISOString(),
+                    collections: ['products', 'orders', 'users'],
+                    version: '1.0.0',
+                    projectName: 'Koko Shop'
+                });
+
+                log('Created: products collection ✓', 'success');
+                log('Ready: orders collection (auto-created on first order) ✓', 'success');
+                log('Ready: users collection (auto-created on first signup) ✓', 'success');
+                log('Metadata document saved to _meta/setup', 'success');
+
+                setStepStatus(3, 'success');
+                setProgress(100);
+
+                // ── Done ───────────────────────────────────────────
+                log('─────────────────────────────────', 'dim');
+                log('Setup completed successfully!', 'success');
+
+                document.getElementById('summaryCard').classList.remove('hidden');
+                document.getElementById('summaryContent').innerHTML = `
+                    <p>✅ Products uploaded: <strong class="text-white">${productsAdded}</strong></p>
+                    <p>⏭️ Products skipped (existing): <strong class="text-white">${skipped}</strong></p>
+                    <p>✅ Collections initialized: <strong class="text-white">products, orders, users</strong></p>
+                    <p>✅ Metadata saved to Firestore</p>
+                `;
+
+            } catch (err) {
+                log('Setup failed: ' + err.message, 'error');
+                console.error(err);
+
+                // Mark current loading step as error
+                ['1', '2', '3'].forEach(s => {
+                    if (document.getElementById(`step${s}Card`).className.includes('blue')) {
+                        setStepStatus(s, 'error');
+                    }
+                });
+
+                document.getElementById('errorCard').classList.remove('hidden');
+                document.getElementById('errorMessage').textContent = err.message;
+            }
+
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('startBtn').innerHTML = '<i class="fas fa-redo"></i> Run Again';
+        };
+
+        window.clearLog = function () {
+            document.getElementById('logContainer').innerHTML = '<div class="text-gray-500">// Log cleared.</div>';
+            setProgress(0);
+            ['1', '2', '3'].forEach(s => {
+                document.getElementById(`step${s}Card`).className = 'step-card bg-gray-800/50 border border-gray-700 rounded-xl p-4 text-center';
+            });
+            document.getElementById('step1Icon').innerHTML = '🔌';
+            document.getElementById('step2Icon').innerHTML = '📦';
+            document.getElementById('step3Icon').innerHTML = '⚙️';
+            document.getElementById('summaryCard').classList.add('hidden');
+            document.getElementById('errorCard').classList.add('hidden');
+        };
+    </script>
+
+</body>
+
+</html>
