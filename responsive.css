@@ -1,0 +1,145 @@
+html,
+body {
+    max-width: 100%;
+}
+
+body {
+    overflow-x: clip;
+}
+
+main,
+section,
+article,
+header,
+footer,
+nav,
+aside {
+    min-width: 0;
+}
+
+img,
+video,
+canvas,
+iframe {
+    max-width: 100%;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+    max-width: 100%;
+}
+
+@media (max-width: 767px) {
+    .admin-dashboard nav > div {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .admin-dashboard nav .flex.items-center.space-x-4 > :not([hidden]) ~ :not([hidden]) {
+        margin-left: 0.5rem;
+    }
+
+    .admin-dashboard nav a[href="index.html"] {
+        font-size: 0;
+    }
+
+    .admin-dashboard nav a[href="index.html"] i {
+        margin-right: 0;
+        font-size: 0.875rem;
+    }
+
+    .admin-dashboard nav #adminEmailDisplay {
+        display: none;
+    }
+
+    .admin-dashboard nav .flex.items-center.space-x-2 {
+        padding: 0.5rem;
+    }
+}
+
+@media (max-width: 1279px) {
+    #usersTab > .flex.items-center.justify-between {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    #usersTab > .flex.items-center.justify-between h1 {
+        font-size: 1.5rem;
+    }
+
+    #usersTab > .flex.items-center.justify-between button {
+        padding: 0.625rem 0.75rem;
+    }
+
+    #usersTab .overflow-x-auto {
+        overflow: visible;
+    }
+
+    #usersTab .user-table {
+        display: block;
+        width: 100%;
+        min-width: 0;
+    }
+
+    #usersTab .user-table thead {
+        display: none;
+    }
+
+    #usersTab .user-table tbody {
+        display: grid;
+        gap: 1rem;
+    }
+
+    #usersTab .user-table tbody tr {
+        display: grid;
+        gap: 0.75rem;
+        padding: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+    }
+
+    .dark #usersTab .user-table tbody tr {
+        border-color: #374151;
+    }
+
+    #usersTab .user-table tbody td:not([colspan]) {
+        display: grid;
+        grid-template-columns: minmax(5rem, 0.35fr) minmax(0, 1fr);
+        gap: 0.75rem;
+        align-items: start;
+        padding: 0;
+        overflow-wrap: anywhere;
+    }
+
+    #usersTab .user-table tbody td[data-label]::before {
+        content: attr(data-label);
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6b7280;
+    }
+
+    .dark #usersTab .user-table tbody td[data-label]::before {
+        color: #9ca3af;
+    }
+
+    #usersTab .user-table tbody td:last-child {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 0.75rem;
+    }
+
+    .dark #usersTab .user-table tbody td:last-child {
+        border-color: #374151;
+    }
+}
+
+@media (max-width: 359px) {
+    .admin-dashboard nav .font-display {
+        display: none;
+    }
+}

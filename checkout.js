@@ -196,7 +196,6 @@ function processCheckout() {
         return;
     }
 
-    // Get form data
     var formData = {
         email: document.getElementById('email').value,
         phone: document.getElementById('phone').value,
@@ -210,6 +209,16 @@ function processCheckout() {
             country: document.getElementById('country').value
         }
     };
+
+    var users = JSON.parse(localStorage.getItem('luxe_users')) || [];
+    var blockedUser = users.find(function (user) {
+        return String(user.email || '').toLowerCase() === String(formData.email || '').trim().toLowerCase() && (user.isBlocked || user.status === 'Blocked');
+    });
+
+    if (blockedUser) {
+        showToast('This customer account is blocked and cannot place orders.', 'error');
+        return;
+    }
 
     // Validate card details if card payment selected
     if (selectedPaymentMethod === 'card') {

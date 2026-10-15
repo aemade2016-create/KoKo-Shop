@@ -13,7 +13,7 @@ body {
 
 /* Hero Gradient */
 .hero-gradient {
-    background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
+    background: linear-gradient(135deg, #f4e5eb 0%, #f5dfe7 100%);
 }
 
 .dark .hero-gradient {

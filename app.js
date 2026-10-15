@@ -37,6 +37,59 @@ function initMobileMenu() {
     }
 }
 
+function initPasswordToggles() {
+    var passwordInputs = document.querySelectorAll('input[type="password"]');
+
+    passwordInputs.forEach(function (input) {
+        if (!input || input.dataset.passwordToggleBound === 'true') return;
+
+        var parent = input.parentElement;
+        if (!parent) return;
+
+        var existingToggle = parent.querySelector('.password-toggle-btn, [onclick*="togglePasswordVisibility"]');
+        if (existingToggle) return;
+
+        var wrapper = parent;
+        if (!wrapper.classList.contains('relative')) {
+            var relativeWrapper = document.createElement('div');
+            relativeWrapper.className = 'relative';
+            parent.insertBefore(relativeWrapper, input);
+            relativeWrapper.appendChild(input);
+            wrapper = relativeWrapper;
+        }
+
+        var toggleButton = document.createElement('button');
+        toggleButton.type = 'button';
+        toggleButton.className = 'password-toggle-btn absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary-500 transition';
+        toggleButton.setAttribute('aria-label', 'Show password');
+        toggleButton.innerHTML = '<i class="fas fa-eye"></i>';
+
+        toggleButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            var icon = toggleButton.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggleButton.setAttribute('aria-label', 'Hide password');
+                if (icon) {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            } else {
+                input.type = 'password';
+                toggleButton.setAttribute('aria-label', 'Show password');
+                if (icon) {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+        });
+
+        wrapper.appendChild(toggleButton);
+        input.dataset.passwordToggleBound = 'true';
+    });
+}
+
 // ============================================
 // 3. CART SYSTEM
 // ============================================
@@ -187,6 +240,101 @@ function updateAllWishlistIcons() {
     });
 }
 
+async function getBanners() {
+    try {
+        var firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        var configModule = await import('./firebase-config.js');
+        var { collection, getDocs, query, orderBy } = firestoreModule;
+        var { db } = configModule;
+
+        var snapshot = await getDocs(query(collection(db, 'banners'), orderBy('createdAt', 'desc')));
+        var banners = snapshot.docs.map(function (docItem) {
+            return { id: docItem.id, ...docItem.data() };
+        });
+
+        localStorage.setItem('luxe_banners', JSON.stringify(banners));
+        return banners;
+    } catch (error) {
+        console.warn('Using fallback banner data because Firestore is unavailable.', error);
+        var fallbackBanners = JSON.parse(localStorage.getItem('luxe_banners') || '[]');
+        if (fallbackBanners.length) {
+            return fallbackBanners;
+        }
+
+        return [
+            {
+                id: 'fallback-banner-1',
+                imageUrl: './images/slider 1.jpeg',
+                targetUrl: 'products.html',
+                title: 'ATTRACTIVE Fragrance Collection',
+                subtitle: 'Essence of Elegance',
+                badge: 'New Arrivals 2026',
+                description: 'Because your scent is your invisible signature, we present the new ATTRACTIVE collection.',
+                buttonText: 'Shop Now',
+                gradient: 'from-primary-500 to-pink-600'
+            },
+            {
+                id: 'fallback-banner-2',
+                imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&h=600&fit=crop',
+                targetUrl: 'products.html',
+                title: 'Up to 40% Off',
+                subtitle: 'Spring Collection',
+                badge: 'Limited Offer',
+                description: 'Refresh your beauty routine with our exclusive spring collection.',
+                buttonText: 'Shop Sale',
+                gradient: 'from-pink-500 to-purple-600'
+            }
+        ];
+    }
+}
+
+async function getReviews() {
+    try {
+        var firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        var configModule = await import('./firebase-config.js');
+        var { collection, getDocs, query, orderBy } = firestoreModule;
+        var { db } = configModule;
+
+        var snapshot = await getDocs(query(collection(db, 'reviews'), orderBy('createdAt', 'desc')));
+        var reviews = snapshot.docs.map(function (docItem) {
+            return { id: docItem.id, ...docItem.data() };
+        });
+
+        localStorage.setItem('luxe_reviews', JSON.stringify(reviews));
+        return reviews;
+    } catch (error) {
+        console.warn('Using fallback review data because Firestore is unavailable.', error);
+        var fallbackReviews = JSON.parse(localStorage.getItem('luxe_reviews') || '[]');
+        if (fallbackReviews.length) {
+            return fallbackReviews;
+        }
+
+        return [
+            {
+                id: 'fallback-review-1',
+                customerName: 'Sarah Johnson',
+                profileImage: 'https://i.pravatar.cc/100?img=1',
+                rating: 5,
+                text: 'The Vitamin C serum transformed my skin! I noticed a visible reduction in dark spots.'
+            },
+            {
+                id: 'fallback-review-2',
+                customerName: 'Emily Chen',
+                profileImage: 'https://i.pravatar.cc/100?img=5',
+                rating: 5,
+                text: 'Best skincare shopping experience! Fast shipping and authentic products.'
+            },
+            {
+                id: 'fallback-review-3',
+                customerName: 'Maria Garcia',
+                profileImage: 'https://i.pravatar.cc/100?img=9',
+                rating: 5,
+                text: 'I am obsessed with their moisturizer! My dry skin has never felt so hydrated.'
+            }
+        ];
+    }
+}
+
 // ============================================
 // 5. USER AUTHENTICATION (INTEGRATED WITH ADMIN)
 // ============================================
@@ -328,6 +476,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize all systems
     initTheme();
     initMobileMenu();
+    initPasswordToggles();
     updateCartCount();
     updateWishlistCount();
     updateAccountLink();
@@ -407,6 +556,10 @@ window.LuxeBeauty = {
     // UI
     showToast: showToast,
     updateAllWishlistIcons: updateAllWishlistIcons,
+
+    // Dynamic content
+    getBanners: getBanners,
+    getReviews: getReviews,
 
     // Utils
     formatPrice: formatPrice,

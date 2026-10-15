@@ -22,19 +22,23 @@ service cloud.firestore {
 
     match /orders/{orderId} {
       allow read: if isAdmin() || (isLoggedIn() && resource.data.userId == request.auth.uid);
-      allow create: if isLoggedIn() && request.resource.data.userId == request.auth.uid;
+      allow create: if isAdmin() || (isLoggedIn() && request.resource.data.userId == request.auth.uid);
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
 
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
-      allow create: if isLoggedIn() && request.auth.uid == userId;
+      allow create: if isAdmin() || (isLoggedIn() && request.auth.uid == userId);
       allow update: if isOwner(userId) || isAdmin();
       allow delete: if isAdmin();
     }
 
-  
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
     match /_meta/{docId} {
       allow read, write: if isAdmin();
     }

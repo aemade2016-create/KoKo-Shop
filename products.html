@@ -11,6 +11,7 @@
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="responsive.css">
 
     <!-- Firebase Configuration -->
     <script type="module" src="firebase-config.js"></script>
@@ -55,20 +56,20 @@
                         class="text-3xl font-display font-bold bg-gradient-to-r from-primary-500 to-pink-600 bg-clip-text text-transparent">Koko
                         Shop</span>
                 </a>
-    
+
                 <div class="hidden lg:flex items-center space-x-8">
                     <a href="index.html" class="hover:text-primary-500 transition">Home</a>
                     <a href="products.html" class="hover:text-primary-500 transition">Products</a>
                     <a href="about.html" class="hover:text-primary-500 transition">About</a>
                     <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
                 </div>
-    
+
                 <div class="flex items-center space-x-4">
                     <button id="themeToggle" class="hover:text-primary-500 transition">
                         <i class="fas fa-moon dark:hidden"></i>
                         <i class="fas fa-sun hidden dark:inline"></i>
                     </button>
-    
+
                     <!-- Admin Panel Icon (Visible ONLY for admin@aemade2016@gmail.com) -->
                     <a href="admin-dashboard.html" id="adminPanelIcon"
                         class="hidden text-purple-500 hover:text-purple-600 transition group relative"
@@ -78,29 +79,29 @@
                             <span class="text-xs font-semibold">Admin</span>
                         </div>
                     </a>
-    
+
                     <a href="./profile.html" id="accountLink" class="text-primary-500 transition">
                         <i class="fas fa-user"></i>
                     </a>
-    
+
                     <a href="wishlist.html" class="relative hover:text-primary-500 transition">
                         <i class="fas fa-heart"></i>
                         <span id="wishlistCount"
                             class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
                     </a>
-    
+
                     <a href="cart.html" class="relative hover:text-primary-500 transition">
                         <i class="fas fa-shopping-bag"></i>
                         <span id="cartCount"
                             class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
                     </a>
-    
+
                     <button id="mobileMenuBtn" class="lg:hidden hover:text-primary-500 transition">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
                 </div>
             </div>
-    
+
             <!-- Mobile Menu -->
             <div id="mobileMenu" class="hidden lg:hidden mt-4 pb-4 border-t dark:border-gray-700 pt-4">
                 <div class="flex flex-col space-y-3">
@@ -150,38 +151,7 @@
                                 <i class="fas fa-tag text-primary-500 mr-2"></i>
                                 Category
                             </h3>
-                            <div class="space-y-2">
-                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
-                                    <input type="checkbox" class="category-filter mr-2 rounded text-primary-500"
-                                        value="all" checked>
-                                    <span>All Products</span>
-                                </label>
-                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
-                                    <input type="checkbox" class="category-filter mr-2 rounded text-primary-500"
-                                        value="Serum">
-                                    <span>Serums</span>
-                                </label>
-                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
-                                    <input type="checkbox" class="category-filter mr-2 rounded text-primary-500"
-                                        value="Moisturizer">
-                                    <span>Moisturizers</span>
-                                </label>
-                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
-                                    <input type="checkbox" class="category-filter mr-2 rounded text-primary-500"
-                                        value="Cleanser">
-                                    <span>Cleansers</span>
-                                </label>
-                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
-                                    <input type="checkbox" class="category-filter mr-2 rounded text-primary-500"
-                                        value="Sunscreen">
-                                    <span>Sunscreen</span>
-                                </label>
-                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
-                                    <input type="checkbox" class="category-filter mr-2 rounded text-primary-500"
-                                        value="Mask">
-                                    <span>Masks</span>
-                                </label>
-                            </div>
+                            <div id="categoryFiltersContainer" class="space-y-2"></div>
                         </div>
 
                         <!-- Price Range -->
@@ -374,12 +344,60 @@
     </footer>
 
     <script>
-        // Load Products from localStorage
-        var allProducts = JSON.parse(localStorage.getItem('luxe_products')) || [];
+        function getNormalizedProducts() {
+            var source = JSON.parse(localStorage.getItem('luxe_products')) || [];
+            return source.map(function (product) {
+                var original = Number(product.originalPrice || product.price || 0);
+                var sale = Number(product.salePrice || product.price || original);
+                if (sale > original && original > 0) {
+                    sale = original;
+                }
+                var savings = original > 0 ? Math.max(original - sale, 0) : 0;
+                var discountPercent = original > 0 ? Math.round((savings / original) * 100) : 0;
 
+                return Object.assign({}, product, {
+                    originalPrice: original,
+                    salePrice: sale,
+                    price: sale,
+                    savings: savings,
+                    discountPercent: discountPercent,
+                    hasDiscount: original > sale && sale > 0
+                });
+            });
+        }
+
+        function getCategories() {
+            var stored = JSON.parse(localStorage.getItem('luxe_categories')) || [];
+            return stored.length ? stored : [
+                { name: 'Serum' },
+                { name: 'Moisturizer' },
+                { name: 'Cleanser' },
+                { name: 'Sunscreen' },
+                { name: 'Mask' },
+                { name: 'Toner' }
+            ];
+        }
+
+        function renderCategoryFilters() {
+            var container = document.getElementById('categoryFiltersContainer');
+            if (!container) return;
+
+            var categories = getCategories();
+            var html = '<label class="flex items-center cursor-pointer hover:text-primary-500 transition"><input type="checkbox" class="category-filter mr-2 rounded text-primary-500" value="all" checked><span>All Products</span></label>';
+
+            categories.forEach(function (category) {
+                html += '<label class="flex items-center cursor-pointer hover:text-primary-500 transition"><input type="checkbox" class="category-filter mr-2 rounded text-primary-500" value="' + category.name + '"><span>' + category.name + '</span></label>';
+            });
+
+            container.innerHTML = html;
+            document.querySelectorAll('.category-filter').forEach(function (el) {
+                el.addEventListener('change', filterProducts);
+            });
+        }
+
+        var allProducts = getNormalizedProducts();
         var filteredProducts = allProducts.slice();
 
-        // Generate Stars
         function generateStars(rating) {
             var stars = '';
             for (var i = 0; i < 5; i++) {
@@ -388,7 +406,6 @@
             return stars;
         }
 
-        // Render Products
         function renderProducts() {
             var grid = document.getElementById('productsGrid');
             var noResults = document.getElementById('noResults');
@@ -405,6 +422,11 @@
 
             var html = '';
             filteredProducts.forEach(function (product) {
+                var originalPrice = Number(product.originalPrice || product.price || 0);
+                var displayPrice = Number(product.price || 0);
+                var savings = Number(product.savings || 0);
+                var badge = product.hasDiscount ? 'وفرت ' + Math.round(savings) + ' جنيه' : 'خصم ' + (product.discountPercent || 0) + '%';
+
                 html += '<div class="product-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg cursor-pointer" onclick="showProductDetail(' + product.id + ')">';
                 html += '<div class="relative aspect-square overflow-hidden">';
                 html += '<img src="' + product.image + '" alt="' + product.name + '" class="w-full h-full object-cover" loading="lazy">';
@@ -412,19 +434,23 @@
                 html += '<i class="far fa-heart" data-wishlist-id="' + product.id + '"></i>';
                 html += '</button>';
                 html += '<span class="absolute top-4 left-4 bg-primary-500 text-white px-3 py-1 rounded-full text-xs font-semibold">' + product.category + '</span>';
+                if (product.hasDiscount) {
+                    html += '<span class="absolute bottom-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">' + badge + '</span>';
+                }
                 html += '</div>';
                 html += '<div class="p-6">';
                 html += '<h3 class="font-semibold text-lg mb-2">' + product.name + '</h3>';
                 html += '<div class="flex items-center mb-3">';
                 html += generateStars(product.rating);
-                html += '<span class="text-sm text-gray-500 ml-2">(' + product.reviews + ')</span>';
+                html += '<span class="text-sm text-gray-500 ml-2">(' + (product.reviews || 0) + ')</span>';
                 html += '</div>';
                 html += '<p class="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">' + product.description + '</p>';
                 html += '<div class="flex items-center justify-between">';
-                html += '<span class="text-2xl font-bold text-primary-500">EGP' + product.price + '</span>';
-                html += '<button onclick="event.stopPropagation(); addToCartFromProducts(' + product.id + ')" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-full transition">';
-                html += '<i class="fas fa-shopping-cart"></i>';
-                html += '</button>';
+                html += '<div class="flex flex-col">';
+                html += '<span class="text-sm text-gray-400 line-through">EGP ' + originalPrice.toFixed(2) + '</span>';
+                html += '<span class="text-2xl font-bold text-primary-500">EGP ' + displayPrice.toFixed(2) + '</span>';
+                html += '</div>';
+                html += '<button onclick="event.stopPropagation(); addToCartFromProducts(' + product.id + ')" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-full transition"><i class="fas fa-shopping-cart"></i></button>';
                 html += '</div>';
                 html += '</div>';
                 html += '</div>';
@@ -433,7 +459,6 @@
             grid.innerHTML = html;
         }
 
-        // Filter Products
         function filterProducts() {
             var searchTerm = document.getElementById('searchInput').value.toLowerCase();
             var maxPrice = parseFloat(document.getElementById('priceRange').value);
@@ -451,8 +476,8 @@
 
             filteredProducts = allProducts.filter(function (product) {
                 var matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
-                    product.description.toLowerCase().includes(searchTerm);
-                var matchesPrice = product.price <= maxPrice;
+                    (product.description || '').toLowerCase().includes(searchTerm);
+                var matchesPrice = Number(product.price || 0) <= maxPrice;
                 var matchesRating = selectedRating === 0 || product.rating >= selectedRating;
                 var matchesCategory = selectedCategories.length === 0 ||
                     selectedCategories.includes('all') ||
@@ -468,7 +493,6 @@
             renderProducts();
         }
 
-        // Sort Products
         function sortProducts() {
             var sortBy = document.getElementById('sortSelect').value;
 
@@ -488,11 +512,10 @@
             }
         }
 
-        // Reset Filters
         function resetFilters() {
             document.getElementById('searchInput').value = '';
-            document.getElementById('priceRange').value = 100;
-            document.getElementById('priceValue').textContent = 'EGP 100';
+            document.getElementById('priceRange').value = 1000;
+            document.getElementById('priceValue').textContent = 'EGP 1000';
             document.querySelectorAll('.category-filter').forEach(function (cb) {
                 cb.checked = cb.value === 'all';
             });
@@ -504,7 +527,6 @@
             filterProducts();
         }
 
-        // Event Listeners
         document.getElementById('searchInput').addEventListener('input', filterProducts);
         document.getElementById('priceRange').addEventListener('input', function () {
             document.getElementById('priceValue').textContent = 'EGP ' + this.value;
@@ -514,11 +536,10 @@
             sortProducts();
             renderProducts();
         });
-        document.querySelectorAll('.category-filter, .skin-filter, .rating-filter').forEach(function (el) {
+        document.querySelectorAll('.skin-filter, .rating-filter').forEach(function (el) {
             el.addEventListener('change', filterProducts);
         });
 
-        // Add to cart using app.js
         function addToCartFromProducts(productId) {
             var product = allProducts.find(function (p) { return p.id === productId; });
             if (product) {
@@ -530,7 +551,6 @@
             }
         }
 
-        // Toggle wishlist using app.js
         function toggleWishlistFromProducts(productId) {
             var product = allProducts.find(function (p) { return p.id === productId; });
             if (product) {
@@ -542,33 +562,35 @@
             }
         }
 
-        // Product Modal
         function showProductDetail(productId) {
             var product = allProducts.find(function (p) { return p.id === productId; });
             if (!product) return;
 
             var modal = document.getElementById('productModal');
             var content = document.getElementById('productModalContent');
+            var badgeText = product.hasDiscount ? 'وفرت ' + Math.round(product.savings || 0) + ' جنيه' : 'خصم ' + (product.discountPercent || 0) + '%';
 
             var html = '<div class="grid md:grid-cols-2 gap-8">';
             html += '<div><img src="' + product.image + '" alt="' + product.name + '" class="w-full rounded-2xl"></div>';
             html += '<div>';
-            html += '<span class="text-sm text-primary-500 font-semibold">' + product.category + '</span>';
+            html += '<div class="flex items-center gap-3 mb-3"><span class="text-sm text-primary-500 font-semibold">' + product.category + '</span>';
+            if (product.hasDiscount) {
+                html += '<span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">' + badgeText + '</span>';
+            }
+            html += '</div>';
             html += '<h2 class="text-3xl font-display font-bold mt-2 mb-4">' + product.name + '</h2>';
             html += '<div class="flex items-center mb-4">';
             html += generateStars(product.rating);
-            html += '<span class="text-sm text-gray-500 ml-2">(' + product.reviews + ' reviews)</span>';
+            html += '<span class="text-sm text-gray-500 ml-2">(' + (product.reviews || 0) + ' reviews)</span>';
             html += '</div>';
             html += '<p class="text-gray-600 dark:text-gray-400 mb-4">' + product.description + '</p>';
-            html += '<div class="mb-4"><span class="text-sm font-semibold">Skin Type:</span> <span class="text-gray-600 dark:text-gray-400">' + product.skinType + '</span></div>';
-            html += '<div class="text-4xl font-bold text-primary-500 mb-6">EGP' + product.price + '</div>';
+            html += '<div class="flex items-center gap-3 mb-6">';
+            html += '<span class="text-sm text-gray-400 line-through">EGP ' + Number(product.originalPrice || product.price || 0).toFixed(2) + '</span>';
+            html += '<span class="text-4xl font-bold text-primary-500">EGP ' + Number(product.price || 0).toFixed(2) + '</span>';
+            html += '</div>';
             html += '<div class="space-y-4">';
-            html += '<button onclick="addToCartFromProducts(' + product.id + '); closeProductModal();" class="w-full bg-primary-500 hover:bg-primary-600 text-white py-4 rounded-full font-semibold transition">';
-            html += '<i class="fas fa-shopping-cart mr-2"></i>Add to Cart';
-            html += '</button>';
-            html += '<button onclick="toggleWishlistFromProducts(' + product.id + ')" class="w-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 py-4 rounded-full font-semibold transition">';
-            html += '<i class="far fa-heart mr-2"></i>Add to Wishlist';
-            html += '</button>';
+            html += '<button onclick="addToCartFromProducts(' + product.id + '); closeProductModal();" class="w-full bg-primary-500 hover:bg-primary-600 text-white py-4 rounded-full font-semibold transition"><i class="fas fa-shopping-cart mr-2"></i>Add to Cart</button>';
+            html += '<button onclick="toggleWishlistFromProducts(' + product.id + ')" class="w-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 py-4 rounded-full font-semibold transition"><i class="far fa-heart mr-2"></i>Add to Wishlist</button>';
             html += '</div>';
             html += '</div>';
             html += '</div>';
@@ -586,7 +608,6 @@
             modal.style.display = 'none';
         }
 
-        // Toast
         function showToast(message) {
             var toast = document.getElementById('toast');
             var toastMessage = document.getElementById('toastMessage');
@@ -598,7 +619,7 @@
             }, 3000);
         }
 
-        // Initialize
+        renderCategoryFilters();
         renderProducts();
     </script>
 </body>
