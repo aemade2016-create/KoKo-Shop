@@ -4,25 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - Luxe Beauty</title>
+    <title>Checkout - Koko Shop</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="i18n.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="responsive.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .font-display {
-            font-family: 'Playfair Display', serif;
-        }
-
         .payment-option {
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
         }
 
         .payment-option.selected {
@@ -31,7 +25,8 @@
         }
 
         .dark .payment-option.selected {
-            background: linear-gradient(135deg, #831843 0%, #9d174d 100%);
+            background: linear-gradient(135deg, rgba(80, 7, 36, 0.4) 0%, rgba(131, 24, 67, 0.4) 100%);
+            border-color: #f472b6;
         }
     </style>
     <script>
@@ -51,426 +46,499 @@
                             700: '#be185d',
                             800: '#9d174d',
                             900: '#831843',
+                            950: '#500724',
                         }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', '"Poppins"', 'sans-serif'],
+                        display: ['"Playfair Display"', 'Georgia', 'serif'],
                     }
                 }
             }
-        }
+        };
     </script>
 </head>
 
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+<body class="bg-[#fdf8fa] dark:bg-[#0f172a] text-gray-800 dark:text-gray-100 transition-colors duration-300 antialiased selection:bg-pink-100 selection:text-pink-600 min-h-screen flex flex-col">
 
-    <!-- Navbar -->
-    <nav
-        class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-md transition-colors duration-300">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <a href="index.html" class="flex items-center space-x-2">
-                    <i class="fa-brands fa-shopify text-primary-500 text-4xl"></i>
-                    <span
-                        class="text-3xl font-display font-bold bg-gradient-to-r from-primary-500 to-pink-600 bg-clip-text text-transparent">Koko
-                        Shop</span>
+    <!-- Top Announcement Bar -->
+    <aside aria-label="Announcement" class="bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white text-xs font-medium py-2.5 px-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="hidden sm:flex items-center space-x-2">
+                <i class="fas fa-sparkles text-xs"></i>
+                <span data-i18n="announcement_shipping">Complimentary Express Shipping on Orders Over EGP 500</span>
+            </div>
+            <div class="w-full sm:w-auto text-center sm:text-right flex items-center justify-center sm:justify-end space-x-4">
+                <span class="inline-flex items-center">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
+                    <span data-i18n="announcement_clean">100% Certified Clean Formulas</span>
+                </span>
+                <span class="text-pink-200">|</span>
+                <a href="index.html#skin-quiz" class="hover:underline flex items-center">
+                    <span data-i18n="announcement_quiz">Free 2-Min Skin Quiz</span>
+                    <i class="fas fa-chevron-right text-[9px] ml-1"></i>
                 </a>
-    
-                <div class="hidden lg:flex items-center space-x-8">
-                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
-                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
-                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
-                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
-                </div>
-    
-                <div class="flex items-center space-x-4">
-                    <button id="themeToggle" class="hover:text-primary-500 transition">
-                        <i class="fas fa-moon dark:hidden"></i>
-                        <i class="fas fa-sun hidden dark:inline"></i>
-                    </button>
-    
-                    <!-- Admin Panel Icon (Visible ONLY for admin@aemade2016@gmail.com) -->
+            </div>
+        </div>
+    </aside>
+
+    <!-- Global Floating Glassmorphic Navbar -->
+    <header class="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-pink-100 dark:border-slate-800 shadow-sm transition-colors duration-300">
+        <div class="container mx-auto px-4 py-3.5">
+            <div class="flex items-center justify-between">
+                <!-- Brand Logo -->
+                <a href="index.html" class="flex items-center space-x-2.5 group">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 to-rose-400 text-white flex items-center justify-center shadow-md shadow-pink-500/25 group-hover:scale-105 transition-transform">
+                        <i class="fa-brands fa-shopify text-xl"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-2xl font-display font-bold tracking-tight text-gray-900 dark:text-white">
+                            KoKo <span class="italic font-normal text-pink-500">Shop</span>
+                        </span>
+                        <span class="text-[9px] uppercase tracking-widest text-pink-500 font-semibold -mt-1">Clean Beauty Rituals</span>
+                    </div>
+                </a>
+
+                <!-- Centered Navigation Links -->
+                <nav class="hidden lg:flex items-center space-x-8 text-sm font-medium text-gray-700 dark:text-gray-200">
+                    <a href="index.html" class="hover:text-pink-500 transition" data-i18n="nav_home">Home</a>
+                    <a href="products.html" class="hover:text-pink-500 transition" data-i18n="nav_shop_all">Shop All</a>
+                    <a href="products.html?category=Serum" class="hover:text-pink-500 transition" data-i18n="nav_serums">Serums</a>
+                    <a href="products.html?category=Moisturizer" class="hover:text-pink-500 transition" data-i18n="nav_moisturizers">Moisturizers</a>
+                    <a href="index.html#skin-quiz" class="hover:text-pink-500 transition" data-i18n="nav_skin_diagnostic">Skin Diagnostic</a>
+                    <a href="about.html" class="hover:text-pink-500 transition" data-i18n="nav_our_ethos">Our Ethos</a>
+                </nav>
+
+                <!-- Action Utilities (Search, User, Wishlist, Cart, Theme, Lang) -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <!-- Admin Panel Link (Protected for Admin) -->
                     <a href="admin-dashboard.html" id="adminPanelIcon"
-                        class="hidden text-purple-500 hover:text-purple-600 transition group relative"
+                        class="hidden p-2 rounded-full text-pink-600 bg-pink-50 hover:bg-pink-100 dark:bg-pink-950/50 dark:hover:bg-pink-900/50 transition"
                         title="Admin Dashboard">
-                        <div class="flex items-center space-x-1">
-                            <i class="fas fa-cog text-xl group-hover:rotate-90 transition-transform duration-300"></i>
-                            <span class="text-xs font-semibold">Admin</span>
-                        </div>
+                        <i class="fas fa-crown text-sm"></i>
                     </a>
-    
-                    <a href="./profile.html" id="accountLink" class="text-primary-500 transition">
-                        <i class="fas fa-user"></i>
+
+                    <!-- Account Link -->
+                    <a href="login.html" id="accountLink"
+                        class="p-2 text-gray-600 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-800 rounded-full transition"
+                        title="Account">
+                        <i class="far fa-user text-base"></i>
                     </a>
-    
-                    <a href="wishlist.html" class="relative hover:text-primary-500 transition">
-                        <i class="fas fa-heart"></i>
+
+                    <!-- Wishlist -->
+                    <a href="wishlist.html"
+                        class="relative p-2 text-gray-600 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-800 rounded-full transition"
+                        title="Wishlist">
+                        <i class="far fa-heart text-base"></i>
                         <span id="wishlistCount"
-                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                            class="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
                     </a>
-    
-                    <a href="cart.html" class="relative hover:text-primary-500 transition">
-                        <i class="fas fa-shopping-bag"></i>
+
+                    <!-- Cart Button with Pill Badge -->
+                    <a href="cart.html"
+                        class="relative p-2 text-gray-600 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-800 rounded-full transition"
+                        title="Shopping Bag">
+                        <i class="fas fa-bag-shopping text-base"></i>
                         <span id="cartCount"
-                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                            class="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-sm shadow-pink-500/30">0</span>
                     </a>
-    
-                    <button id="mobileMenuBtn" class="lg:hidden hover:text-primary-500 transition">
+
+                    <!-- Theme Toggle -->
+                    <button id="themeToggle"
+                        class="p-2 text-gray-600 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-800 rounded-full transition"
+                        title="Toggle Light/Dark Theme">
+                        <i class="fas fa-moon text-base dark:hidden"></i>
+                        <i class="fas fa-sun text-base hidden dark:inline"></i>
+                    </button>
+
+                    <!-- Language Switcher -->
+                    <button onclick="toggleLanguage()"
+                        class="px-2.5 py-1 text-xs font-semibold rounded-full border border-pink-200 dark:border-slate-700 text-gray-700 dark:text-gray-200 hover:border-pink-500 hover:text-pink-500 transition">
+                        <span id="langText">AR</span>
+                    </button>
+
+                    <!-- Mobile Menu Trigger -->
+                    <button id="mobileMenuBtn"
+                        class="lg:hidden p-2 text-gray-700 dark:text-gray-200 hover:text-pink-500 rounded-lg">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
                 </div>
             </div>
-    
-            <!-- Mobile Menu -->
-            <div id="mobileMenu" class="hidden lg:hidden mt-4 pb-4 border-t dark:border-gray-700 pt-4">
-                <div class="flex flex-col space-y-3">
-                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
-                    <a href="products.html" class="hover:text-primary-500 transition">Shop</a>
-                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
-                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
-                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
+
+            <!-- Mobile Navigation Drawer -->
+            <div id="mobileMenu" class="hidden lg:hidden mt-4 pt-4 border-t border-pink-100 dark:border-slate-800 space-y-3 pb-2">
+                <a href="index.html" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_home">Home</a>
+                <a href="products.html" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_shop_all_products">Shop All Products</a>
+                <a href="products.html?category=Serum" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_serums_elixirs">Serums & Elixirs</a>
+                <a href="products.html?category=Moisturizer" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_barrier_creams">Barrier Creams</a>
+                <a href="index.html#skin-quiz" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_diagnostic_quiz">Skin Diagnostic Quiz</a>
+                <a href="about.html" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_about_ethos">About Our Ethos</a>
+            </div>
+        </div>
+    </header>
+                    <a href="about.html" class="px-3 py-2 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-pink-50 dark:hover:bg-slate-800">About</a>
+                    <a href="index.html#contact" class="px-3 py-2 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-pink-50 dark:hover:bg-slate-800">Contact</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Checkout Progress -->
-    <div class="bg-white dark:bg-gray-800 py-6 shadow-sm">
+    <!-- Checkout Progress Stepper -->
+    <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-pink-100/60 dark:border-slate-700/60 py-4">
         <div class="container mx-auto px-4">
-            <div class="flex items-center justify-center space-x-4">
-                <div class="flex items-center">
-                    <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center">
-                        <i class="fas fa-check text-sm"></i>
+            <div class="flex items-center justify-center space-x-3 sm:space-x-6 text-xs sm:text-sm font-semibold">
+                <!-- Step 1: Cart Completed -->
+                <a href="cart.html" class="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400 group">
+                    <div class="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950/60 flex items-center justify-center group-hover:scale-105 transition">
+                        <i class="fas fa-check text-xs"></i>
                     </div>
-                    <span class="ml-2 text-sm font-semibold">Cart</span>
+                    <span>Shopping Bag</span>
+                </a>
+
+                <div class="w-8 sm:w-16 h-0.5 bg-pink-400 rounded-full"></div>
+
+                <!-- Step 2: Checkout Active -->
+                <div class="flex items-center space-x-2 text-pink-600 dark:text-pink-400">
+                    <div class="w-7 h-7 rounded-full bg-pink-500 text-white flex items-center justify-center shadow-sm shadow-pink-500/30">
+                        <span class="text-xs font-bold">2</span>
+                    </div>
+                    <span>Checkout & Delivery</span>
                 </div>
-                <div class="w-16 h-0.5 bg-primary-500"></div>
-                <div class="flex items-center">
-                    <div class="w-8 h-8 bg-primary-500 text-white rounded-full flex items-center justify-center">
-                        <span class="text-sm font-bold">2</span>
+
+                <div class="w-8 sm:w-16 h-0.5 bg-pink-200 dark:bg-slate-700 rounded-full"></div>
+
+                <!-- Step 3: Complete Upcoming -->
+                <div class="flex items-center space-x-2 text-gray-400">
+                    <div class="w-7 h-7 rounded-full bg-pink-50 dark:bg-slate-700 flex items-center justify-center">
+                        <span class="text-xs font-bold">3</span>
                     </div>
-                    <span class="ml-2 text-sm font-semibold text-primary-500">Checkout</span>
-                </div>
-                <div class="w-16 h-0.5 bg-gray-300 dark:bg-gray-600"></div>
-                <div class="flex items-center">
-                    <div
-                        class="w-8 h-8 bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-400 rounded-full flex items-center justify-center">
-                        <span class="text-sm font-bold">3</span>
-                    </div>
-                    <span class="ml-2 text-sm text-gray-500">Complete</span>
+                    <span>Confirmation</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <section class="py-12">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Checkout Form -->
-                <div class="lg:col-span-2">
-                    <form id="checkoutForm" class="space-y-8">
-                        <!-- Contact Information -->
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
-                            <h2 class="text-2xl font-display font-bold mb-6 flex items-center">
-                                <i class="fas fa-envelope text-primary-500 mr-3"></i>
-                                Contact Information
-                            </h2>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-semibold mb-2">Email Address *</label>
-                                    <input type="email" id="email" required
-                                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
-                                        placeholder="your@email.com">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold mb-2">Phone Number *</label>
-                                    <input type="tel" id="phone" required
-                                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
-                                        placeholder="+1 (555) 123-4567">
-                                </div>
+    <!-- Main Checkout Form & Summary Grid -->
+    <main class="container mx-auto px-4 py-12 flex-1">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            
+            <!-- Left Form Area -->
+            <div class="lg:col-span-2">
+                <form id="checkoutForm" class="space-y-6">
+                    
+                    <!-- Contact Information -->
+                    <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 border border-pink-100/80 dark:border-slate-700/80 shadow-sm">
+                        <h2 class="text-lg sm:text-xl font-display font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                            <i class="fas fa-envelope text-pink-500 mr-2.5 text-base"></i>
+                            Contact Details
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="email" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
+                                    Email Address *
+                                </label>
+                                <input type="email" id="email" required
+                                    class="w-full px-4 py-3 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-gray-800 dark:text-white text-sm focus:ring-2 focus:ring-pink-400 focus:border-pink-300 outline-none transition"
+                                    placeholder="client@domain.com">
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
+                                    Mobile Phone Number *
+                                </label>
+                                <input type="tel" id="phone" required
+                                    class="w-full px-4 py-3 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-gray-800 dark:text-white text-sm focus:ring-2 focus:ring-pink-400 focus:border-pink-300 outline-none transition"
+                                    placeholder="+20 10 1234 5678">
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Shipping Address -->
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
-                            <h2 class="text-2xl font-display font-bold mb-6 flex items-center">
-                                <i class="fas fa-map-marker-alt text-primary-500 mr-3"></i>
-                                Shipping Address
-                            </h2>
-                            <div class="space-y-4">
+                    <!-- Shipping Address -->
+                    <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 border border-pink-100/80 dark:border-slate-700/80 shadow-sm">
+                        <h2 class="text-lg sm:text-xl font-display font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                            <i class="fas fa-location-dot text-pink-500 mr-2.5 text-base"></i>
+                            Delivery Ritual Destination
+                        </h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="fullName" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
+                                    Full Name *
+                                </label>
+                                <input type="text" id="fullName" required
+                                    class="w-full px-4 py-3 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-gray-800 dark:text-white text-sm focus:ring-2 focus:ring-pink-400 focus:border-pink-300 outline-none transition"
+                                    placeholder="Amina Mansour">
+                            </div>
+
+                            <div>
+                                <label for="street" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
+                                    Street Address & Building *
+                                </label>
+                                <input type="text" id="street" required
+                                    class="w-full px-4 py-3 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-gray-800 dark:text-white text-sm focus:ring-2 focus:ring-pink-400 focus:border-pink-300 outline-none transition"
+                                    placeholder="15 El Nil Street, Zamalek">
+                            </div>
+
+                            <div>
+                                <label for="apartment" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
+                                    Apartment, Suite, Unit (Optional)
+                                </label>
+                                <input type="text" id="apartment"
+                                    class="w-full px-4 py-3 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-gray-800 dark:text-white text-sm focus:ring-2 focus:ring-pink-400 focus:border-pink-300 outline-none transition"
+                                    placeholder="Floor 4, Apt 402">
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <label class="block text-sm font-semibold mb-2">Full Name *</label>
-                                    <input type="text" id="fullName" required
-                                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
-                                        placeholder="John Doe">
+                                    <label for="city" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
+                                        City / Governorate *
+                                    </label>
+                                    <input type="text" id="city" required
+                                        class="w-full px-4 py-3 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-gray-800 dark:text-white text-sm focus:ring-2 focus:ring-pink-400 focus:border-pink-300 outline-none transition"
+                                        placeholder="Cairo">
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-semibold mb-2">Street Address *</label>
-                                    <input type="text" id="street" required
-                                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
-                                        placeholder="123 Main Street">
+                                    <label for="state" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
+                                        District / Area *
+                                    </label>
+                                    <input type="text" id="state" required
+                                        class="w-full px-4 py-3 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-gray-800 dark:text-white text-sm focus:ring-2 focus:ring-pink-400 focus:border-pink-300 outline-none transition"
+                                        placeholder="Zamalek">
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-semibold mb-2">Apartment, Suite, etc.
-                                        (Optional)</label>
-                                    <input type="text" id="apartment"
-                                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
-                                        placeholder="Apt 4B">
-                                </div>
-
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-semibold mb-2">City *</label>
-                                        <input type="text" id="city" required
-                                            class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
-                                            placeholder="New York">
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-sm font-semibold mb-2">State/Province *</label>
-                                        <input type="text" id="state" required
-                                            class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
-                                            placeholder="NY">
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-sm font-semibold mb-2">ZIP/Postal Code *</label>
-                                        <input type="text" id="zip" required
-                                            class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
-                                            placeholder="10001">
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-semibold mb-2">Country *</label>
-                                    <select id="country" required
-                                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition">
-                                        <option value="">Select Country</option>
-                                        <option value="US">United States</option>
-                                        <option value="CA">Canada</option>
-                                        <option value="UK">United Kingdom</option>
-                                        <option value="AU">Australia</option>
-                                        <option value="DE">Germany</option>
-                                        <option value="FR">France</option>
-                                        <option value="IT">Italy</option>
-                                        <option value="ES">Spain</option>
-                                        <option value="JP">Japan</option>
-                                        <option value="CN">China</option>
-                                    </select>
+                                    <label for="zip" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
+                                        Postal Code *
+                                    </label>
+                                    <input type="text" id="zip" required
+                                        class="w-full px-4 py-3 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-gray-800 dark:text-white text-sm focus:ring-2 focus:ring-pink-400 focus:border-pink-300 outline-none transition"
+                                        placeholder="11211">
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Account Creation -->
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
-                            <h2 class="text-2xl font-display font-bold mb-6 flex items-center">
-                                <i class="fas fa-user-plus text-primary-500 mr-3"></i>
-                                Create Account (Optional)
-                            </h2>
-                            <div class="mb-4">
+                            <div>
+                                <label for="country" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
+                                    Country *
+                                </label>
+                                <select id="country" required
+                                    class="w-full px-4 py-3 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-gray-800 dark:text-white text-sm focus:ring-2 focus:ring-pink-400 focus:border-pink-300 outline-none transition cursor-pointer">
+                                    <option value="EG" selected>Egypt</option>
+                                    <option value="SA">Saudi Arabia</option>
+                                    <option value="AE">United Arab Emirates</option>
+                                    <option value="KW">Kuwait</option>
+                                    <option value="QA">Qatar</option>
+                                    <option value="US">United States</option>
+                                    <option value="UK">United Kingdom</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Optional Account Creation -->
+                    <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 border border-pink-100/80 dark:border-slate-700/80 shadow-sm">
+                        <div class="flex items-center space-x-3">
+                            <input type="checkbox" id="createAccount" class="w-4 h-4 rounded accent-pink-500 cursor-pointer">
+                            <label for="createAccount" class="text-xs sm:text-sm font-semibold text-gray-800 dark:text-gray-200 cursor-pointer select-none">
+                                Create an account to track delivery rituals and receive VIP concierge access
+                            </label>
+                        </div>
+                        <div id="passwordField" class="hidden mt-4 pt-4 border-t border-pink-50 dark:border-slate-700">
+                            <label for="password" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
+                                Create Password *
+                            </label>
+                            <div class="relative">
+                                <input type="password" id="password"
+                                    class="w-full px-4 py-3 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-gray-800 dark:text-white text-sm focus:ring-2 focus:ring-pink-400 focus:border-pink-300 outline-none transition pr-12"
+                                    placeholder="Minimum 8 characters">
+                                <button type="button" onclick="togglePasswordVisibility()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-pink-600 transition" aria-label="Toggle password visibility">
+                                    <i id="passwordIcon" class="fas fa-eye text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 border border-pink-100/80 dark:border-slate-700/80 shadow-sm">
+                        <h2 class="text-lg sm:text-xl font-display font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                            <i class="fas fa-credit-card text-pink-500 mr-2.5 text-base"></i>
+                            Select Payment Ritual
+                        </h2>
+
+                        <div class="space-y-3.5">
+                            <!-- Option 1: Credit / Debit Card -->
+                            <div class="payment-option border border-pink-100 dark:border-slate-700 rounded-2xl p-4 sm:p-5" onclick="selectPayment('card')">
                                 <label class="flex items-center cursor-pointer">
-                                    <input type="checkbox" id="createAccount"
-                                        class="mr-3 w-5 h-5 text-primary-500 rounded focus:ring-2 focus:ring-primary-500">
-                                    <span class="text-sm">Create an account to track your orders and save your
-                                        information for faster checkout</span>
+                                    <input type="radio" name="payment" value="card" class="mr-3 w-4 h-4 accent-pink-500">
+                                    <div class="flex-1 flex items-center justify-between">
+                                        <div class="flex items-center space-x-2.5">
+                                            <i class="fas fa-credit-card text-pink-500"></i>
+                                            <span class="text-sm font-semibold text-gray-900 dark:text-white">Credit / Debit Card</span>
+                                        </div>
+                                        <div class="flex space-x-2 text-gray-400">
+                                            <i class="fab fa-cc-visa text-xl text-blue-600"></i>
+                                            <i class="fab fa-cc-mastercard text-xl text-rose-500"></i>
+                                        </div>
+                                    </div>
                                 </label>
                             </div>
-                            <div id="passwordField" class="hidden">
-                                <label class="block text-sm font-semibold mb-2">Create Password *</label>
-                                <div class="relative">
-                                    <input type="password" id="password"
-                                        class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition pr-12"
-                                        placeholder="Enter password">
-                                    <button type="button" onclick="togglePasswordVisibility()"
-                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary-500 transition">
-                                        <i id="passwordIcon" class="fas fa-eye"></i>
-                                    </button>
-                                </div>
-                                <p class="text-xs text-gray-500 mt-2">Password must be at least 8 characters</p>
-                            </div>
-                        </div>
 
-                        <!-- Payment Method -->
-                        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
-                            <h2 class="text-2xl font-display font-bold mb-6 flex items-center">
-                                <i class="fas fa-credit-card text-primary-500 mr-3"></i>
-                                Payment Method
-                            </h2>
-
-                            <!-- Payment Options -->
-                            <div class="space-y-4">
-                                <!-- Credit/Debit Card -->
-                                <div class="payment-option border-2 border-gray-300 dark:border-gray-600 rounded-lg p-4"
-                                    onclick="selectPayment('card')">
-                                    <label class="flex items-center cursor-pointer">
-                                        <input type="radio" name="payment" value="card"
-                                            class="mr-3 w-5 h-5 text-primary-500">
-                                        <div class="flex-1 flex items-center justify-between">
-                                            <span class="font-semibold">Credit/Debit Card</span>
-                                            <div class="flex space-x-2">
-                                                <i class="fab fa-cc-visa text-3xl text-blue-600"></i>
-                                                <i class="fab fa-cc-mastercard text-3xl text-red-600"></i>
-                                            </div>
-                                        </div>
+                            <!-- Card Details Accordion -->
+                            <div id="cardDetails" class="hidden bg-pink-50/40 dark:bg-slate-700/30 p-5 rounded-2xl border border-pink-100 dark:border-slate-700 space-y-4">
+                                <div>
+                                    <label for="cardNumber" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
+                                        Card Number *
                                     </label>
+                                    <input type="text" id="cardNumber" maxlength="19" placeholder="1234 5678 9012 3456"
+                                        class="w-full px-4 py-3 rounded-xl border border-pink-100 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-pink-400 outline-none font-mono">
                                 </div>
-
-                                <!-- Card Details -->
-                                <div id="cardDetails" class="hidden ml-8 space-y-4 mt-4">
+                                <div>
+                                    <label for="cardName" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
+                                        Cardholder Name *
+                                    </label>
+                                    <input type="text" id="cardName" placeholder="Amina Mansour"
+                                        class="w-full px-4 py-3 rounded-xl border border-pink-100 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-semibold mb-2">Card Number *</label>
-                                        <input type="text" id="cardNumber" maxlength="19"
-                                            class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
-                                            placeholder="1234 5678 9012 3456">
+                                        <label for="cardExpiry" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
+                                            Expiry (MM/YY) *
+                                        </label>
+                                        <input type="text" id="cardExpiry" maxlength="5" placeholder="12/28"
+                                            class="w-full px-4 py-3 rounded-xl border border-pink-100 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-pink-400 outline-none font-mono">
                                     </div>
-
                                     <div>
-                                        <label class="block text-sm font-semibold mb-2">Cardholder Name *</label>
-                                        <input type="text" id="cardName"
-                                            class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
-                                            placeholder="John Doe">
-                                    </div>
-
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label class="block text-sm font-semibold mb-2">Expiry Date *</label>
-                                            <input type="text" id="cardExpiry" maxlength="5" placeholder="MM/YY"
-                                                class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition">
-                                        </div>
-
-                                        <div>
-                                            <label class="block text-sm font-semibold mb-2 flex items-center">
-                                                CVV *
-                                                <span class="ml-2 text-gray-500 cursor-help"
-                                                    title="3-4 digit security code on the back of your card">
-                                                    <i class="fas fa-question-circle"></i>
-                                                </span>
-                                            </label>
-                                            <input type="text" id="cardCVV" maxlength="4"
-                                                class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none transition"
-                                                placeholder="123">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Digital Wallet -->
-                                <div class="payment-option border-2 border-gray-300 dark:border-gray-600 rounded-lg p-4"
-                                    onclick="selectPayment('wallet')">
-                                    <label class="flex items-center cursor-pointer">
-                                        <input type="radio" name="payment" value="wallet"
-                                            class="mr-3 w-5 h-5 text-primary-500">
-                                        <div class="flex-1 flex items-center justify-between">
-                                            <span class="font-semibold">Digital Wallet</span>
-                                            <div class="flex space-x-2">
-                                                <i class="fab fa-apple-pay text-3xl"></i>
-                                                <i class="fab fa-google-pay text-3xl"></i>
-                                                <i class="fab fa-paypal text-3xl text-blue-600"></i>
-                                            </div>
-                                        </div>
-                                    </label>
-                                </div>
-
-                                <!-- Wallet Details -->
-                                <div id="walletDetails" class="hidden ml-8 mt-4">
-                                    <button type="button"
-                                        class="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-lg font-semibold transition">
-                                        <i class="fas fa-wallet mr-2"></i>Connect Wallet
-                                    </button>
-                                    <p class="text-xs text-gray-500 mt-2">You'll be redirected to complete payment
-                                        securely</p>
-                                </div>
-
-                                <!-- Cash on Delivery -->
-                                <div class="payment-option border-2 border-gray-300 dark:border-gray-600 rounded-lg p-4"
-                                    onclick="selectPayment('cod')">
-                                    <label class="flex items-center cursor-pointer">
-                                        <input type="radio" name="payment" value="cod"
-                                            class="mr-3 w-5 h-5 text-primary-500">
-                                        <div class="flex-1 flex items-center justify-between">
-                                            <span class="font-semibold">Cash on Delivery</span>
-                                            <i class="fas fa-money-bill-wave text-3xl text-green-600"></i>
-                                        </div>
-                                    </label>
-                                </div>
-
-                                <!-- COD Details -->
-                                <div id="codDetails" class="hidden ml-8 mt-4">
-                                    <div
-                                        class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                                        <p class="text-sm text-blue-800 dark:text-blue-300">
-                                            <i class="fas fa-info-circle mr-2"></i>
-                                            Pay with cash when your order is delivered. Please have exact change ready.
-                                        </p>
+                                        <label for="cardCVV" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
+                                            CVV *
+                                        </label>
+                                        <input type="text" id="cardCVV" maxlength="4" placeholder="123"
+                                            class="w-full px-4 py-3 rounded-xl border border-pink-100 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-pink-400 outline-none font-mono">
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Place Order Button -->
-                        <button type="submit"
-                            class="w-full bg-gradient-to-r from-primary-500 to-pink-600 hover:from-primary-600 hover:to-pink-700 text-white py-4 rounded-lg font-semibold text-lg transition transform hover:scale-105 shadow-lg">
-                            <i class="fas fa-lock mr-2"></i>Place Order
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Order Summary -->
-                <div class="lg:col-span-1">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg sticky top-24">
-                        <h2 class="text-2xl font-display font-bold mb-6">Order Summary</h2>
-
-                        <!-- Cart Items -->
-                        <div id="orderItems" class="space-y-4 mb-6 max-h-96 overflow-y-auto">
-                            <!-- Items will be loaded here -->
-                        </div>
-
-                        <!-- Pricing -->
-                        <div class="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-3">
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600 dark:text-gray-400">Subtotal</span>
-                                <span class="font-semibold" id="subtotal">EGP 0.00</span>
+                            <!-- Option 2: Digital Wallets -->
+                            <div class="payment-option border border-pink-100 dark:border-slate-700 rounded-2xl p-4 sm:p-5" onclick="selectPayment('wallet')">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="payment" value="wallet" class="mr-3 w-4 h-4 accent-pink-500">
+                                    <div class="flex-1 flex items-center justify-between">
+                                        <div class="flex items-center space-x-2.5">
+                                            <i class="fas fa-wallet text-pink-500"></i>
+                                            <span class="text-sm font-semibold text-gray-900 dark:text-white">Digital Wallet</span>
+                                        </div>
+                                        <div class="flex space-x-2 text-gray-500">
+                                            <i class="fab fa-apple-pay text-2xl"></i>
+                                            <i class="fab fa-google-pay text-2xl"></i>
+                                            <i class="fab fa-paypal text-xl text-blue-600"></i>
+                                        </div>
+                                    </div>
+                                </label>
                             </div>
 
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600 dark:text-gray-400">Shipping</span>
-                                <span class="font-semibold" id="shipping">EGP 5.99</span>
+                            <div id="walletDetails" class="hidden bg-pink-50/40 dark:bg-slate-700/30 p-5 rounded-2xl border border-pink-100 dark:border-slate-700 text-center">
+                                <p class="text-xs text-gray-500 mb-3">You will be redirected securely to authenticate your digital wallet transaction.</p>
+                                <button type="button" class="bg-slate-900 text-white text-xs font-semibold px-6 py-2.5 rounded-full hover:bg-slate-800 transition">
+                                    Connect Fast Checkout
+                                </button>
                             </div>
 
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600 dark:text-gray-400">Tax (10%)</span>
-                                <span class="font-semibold" id="tax">EGP 0.00</span>
+                            <!-- Option 3: Cash on Delivery -->
+                            <div class="payment-option border border-pink-100 dark:border-slate-700 rounded-2xl p-4 sm:p-5" onclick="selectPayment('cod')">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="payment" value="cod" class="mr-3 w-4 h-4 accent-pink-500">
+                                    <div class="flex-1 flex items-center justify-between">
+                                        <div class="flex items-center space-x-2.5">
+                                            <i class="fas fa-money-bill-wave text-emerald-500"></i>
+                                            <span class="text-sm font-semibold text-gray-900 dark:text-white">Cash on Delivery (COD)</span>
+                                        </div>
+                                        <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full">
+                                            Pay upon arrival
+                                        </span>
+                                    </div>
+                                </label>
                             </div>
 
-                            <div class="border-t border-gray-200 dark:border-gray-700 pt-3">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-xl font-bold">Total</span>
-                                    <span class="text-2xl font-bold text-primary-500" id="total">EGP 0.00</span>
-                                </div>
+                            <div id="codDetails" class="hidden bg-emerald-50/50 dark:bg-emerald-950/20 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-900 text-xs text-emerald-800 dark:text-emerald-300">
+                                <i class="fas fa-info-circle mr-1.5"></i>
+                                Please prepare the exact cash amount for the courier upon ritual delivery.
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Security Badge -->
-                        <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg text-center">
-                            <i class="fas fa-shield-alt text-green-500 text-2xl mb-2"></i>
-                            <p class="text-xs text-gray-600 dark:text-gray-400">
-                                Secure checkout powered by SSL encryption
-                            </p>
+                    <!-- Submit Button -->
+                    <button type="submit"
+                        class="w-full bg-pink-500 hover:bg-pink-600 text-white py-4 px-8 rounded-full font-semibold text-xs tracking-wider uppercase transition-all duration-300 shadow-lg shadow-pink-500/25 flex items-center justify-center space-x-2 transform hover:scale-[1.01]">
+                        <i class="fas fa-lock text-xs"></i>
+                        <span>Complete Ritual Order</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Column: Order Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white dark:bg-slate-800 rounded-3xl border border-pink-100/80 dark:border-slate-700/80 shadow-sm p-6 sm:p-7 sticky top-28">
+                    <h2 class="font-display font-bold text-gray-900 dark:text-white text-xl mb-4 flex items-center justify-between pb-4 border-b border-pink-50 dark:border-slate-700/60">
+                        <span>Ritual Summary</span>
+                        <a href="cart.html" class="text-xs text-pink-600 hover:text-pink-700 font-semibold">Edit Bag</a>
+                    </h2>
+
+                    <!-- Items List Container -->
+                    <div id="orderItems" class="space-y-3.5 mb-6 max-h-80 overflow-y-auto pr-1 divide-y divide-pink-50 dark:divide-slate-700/50">
+                        <!-- Loaded dynamically via checkout.js -->
+                    </div>
+
+                    <!-- Pricing Breakdown -->
+                    <div class="border-t border-pink-50 dark:border-slate-700/60 pt-4 space-y-3 text-sm">
+                        <div class="flex justify-between items-center text-gray-600 dark:text-gray-400">
+                            <span>Subtotal</span>
+                            <span class="font-semibold text-gray-900 dark:text-white" id="subtotal">EGP 0.00</span>
                         </div>
+                        <div class="flex justify-between items-center text-gray-600 dark:text-gray-400">
+                            <span>Carbon-Neutral Delivery</span>
+                            <span class="font-semibold text-emerald-600 dark:text-emerald-400" id="shipping">FREE</span>
+                        </div>
+                        <div class="flex justify-between items-center text-gray-600 dark:text-gray-400">
+                            <span>Clinical Tax (10%)</span>
+                            <span class="font-semibold text-gray-900 dark:text-white" id="tax">EGP 0.00</span>
+                        </div>
+                        <div class="border-t border-pink-50 dark:border-slate-700/60 pt-4">
+                            <div class="flex justify-between items-baseline">
+                                <span class="font-display font-bold text-base text-gray-900 dark:text-white">Total Amount</span>
+                                <span class="text-2xl font-display font-bold text-pink-600" id="total">EGP 0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security & Concierge Badge -->
+                    <div class="mt-6 p-4 rounded-2xl bg-pink-50/50 dark:bg-slate-700/40 border border-pink-100/60 dark:border-slate-600 text-center text-xs text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-shield-check text-pink-500 text-lg mb-1 block"></i>
+                        <span>Guaranteed 256-bit encrypted checkout with direct client concierge assistance.</span>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </main>
 
-    <!-- Toast -->
+    <!-- Toast Notification -->
     <div id="toast"
-        class="fixed bottom-8 right-8 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg transform translate-y-32 transition-transform duration-300 z-50">
-        <div class="flex items-center space-x-3">
-            <i class="fas fa-check-circle text-2xl"></i>
-            <span id="toastMessage">Success!</span>
-        </div>
+        class="fixed bottom-8 right-8 bg-white dark:bg-slate-800 border border-pink-200 dark:border-slate-700 text-gray-800 dark:text-white px-5 py-3.5 rounded-2xl shadow-xl transform translate-y-32 transition-transform duration-300 z-50 flex items-center space-x-3">
+        <i id="toastIcon" class="fas fa-check-circle text-pink-500 text-lg"></i>
+        <span id="toastMessage" class="text-xs font-semibold">Action completed</span>
     </div>
 
+    <!-- Luxury Dark Footer -->
+    <footer class="bg-slate-900 text-gray-300 pt-16 pb-12 mt-auto border-t border-pink-900/20">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+                <p>&copy; 2026 Koko Shop. All botanical clinical formulations preserved.</p>
+                <div class="flex items-center space-x-4 text-gray-400">
+                    <span class="flex items-center"><i class="fab fa-cc-visa text-lg mr-2"></i> Visa</span>
+                    <span class="flex items-center"><i class="fab fa-cc-mastercard text-lg mr-2"></i> Mastercard</span>
+                    <span class="flex items-center"><i class="fas fa-money-bill-wave text-sm mr-2 text-pink-400"></i> Cash on Delivery</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
     <script src="init-products.js"></script>
     <script src="app.js"></script>
     <script src="checkout.js"></script>

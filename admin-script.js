@@ -1,14 +1,12 @@
 // ============================================
-// ADMIN DASHBOARD - LUXE BEAUTY (INTEGRATED SYSTEM)
+// ADMIN DASHBOARD - KOKO SHOP (MODERN ES6+)
 // ============================================
 
-// Check authentication (INTEGRATED WITH MAIN SYSTEM - FIXED)
-function checkAuth() {
-    var currentUser = JSON.parse(localStorage.getItem('luxe_currentUser'));
+// Authentication Verification
+const checkAuth = () => {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('luxe_currentUser') || 'null');
 
-    // Check if user is logged in and is admin
-    if (!currentUser || !currentUser.isAdmin || currentUser.email !== 'aemade2016@gmail.com') {
-        // Prevent redirect loop
+    if (!currentUser || (!currentUser.isAdmin && currentUser.email !== 'aemade2016@gmail.com')) {
         if (!sessionStorage.getItem('redirecting_from_admin')) {
             sessionStorage.setItem('redirecting_from_admin', 'true');
             alert('Access Denied! Admin privileges required.');
@@ -16,37 +14,30 @@ function checkAuth() {
         }
         return false;
     }
-    // Clear redirect flag
     sessionStorage.removeItem('redirecting_from_admin');
     return true;
-}
+};
 
-// Initialize (FIXED - Don't throw error, just redirect)
-if (!checkAuth()) {
-    // Redirect handled in checkAuth()
-} else {
-    // Display admin email
-    var currentUser = JSON.parse(localStorage.getItem('luxe_currentUser'));
-    if (currentUser && currentUser.email) {
-        var emailDisplay = document.getElementById('adminEmailDisplay');
-        if (emailDisplay) {
-            emailDisplay.textContent = currentUser.email;
-        }
+if (checkAuth()) {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('luxe_currentUser') || 'null');
+    const emailDisplay = document.getElementById('adminEmailDisplay');
+    if (emailDisplay && currentUser?.email) {
+        emailDisplay.textContent = currentUser.email;
     }
 }
 
 // ============================================
-// DATA MANAGEMENT
+// DATA NORMALIZATION & STORAGE HELPERS
 // ============================================
 
-function parseNumeric(value) {
-    var parsed = Number(value);
+const parseNumeric = (value) => {
+    const parsed = Number(value);
     return isNaN(parsed) ? 0 : parsed;
-}
+};
 
-function calculateDiscountDetails(originalPrice, salePrice) {
-    var original = parseNumeric(originalPrice);
-    var sale = parseNumeric(salePrice);
+const calculateDiscountDetails = (originalPrice, salePrice) => {
+    const original = parseNumeric(originalPrice);
+    let sale = parseNumeric(salePrice);
 
     if (original <= 0) {
         return { originalPrice: 0, salePrice: 0, savings: 0, discountPercent: 0 };
@@ -56,1636 +47,1017 @@ function calculateDiscountDetails(originalPrice, salePrice) {
         sale = original;
     }
 
-    var savings = Math.max(original - sale, 0);
-    var discountPercent = Math.round((savings / original) * 100);
+    const savings = Math.max(original - sale, 0);
+    const discountPercent = Math.round((savings / original) * 100);
 
     return {
         originalPrice: original,
         salePrice: sale,
-        savings: savings,
-        discountPercent: discountPercent
+        savings,
+        discountPercent
     };
-}
+};
 
-function normalizeProduct(product) {
+const normalizeProduct = (product) => {
     if (!product) return null;
 
-    var details = calculateDiscountDetails(product.originalPrice || product.price || 0, product.salePrice || product.price || product.originalPrice || 0);
-    product.originalPrice = details.originalPrice;
-    product.salePrice = details.salePrice;
-    product.savings = details.savings;
-    product.discountPercent = details.discountPercent;
-    product.price = details.salePrice || product.price || 0;
-    product.image = product.image || 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop';
-    product.barcode = product.barcode || '';
-    return product;
-}
+    const details = calculateDiscountDetails(
+        product.originalPrice || product.price || 0,
+        product.salePrice || product.price || product.originalPrice || 0
+    );
 
-function getProducts() {
-    var products = JSON.parse(localStorage.getItem('luxe_products')) || [];
-    return products.map(normalizeProduct).filter(Boolean);
-}
+    return {
+        ...product,
+        originalPrice: details.originalPrice,
+        salePrice: details.salePrice,
+        price: details.salePrice || product.price || 0,
+        savings: details.savings,
+        discountPercent: details.discountPercent,
+        image: product.image || './images/slider 1.jpeg',
+        barcode: product.barcode || ''
+    };
+};
 
-function saveProducts(products) {
-    var normalized = (products || []).map(normalizeProduct).filter(Boolean);
-    localStorage.setItem('luxe_products', JSON.stringify(normalized));
-    syncCategoriesFromProducts();
-}
-
-function getCategories() {
+// Retrieve Collections from LocalStorage
+const getProducts = () => {
     try {
-        var stored = JSON.parse(localStorage.getItem('luxe_categories')) || [];
+        const products = JSON.parse(localStorage.getItem('luxe_products')) || [];
+        return products.map(normalizeProduct).filter(Boolean);
+    } catch (e) {
+        console.error('Error fetching products:', e);
+        return [];
+    }
+};
+
+const saveProducts = (products) => {
+    try {
+        const normalized = (products || []).map(normalizeProduct).filter(Boolean);
+        localStorage.setItem('luxe_products', JSON.stringify(normalized));
+        syncCategoriesFromProducts();
+    } catch (e) {
+        console.error('Error saving products:', e);
+    }
+};
+
+const getCategories = () => {
+    try {
+        const stored = JSON.parse(localStorage.getItem('luxe_categories')) || [];
         if (Array.isArray(stored) && stored.length > 0) {
-            return stored.map(function (category) {
-                if (typeof category === 'string') {
-                    return { id: Date.now() + Math.random(), name: category, image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop' };
-                }
-                return {
-                    id: category.id || Date.now() + Math.random(),
-                    name: category.name,
-                    image: category.image || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop'
-                };
-            });
+            return stored.map((cat, idx) => ({
+                id: cat.id || idx + 1,
+                name: typeof cat === 'string' ? cat : cat.name,
+                image: cat.image || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop'
+            }));
         }
     } catch (error) {
-        console.warn('Unable to read categories from storage', error);
+        console.warn('Unable to read categories from storage:', error);
     }
 
-    var fallback = ['Serum', 'Moisturizer', 'Cleanser', 'Sunscreen', 'Mask', 'Toner', 'Eye Cream', 'Face Oil', 'Lip Care', 'Night Cream'];
-    var defaultCategories = fallback.map(function (name, index) {
-        return { id: index + 1, name: name, image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop' };
-    });
+    const fallback = ['Serum', 'Moisturizer', 'Cleanser', 'Sunscreen', 'Mask', 'Toner'];
+    const defaultCategories = fallback.map((name, index) => ({
+        id: index + 1,
+        name,
+        image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop'
+    }));
     saveCategories(defaultCategories);
     return defaultCategories;
-}
+};
 
-function saveCategories(categories) {
+const saveCategories = (categories) => {
     localStorage.setItem('luxe_categories', JSON.stringify(categories || []));
-}
+};
 
-function syncCategoriesFromProducts() {
-    var products = getProducts();
-    var categories = getCategories();
-    var names = categories.map(function (category) { return category.name; });
+const syncCategoriesFromProducts = () => {
+    const products = getProducts();
+    const categories = getCategories();
+    const names = categories.map((c) => c.name);
 
-    products.forEach(function (product) {
-        if (product.category && names.indexOf(product.category) === -1) {
-            names.push(product.category);
+    products.forEach((p) => {
+        if (p.category && !names.includes(p.category)) {
+            names.push(p.category);
         }
     });
 
-    var merged = names.map(function (name, index) {
-        var existing = categories.find(function (category) {
-            return category.name === name;
-        });
+    const merged = names.map((name, idx) => {
+        const existing = categories.find((c) => c.name === name);
         return {
-            id: existing ? existing.id : index + 1,
-            name: name,
+            id: existing ? existing.id : idx + 1,
+            name,
             image: existing ? existing.image : 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop'
         };
     });
 
     saveCategories(merged);
-}
+};
 
-function populateProductCategoryOptions() {
-    var select = document.getElementById('productCategory');
-    if (!select) return;
-
-    var categories = getCategories();
-    select.innerHTML = '';
-    categories.forEach(function (category) {
-        var option = document.createElement('option');
-        option.value = category.name;
-        option.textContent = category.name;
-        select.appendChild(option);
-    });
-}
-
-function updateProductSavingsPreview() {
-    var originalValue = parseNumeric(document.getElementById('productOriginalPrice').value);
-    var saleValue = parseNumeric(document.getElementById('productSalePrice').value);
-    var result = calculateDiscountDetails(originalValue, saleValue);
-
-    var savingsLabel = document.getElementById('productSavingsLabel');
-    var discountLabel = document.getElementById('productDiscountLabel');
-
-    if (savingsLabel) {
-        savingsLabel.textContent = 'EGP ' + result.savings.toFixed(2);
-    }
-
-    if (discountLabel) {
-        discountLabel.textContent = result.discountPercent + '% off';
-    }
-}
-
-function resetCategoryForm() {
-    var form = document.getElementById('categoryForm');
-    if (form) form.reset();
-    document.getElementById('categoryId').value = '';
-    document.getElementById('categoryFormTitle').textContent = 'Add New Category';
-}
-
-function loadCategories() {
-    var categories = getCategories();
-    var tbody = document.getElementById('categoriesTableBody');
-    if (!tbody) return;
-
-    if (!categories.length) {
-        tbody.innerHTML = '<tr><td colspan="3" class="px-6 py-8 text-center text-gray-500">No categories found</td></tr>';
-        return;
-    }
-
-    var html = '';
-    categories.forEach(function (category) {
-        html += '<tr>';
-        html += '<td class="px-6 py-4"><img src="' + (category.image || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop') + '" alt="' + category.name + '" class="w-16 h-16 object-cover rounded-lg"></td>';
-        html += '<td class="px-6 py-4 font-semibold">' + category.name + '</td>';
-        html += '<td class="px-6 py-4">';
-        html += '<button onclick="editCategory(' + (category.id || 0) + ')" class="text-blue-500 hover:text-blue-600 mr-3"><i class="fas fa-edit"></i></button>';
-        html += '<button onclick="deleteCategory(' + (category.id || 0) + ')" class="text-red-500 hover:text-red-600"><i class="fas fa-trash"></i></button>';
-        html += '</td>';
-        html += '</tr>';
-    });
-
-    tbody.innerHTML = html;
-}
-
-function editCategory(categoryId) {
-    var categories = getCategories();
-    var category = categories.find(function (item) {
-        return item.id === categoryId;
-    });
-
-    if (!category) return;
-
-    document.getElementById('categoryId').value = category.id;
-    document.getElementById('categoryName').value = category.name;
-    document.getElementById('categoryImage').value = category.image || '';
-    document.getElementById('categoryFormTitle').textContent = 'Edit Category';
-}
-
-function deleteCategory(categoryId) {
-    if (!confirm('Are you sure you want to delete this category?')) return;
-
-    var categories = getCategories().filter(function (category) {
-        return category.id !== categoryId;
-    });
-
-    saveCategories(categories);
-    loadCategories();
-    populateProductCategoryOptions();
-    showToast('Category deleted successfully');
-}
-
-function saveCategoryFromForm(event) {
-    event.preventDefault();
-
-    var id = document.getElementById('categoryId').value;
-    var name = document.getElementById('categoryName').value.trim();
-    var image = document.getElementById('categoryImage').value.trim();
-
-    if (!name || !image) {
-        showToast('Please complete category name and image URL');
-        return;
-    }
-
-    var categories = getCategories();
-    var categoryData = {
-        id: id ? Number(id) : Date.now(),
-        name: name,
-        image: image
-    };
-
-    if (id) {
-        categories = categories.map(function (category) {
-            return category.id === Number(id) ? categoryData : category;
-        });
-        showToast('Category updated successfully');
-    } else {
-        categories.push(categoryData);
-        showToast('Category added successfully');
-    }
-
-    saveCategories(categories);
-    loadCategories();
-    populateProductCategoryOptions();
-    resetCategoryForm();
-}
-
-function getStoredArray(key, fallback) {
+// Async Firestore Banners / Storage Fallback
+const getBanners = async () => {
     try {
-        var stored = JSON.parse(localStorage.getItem(key) || '[]');
-        return Array.isArray(stored) ? stored : fallback;
-    } catch (error) {
-        return fallback;
-    }
-}
+        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        const configModule = await import('./firebase-config.js');
+        const { collection, getDocs, query, orderBy } = firestoreModule;
+        const { db } = configModule;
 
-function renderStarIcons(rating) {
-    var output = '';
-    for (var i = 1; i <= 5; i++) {
-        output += '<i class="fas fa-star ' + (i <= Number(rating || 0) ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600') + '"></i>';
-    }
-    return output;
-}
-
-async function getBanners() {
-    try {
-        var firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
-        var configModule = await import('./firebase-config.js');
-        var { collection, getDocs, query, orderBy } = firestoreModule;
-        var { db } = configModule;
-
-        var snapshot = await getDocs(query(collection(db, 'banners'), orderBy('createdAt', 'desc')));
-        var banners = snapshot.docs.map(function (docItem) {
-            return { id: docItem.id, ...docItem.data() };
-        });
-
-        localStorage.setItem('luxe_banners', JSON.stringify(banners));
-        return banners;
-    } catch (error) {
-        console.warn('Banner Firestore fallback triggered:', error);
-        var fallbackBanners = getStoredArray('luxe_banners', [
-            {
-                id: 'fallback-banner-1',
-                imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&h=600&fit=crop',
-                targetUrl: 'products.html',
-                badge: 'Featured',
-                title: 'Luxe Beauty',
-                subtitle: 'Exclusive Offers',
-                description: 'Discover premium beauty essentials',
-                buttonText: 'Shop Now',
-                gradient: 'from-primary-500 to-pink-600',
-                imagePosition: 'right'
-            },
-            {
-                id: 'fallback-banner-2',
-                imageUrl: 'https://images.unsplash.com/photo-1556228852-80a3c4e6d1f7?w=600&h=600&fit=crop',
-                targetUrl: 'products.html',
-                badge: 'Limited Offer',
-                title: 'Up to 40% Off',
-                subtitle: 'Spring Collection',
-                description: 'Refresh your beauty routine with our exclusive spring collection.',
-                buttonText: 'Shop Sale',
-                gradient: 'from-pink-500 to-purple-600',
-                imagePosition: 'left'
-            }
-        ]);
-        return fallbackBanners;
-    }
-}
-
-function resetBannerForm() {
-    var form = document.getElementById('bannerForm');
-    if (form) form.reset();
-    document.getElementById('bannerId').value = '';
-    document.getElementById('bannerFormTitle').textContent = 'Add New Banner';
-}
-
-async function loadBanners() {
-    var tbody = document.getElementById('bannersTableBody');
-    if (!tbody) return;
-
-    try {
-        var banners = await getBanners();
-        if (!banners || !banners.length) {
-            tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">No banners found</td></tr>';
-            return;
+        const snapshot = await getDocs(query(collection(db, 'banners'), orderBy('createdAt', 'desc')));
+        if (!snapshot.empty) {
+            return snapshot.docs.map((docItem) => ({ id: docItem.id, ...docItem.data() }));
         }
-
-        tbody.innerHTML = banners.map(function (banner) {
-            var titleText = (banner.title || 'Luxe Beauty').substring(0, 30);
-            var subtitleText = (banner.subtitle || 'Exclusive Offers').substring(0, 30);
-            return '<tr>' +
-                '<td class="px-6 py-4"><img src="' + (banner.imageUrl || banner.image || '') + '" alt="Banner" class="w-20 h-16 object-cover rounded-lg"></td>' +
-                '<td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300"><div class="font-semibold text-gray-800 dark:text-white">' + (banner.title || 'Luxe Beauty') + '</div><div class="text-xs text-gray-500">' + (banner.subtitle || 'Exclusive Offers') + '</div></td>' +
-                '<td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">' + (banner.targetUrl || '#') + '</td>' +
-                '<td class="px-6 py-4">' +
-                '<button onclick="editBanner(\'' + (banner.id || '') + '\')" class="text-blue-500 hover:text-blue-600 mr-3"><i class="fas fa-edit"></i></button>' +
-                '<button onclick="deleteBanner(\'' + (banner.id || '') + '\')" class="text-red-500 hover:text-red-600"><i class="fas fa-trash"></i></button>' +
-                '</td>' +
-                '</tr>';
-        }).join('');
     } catch (error) {
-        console.error('loadBanners error', error);
-        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">Unable to load banners</td></tr>';
-        showToast('Unable to load banners', 'error');
-    }
-}
-
-function editBanner(bannerId) {
-    var banners = getStoredArray('luxe_banners', []);
-    var banner = banners.find(function (item) { return item.id === bannerId; });
-    if (!banner) return;
-
-    document.getElementById('bannerId').value = banner.id;
-    document.getElementById('bannerBadge').value = banner.badge || '';
-    document.getElementById('bannerTitle').value = banner.title || '';
-    document.getElementById('bannerSubtitle').value = banner.subtitle || '';
-    document.getElementById('bannerDescription').value = banner.description || '';
-    document.getElementById('bannerButtonText').value = banner.buttonText || '';
-    document.getElementById('bannerGradient').value = banner.gradient || 'from-primary-500 to-pink-600';
-    document.getElementById('bannerImagePosition').value = banner.imagePosition || 'right';
-    document.getElementById('bannerImageUrl').value = banner.imageUrl || '';
-    document.getElementById('bannerTargetUrl').value = banner.targetUrl || '';
-    document.getElementById('bannerFormTitle').textContent = 'Edit Banner';
-}
-
-async function saveBannerFromForm(event) {
-    event.preventDefault();
-
-    var bannerId = document.getElementById('bannerId').value;
-    var badge = document.getElementById('bannerBadge').value.trim();
-    var title = document.getElementById('bannerTitle').value.trim();
-    var subtitle = document.getElementById('bannerSubtitle').value.trim();
-    var description = document.getElementById('bannerDescription').value.trim();
-    var buttonText = document.getElementById('bannerButtonText').value.trim();
-    var gradient = document.getElementById('bannerGradient').value || 'from-primary-500 to-pink-600';
-    var imagePosition = document.getElementById('bannerImagePosition').value || 'right';
-    var imageUrl = document.getElementById('bannerImageUrl').value.trim();
-    var targetUrl = document.getElementById('bannerTargetUrl').value.trim();
-
-    if (!title || !subtitle || !description || !buttonText || !imageUrl || !targetUrl) {
-        showToast('Please complete all banner fields');
-        return;
+        console.warn('Banner Firestore fetch notice (using storage):', error);
     }
 
-    try {
-        var firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
-        var configModule = await import('./firebase-config.js');
-        var { collection, addDoc, updateDoc, doc, serverTimestamp } = firestoreModule;
-        var { db } = configModule;
-
-        var payload = {
-            badge: badge || 'Featured',
-            title: title,
-            subtitle: subtitle,
-            description: description,
-            buttonText: buttonText,
-            gradient: gradient,
-            imagePosition: imagePosition,
-            imageUrl: imageUrl,
-            targetUrl: targetUrl,
-            createdAt: serverTimestamp()
-        };
-
-        if (bannerId) {
-            await updateDoc(doc(db, 'banners', bannerId), {
-                badge: badge || 'Featured',
-                title: title,
-                subtitle: subtitle,
-                description: description,
-                buttonText: buttonText,
-                gradient: gradient,
-                imagePosition: imagePosition,
-                imageUrl: imageUrl,
-                targetUrl: targetUrl,
-                updatedAt: serverTimestamp()
-            });
-        } else {
-            await addDoc(collection(db, 'banners'), payload);
+    return JSON.parse(localStorage.getItem('luxe_banners')) || [
+        {
+            id: 'fallback-banner-1',
+            badge: 'Botanical Clinical \'26',
+            title: 'Reveal Your Skin\'s',
+            subtitle: 'Natural Radiance',
+            description: 'Formulated with cold-pressed antioxidants and skin-identical ceramides.',
+            buttonText: 'Shop Clean Collection',
+            imageUrl: './images/slider 1.jpeg',
+            targetUrl: 'products.html'
         }
+    ];
+};
 
-        var currentBanners = getStoredArray('luxe_banners', []);
-        var nextBanners = currentBanners.filter(function (item) { return item.id !== bannerId; });
-        nextBanners.unshift({
-            id: bannerId || 'banner-' + Date.now(),
-            badge: badge || 'Featured',
-            title: title,
-            subtitle: subtitle,
-            description: description,
-            buttonText: buttonText,
-            gradient: gradient,
-            imagePosition: imagePosition,
-            imageUrl: imageUrl,
-            targetUrl: targetUrl,
-            createdAt: new Date().toISOString()
-        });
-        localStorage.setItem('luxe_banners', JSON.stringify(nextBanners));
+const saveBanners = async (banners) => {
+    localStorage.setItem('luxe_banners', JSON.stringify(banners));
+};
 
-        resetBannerForm();
-        loadBanners();
-        showToast(bannerId ? 'Banner updated successfully' : 'Banner added successfully');
-    } catch (error) {
-        console.error('saveBannerFromForm error', error);
-        showToast('Failed to save banner. Please try again.', 'error');
-    }
-}
-
-async function deleteBanner(bannerId) {
-    if (!confirm('Are you sure you want to delete this banner?')) return;
-
+// Async Firestore Reviews / Storage Fallback
+const getReviews = async () => {
     try {
-        var firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
-        var configModule = await import('./firebase-config.js');
-        var { deleteDoc, doc } = firestoreModule;
-        var { db } = configModule;
+        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        const configModule = await import('./firebase-config.js');
+        const { collection, getDocs, query, orderBy } = firestoreModule;
+        const { db } = configModule;
 
-        if (bannerId && bannerId.indexOf('fallback-') === -1) {
-            await deleteDoc(doc(db, 'banners', bannerId));
+        const snapshot = await getDocs(query(collection(db, 'reviews'), orderBy('createdAt', 'desc')));
+        if (!snapshot.empty) {
+            return snapshot.docs.map((docItem) => ({ id: docItem.id, ...docItem.data() }));
         }
-
-        var banners = getStoredArray('luxe_banners', []).filter(function (item) {
-            return item.id !== bannerId;
-        });
-        localStorage.setItem('luxe_banners', JSON.stringify(banners));
-        loadBanners();
-        showToast('Banner deleted successfully');
     } catch (error) {
-        console.error('deleteBanner error', error);
-        showToast('Failed to delete banner.', 'error');
-    }
-}
-
-async function getReviews() {
-    try {
-        var firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
-        var configModule = await import('./firebase-config.js');
-        var { collection, getDocs, query, orderBy } = firestoreModule;
-        var { db } = configModule;
-
-        var snapshot = await getDocs(query(collection(db, 'reviews'), orderBy('createdAt', 'desc')));
-        var reviews = snapshot.docs.map(function (docItem) {
-            return { id: docItem.id, ...docItem.data() };
-        });
-
-        localStorage.setItem('luxe_reviews', JSON.stringify(reviews));
-        return reviews;
-    } catch (error) {
-        console.warn('Review Firestore fallback triggered:', error);
-        return getStoredArray('luxe_reviews', [
-            {
-                id: 'fallback-review-1',
-                customerName: 'Sarah Johnson',
-                profileImage: 'https://i.pravatar.cc/100?img=1',
-                rating: 5,
-                text: 'The Vitamin C serum transformed my skin! Highly recommend.'
-            },
-            {
-                id: 'fallback-review-2',
-                customerName: 'Emily Chen',
-                profileImage: 'https://i.pravatar.cc/100?img=5',
-                rating: 5,
-                text: 'Best skincare shopping experience! Fast shipping and amazing support.'
-            }
-        ]);
-    }
-}
-
-function resetReviewForm() {
-    var form = document.getElementById('reviewForm');
-    if (form) form.reset();
-    document.getElementById('reviewId').value = '';
-    document.getElementById('reviewFormTitle').textContent = 'Add New Review';
-    document.getElementById('reviewRating').value = 5;
-}
-
-async function loadReviews() {
-    var tbody = document.getElementById('reviewsTableBody');
-    if (!tbody) return;
-
-    try {
-        var reviews = await getReviews();
-        if (!reviews || !reviews.length) {
-            tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">No reviews found</td></tr>';
-            return;
-        }
-
-        tbody.innerHTML = reviews.map(function (review) {
-            return '<tr>' +
-                '<td class="px-6 py-4"><div class="flex items-center"><img src="' + (review.profileImage || '') + '" alt="' + (review.customerName || 'Customer') + '" class="w-12 h-12 rounded-full object-cover mr-3"><div><div class="font-semibold">' + (review.customerName || 'Customer') + '</div></div></div></td>' +
-                '<td class="px-6 py-4"><div class="flex text-yellow-400">' + renderStarIcons(review.rating) + '</div></td>' +
-                '<td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 max-w-md">"' + (review.text || '') + '"</td>' +
-                '<td class="px-6 py-4">' +
-                '<button onclick="editReview(\'' + (review.id || '') + '\')" class="text-blue-500 hover:text-blue-600 mr-3"><i class="fas fa-edit"></i></button>' +
-                '<button onclick="deleteReview(\'' + (review.id || '') + '\')" class="text-red-500 hover:text-red-600"><i class="fas fa-trash"></i></button>' +
-                '</td>' +
-                '</tr>';
-        }).join('');
-    } catch (error) {
-        console.error('loadReviews error', error);
-        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">Unable to load reviews</td></tr>';
-        showToast('Unable to load reviews', 'error');
-    }
-}
-
-function editReview(reviewId) {
-    var reviews = getStoredArray('luxe_reviews', []);
-    var review = reviews.find(function (item) { return item.id === reviewId; });
-    if (!review) return;
-
-    document.getElementById('reviewId').value = review.id;
-    document.getElementById('reviewCustomerName').value = review.customerName || '';
-    document.getElementById('reviewProfileImage').value = review.profileImage || '';
-    document.getElementById('reviewRating').value = review.rating || 5;
-    document.getElementById('reviewText').value = review.text || '';
-    document.getElementById('reviewFormTitle').textContent = 'Edit Review';
-}
-
-async function saveReviewFromForm(event) {
-    event.preventDefault();
-
-    var reviewId = document.getElementById('reviewId').value;
-    var customerName = document.getElementById('reviewCustomerName').value.trim();
-    var profileImage = document.getElementById('reviewProfileImage').value.trim();
-    var rating = parseInt(document.getElementById('reviewRating').value, 10);
-    var text = document.getElementById('reviewText').value.trim();
-
-    if (!customerName || !profileImage || !text || rating < 1 || rating > 5) {
-        showToast('Please complete all review fields with a valid rating');
-        return;
+        console.warn('Reviews Firestore fetch notice (using storage):', error);
     }
 
-    try {
-        var firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
-        var configModule = await import('./firebase-config.js');
-        var { collection, addDoc, updateDoc, doc, serverTimestamp } = firestoreModule;
-        var { db } = configModule;
+    return JSON.parse(localStorage.getItem('luxe_reviews')) || [];
+};
 
-        var payload = {
-            customerName: customerName,
-            profileImage: profileImage,
-            rating: rating,
-            text: text,
-            createdAt: serverTimestamp()
-        };
+const saveReviews = async (reviews) => {
+    localStorage.setItem('luxe_reviews', JSON.stringify(reviews));
+};
 
-        if (reviewId) {
-            await updateDoc(doc(db, 'reviews', reviewId), {
-                customerName: customerName,
-                profileImage: profileImage,
-                rating: rating,
-                text: text,
-                updatedAt: serverTimestamp()
-            });
-        } else {
-            await addDoc(collection(db, 'reviews'), payload);
-        }
+// Orders & Users
+const getOrders = () => JSON.parse(localStorage.getItem('luxe_orders')) || [];
+const saveOrders = (orders) => localStorage.setItem('luxe_orders', JSON.stringify(orders));
 
-        var currentReviews = getStoredArray('luxe_reviews', []);
-        var nextReviews = currentReviews.filter(function (item) { return item.id !== reviewId; });
-        nextReviews.unshift({
-            id: reviewId || 'review-' + Date.now(),
-            customerName: customerName,
-            profileImage: profileImage,
-            rating: rating,
-            text: text,
-            createdAt: new Date().toISOString()
-        });
-        localStorage.setItem('luxe_reviews', JSON.stringify(nextReviews));
-
-        resetReviewForm();
-        loadReviews();
-        showToast(reviewId ? 'Review updated successfully' : 'Review added successfully');
-    } catch (error) {
-        console.error('saveReviewFromForm error', error);
-        showToast('Failed to save review. Please try again.', 'error');
-    }
-}
-
-async function deleteReview(reviewId) {
-    if (!confirm('Are you sure you want to delete this review?')) return;
-
-    try {
-        var firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
-        var configModule = await import('./firebase-config.js');
-        var { deleteDoc, doc } = firestoreModule;
-        var { db } = configModule;
-
-        if (reviewId && reviewId.indexOf('fallback-') === -1) {
-            await deleteDoc(doc(db, 'reviews', reviewId));
-        }
-
-        var reviews = getStoredArray('luxe_reviews', []).filter(function (item) {
-            return item.id !== reviewId;
-        });
-        localStorage.setItem('luxe_reviews', JSON.stringify(reviews));
-        loadReviews();
-        showToast('Review deleted successfully');
-    } catch (error) {
-        console.error('deleteReview error', error);
-        showToast('Failed to delete review.', 'error');
-    }
-}
-
-function normalizeUserRecord(user) {
-    var raw = user || {};
-    var addressValue = raw.address || '';
-
-    if (typeof addressValue === 'object') {
-        addressValue = [addressValue.street, addressValue.city, addressValue.state, addressValue.country].filter(Boolean).join(', ');
-    }
-
-    var isBlocked = Boolean(raw.isBlocked || raw.blocked || raw.status === 'blocked' || raw.status === 'Blocked');
-
-    return {
-        id: raw.id || raw.uid || raw.email || ('user-' + Date.now()),
-        name: raw.name || raw.fullName || raw.displayName || 'Customer',
-        email: raw.email || '',
-        phone: raw.phone || raw.mobile || '',
-        address: addressValue || 'N/A',
-        role: String(raw.role || 'customer').toLowerCase() === 'admin' ? 'admin' : 'customer',
-        isBlocked: isBlocked,
-        status: isBlocked ? 'Blocked' : (raw.status || 'Active'),
-        createdAt: raw.createdAt || new Date().toISOString(),
-        orders: Array.isArray(raw.orders) ? raw.orders : []
-    };
-}
-
-function normalizeOrderStatus(status) {
-    var value = (status || '').toString().trim();
-    var key = value.toLowerCase();
-
-    if (key === 'pending' || key === 'under review' || key === 'قيد المراجعة') return 'Under Review';
-    if (key === 'shipped' || key === 'تم الشحن') return 'Shipped';
-    if (key === 'delivered' || key === 'تم التوصيل') return 'Delivered';
-    if (key === 'cancelled' || key === 'canceled' || key === 'ملغي') return 'Cancelled';
-
-    return value || 'Under Review';
-}
-
-function normalizeOrderRecord(order) {
-    var raw = order || {};
-    var customerInfo = raw.customerInfo || {};
-    var address = customerInfo.address || {};
-    var createdAt = raw.createdAt || raw.date || new Date().toISOString();
-    var orderId = raw.orderId || raw.id || ('ORD-' + Date.now());
-
-    return {
-        id: raw.id || orderId,
-        orderId: orderId,
-        customerName: customerInfo.name || raw.customerName || 'Customer',
-        customerEmail: customerInfo.email || raw.customerEmail || '',
-        phone: customerInfo.phone || raw.phone || '',
-        address: typeof address === 'string' ? address : [address.street, address.city, address.state, address.country].filter(Boolean).join(', '),
-        total: Number(raw.total || (raw.pricing && raw.pricing.total) || 0),
-        status: normalizeOrderStatus(raw.status),
-        items: Array.isArray(raw.items) ? raw.items : [],
-        createdAt: createdAt,
-        fullOrder: raw
-    };
-}
-
-function getOrders() {
-    try {
-        var orders = JSON.parse(localStorage.getItem('luxe_orders')) || [];
-        return orders.map(normalizeOrderRecord).sort(function (a, b) {
-            return new Date(b.createdAt) - new Date(a.createdAt);
-        });
-    } catch (error) {
-        return [];
-    }
-}
-
-function getUsers() {
-    try {
-        return (JSON.parse(localStorage.getItem('luxe_users')) || []).map(normalizeUserRecord);
-    } catch (error) {
-        return [];
-    }
-}
-
-function getSettings() {
-    return JSON.parse(localStorage.getItem('luxe_admin_settings')) || {
-        maintenanceMode: false,
-        siteBanner: ''
-    };
-}
-
-function saveSettings(settings) {
-    localStorage.setItem('luxe_admin_settings', JSON.stringify(settings));
-}
+const getUsers = () => JSON.parse(localStorage.getItem('luxe_users')) || [];
+const saveUsers = (users) => localStorage.setItem('luxe_users', JSON.stringify(users));
 
 // ============================================
 // NAVIGATION & TABS
 // ============================================
 
-function showTab(tabName) {
-    // Hide all tabs
-    document.querySelectorAll('.tab-content').forEach(function (tab) {
+const showTab = (tabName) => {
+    document.querySelectorAll('.tab-content').forEach((tab) => {
         tab.classList.remove('active');
+        tab.style.display = 'none';
     });
 
-    // Remove active class from all sidebar links
-    document.querySelectorAll('.sidebar-link').forEach(function (link) {
-        link.classList.remove('active');
+    document.querySelectorAll('.sidebar-link').forEach((link) => {
+        link.className = 'sidebar-link w-full text-left px-4 py-2.5 rounded-2xl transition flex items-center text-xs text-gray-600 dark:text-gray-300 hover:bg-pink-50/50 hover:text-pink-600';
     });
 
-    // Show selected tab
-    document.getElementById(tabName + 'Tab').classList.add('active');
+    const activeTab = document.getElementById(`${tabName}Tab`);
+    const activeNav = document.getElementById(`nav-${tabName}`);
 
-    // Add active class to clicked link
-    event.target.closest('.sidebar-link').classList.add('active');
+    if (activeTab) {
+        activeTab.classList.add('active');
+        activeTab.style.display = 'block';
+    }
 
-    // Load data for the tab
+    if (activeNav) {
+        activeNav.className = 'sidebar-link active w-full text-left px-4 py-2.5 rounded-2xl transition flex items-center text-xs';
+    }
+
+    // Refresh Tab Data
     switch (tabName) {
         case 'overview':
-            loadDashboardStats();
+            loadDashboardOverview();
             break;
         case 'products':
-            loadProducts();
-            populateProductCategoryOptions();
+            loadProductsTable();
             break;
         case 'categories':
-            loadCategories();
+            loadCategoriesTable();
             break;
         case 'banners':
-            loadBanners();
+            loadBannersTable();
             break;
         case 'reviews':
-            loadReviews();
+            loadReviewsTable();
             break;
         case 'orders':
-            loadOrders();
+            loadOrdersTable();
+            break;
+        case 'notifications':
+            loadAdminNotifications();
             break;
         case 'users':
-            loadUsers();
-            break;
-        case 'settings':
-            loadSettings();
+            loadUsersTable();
             break;
     }
-
-    // Close sidebar on mobile
-    document.getElementById('sidebar').classList.remove('translate-x-0');
-    document.getElementById('sidebar').classList.add('-translate-x-full');
-}
-
-// Sidebar toggle for mobile
-var sidebarToggle = document.getElementById('sidebarToggle');
-if (sidebarToggle) {
-    sidebarToggle.addEventListener('click', function () {
-        var sidebar = document.getElementById('sidebar');
-        if (!sidebar) return;
-        sidebar.classList.toggle('-translate-x-full');
-        sidebar.classList.toggle('translate-x-0');
-    });
-}
+};
 
 // ============================================
-// DASHBOARD OVERVIEW
+// MODULAR HTML BUILDERS (CLEAN TABLES & CARDS)
 // ============================================
 
-function loadDashboardStats() {
-    var products = getProducts();
-    var orders = getOrders();
-    var users = getUsers();
+// Recent Order Row Builder
+const createRecentOrderRow = (order) => {
+    const { orderId = 'ORD-00', customerInfo = {}, pricing = {}, status = 'pending', createdAt } = order;
+    const dateStr = createdAt ? new Date(createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recent';
+    const total = Number(pricing.total || 0).toFixed(2);
 
-    // Calculate stats
-    document.getElementById('totalProducts').textContent = products.length;
-    document.getElementById('totalOrders').textContent = orders.length;
-    document.getElementById('totalUsers').textContent = users.length;
+    const statusBadge = status === 'completed' || status === 'delivered'
+        ? '<span class="bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">Delivered</span>'
+        : '<span class="bg-amber-50 text-amber-600 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">Pending</span>';
 
-    // Calculate revenue
-    var revenue = orders.reduce(function (sum, order) {
-        return sum + (order.total || 0);
-    }, 0);
-    document.getElementById('totalRevenue').textContent = 'EGP ' + revenue.toFixed(2);
+    return `
+        <div class="bg-pink-50/20 dark:bg-slate-700/30 p-3.5 rounded-2xl border border-pink-100 dark:border-slate-700 flex items-center justify-between text-xs">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center font-bold">
+                    <i class="fas fa-bag-shopping text-xs"></i>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-900 dark:text-white">${customerInfo.name || 'Client'}</h4>
+                    <span class="text-gray-400 font-mono text-[11px]">${orderId} • ${dateStr}</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="font-bold text-pink-600">EGP ${total}</span>
+                ${statusBadge}
+            </div>
+        </div>
+    `;
+};
 
-    // Load recent orders
-    loadRecentOrders();
-}
+// Product Table Row Builder
+const createProductTableRow = (product) => {
+    const { id, name = '', image = './images/slider 1.jpeg', price = 0, originalPrice = 0, category = 'Skincare', stock = 0, hasDiscount = false, discountPercent = 0 } = product;
 
-function loadRecentOrders() {
-    var orders = getOrders();
-    var recentOrders = orders.slice(-5).reverse();
-    var container = document.getElementById('recentOrdersList');
+    return `
+        <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
+            <td class="px-5 py-3">
+                <img src="${image}" alt="${name}" class="w-11 h-11 rounded-xl object-cover border border-pink-100 dark:border-slate-700">
+            </td>
+            <td class="px-5 py-3">
+                <h4 class="font-semibold text-gray-900 dark:text-white line-clamp-1">${name}</h4>
+                ${hasDiscount ? `<span class="text-[10px] text-pink-600 font-bold">-${discountPercent}% Discount</span>` : ''}
+            </td>
+            <td class="px-5 py-3">
+                <span class="font-bold text-pink-600">EGP ${Number(price).toFixed(2)}</span>
+                ${hasDiscount && originalPrice > price ? `<span class="text-[10px] text-gray-400 line-through block">EGP ${Number(originalPrice).toFixed(2)}</span>` : ''}
+            </td>
+            <td class="hidden md:table-cell px-5 py-3 text-gray-500 font-medium">${category}</td>
+            <td class="hidden md:table-cell px-5 py-3">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${stock > 10 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">
+                    ${stock} in stock
+                </span>
+            </td>
+            <td class="px-5 py-3 text-right">
+                <div class="flex items-center justify-end space-x-2">
+                    <button onclick="editProduct(${id})" class="w-7 h-7 rounded-full bg-pink-50 text-pink-600 hover:bg-pink-100 flex items-center justify-center transition" title="Edit Formula">
+                        <i class="fas fa-edit text-xs"></i>
+                    </button>
+                    <button onclick="deleteProduct(${id})" class="w-7 h-7 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition" title="Delete Formula">
+                        <i class="fas fa-trash text-xs"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `;
+};
 
-    if (recentOrders.length === 0) {
-        container.innerHTML = '<p class="text-gray-500 text-center py-8">No orders yet</p>';
-        return;
-    }
+// Category Table Row Builder
+const createCategoryTableRow = (category) => {
+    const { id, name = '', image = '' } = category;
+    return `
+        <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
+            <td class="px-5 py-3">
+                <img src="${image}" alt="${name}" class="w-10 h-10 rounded-xl object-cover border border-pink-100 dark:border-slate-700">
+            </td>
+            <td class="px-5 py-3 font-semibold text-gray-900 dark:text-white">${name}</td>
+            <td class="px-5 py-3 text-right">
+                <button onclick="deleteCategory(${id})" class="w-7 h-7 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center ml-auto transition">
+                    <i class="fas fa-trash text-xs"></i>
+                </button>
+            </td>
+        </tr>
+    `;
+};
 
-    var html = '';
-    recentOrders.forEach(function (order) {
-        html += '<div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">';
-        html += '<div>';
-        html += '<p class="font-semibold">#' + order.orderId + '</p>';
-        html += '<p class="text-sm text-gray-600 dark:text-gray-400">' + order.customerName + '</p>';
-        html += '</div>';
-        html += '<div class="text-right">';
-        html += '<p class="font-bold text-primary-500">EGP ' + order.total.toFixed(2) + '</p>';
-        html += '<span class="text-xs px-2 py-1 rounded-full ' + getStatusClass(order.status) + '">' + order.status + '</span>';
-        html += '</div>';
-        html += '</div>';
-    });
+// Banner Table Row Builder
+const createBannerTableRow = (banner) => {
+    const { id, title = '', subtitle = '', imageUrl = '', targetUrl = 'products.html' } = banner;
+    return `
+        <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
+            <td class="px-5 py-3">
+                <img src="${imageUrl}" alt="${title}" class="w-12 h-10 rounded-xl object-cover border border-pink-100 dark:border-slate-700">
+            </td>
+            <td class="px-5 py-3">
+                <div class="font-semibold text-gray-900 dark:text-white">${title}</div>
+                <div class="text-[11px] text-pink-500 font-display italic">${subtitle}</div>
+            </td>
+            <td class="px-5 py-3 text-gray-400 font-mono text-[11px] truncate max-w-xs">${targetUrl}</td>
+            <td class="px-5 py-3 text-right">
+                <button onclick="deleteBanner('${id}')" class="w-7 h-7 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center ml-auto transition">
+                    <i class="fas fa-trash text-xs"></i>
+                </button>
+            </td>
+        </tr>
+    `;
+};
 
-    container.innerHTML = html;
-}
+// Review Table Row Builder
+const createReviewTableRow = (review) => {
+    const { id, customerName = 'Customer', rating = 5, text = '', profileImage = '' } = review;
+    return `
+        <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
+            <td class="px-5 py-3 flex items-center space-x-2.5">
+                <img src="${profileImage}" alt="${customerName}" class="w-8 h-8 rounded-full object-cover">
+                <span class="font-semibold text-gray-900 dark:text-white">${customerName}</span>
+            </td>
+            <td class="px-5 py-3 text-amber-400 text-xs">★ ${rating}.0</td>
+            <td class="px-5 py-3 text-gray-500 max-w-xs truncate italic">"${text}"</td>
+            <td class="px-5 py-3 text-right">
+                <button onclick="deleteReview('${id}')" class="w-7 h-7 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center ml-auto transition">
+                    <i class="fas fa-trash text-xs"></i>
+                </button>
+            </td>
+        </tr>
+    `;
+};
 
-function getStatusClass(status) {
-    switch (status) {
-        case 'Pending':
-        case 'Under Review':
-            return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-        case 'Shipped':
-            return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
-        case 'Delivered':
-            return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
-        case 'Cancelled':
-            return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-        default:
-            return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
-    }
-}
+// Order Table Row Builder
+const createOrderTableRow = (order) => {
+    const { orderId = 'ORD-00', createdAt, customerInfo = {}, pricing = {}, status = 'pending' } = order;
+    const dateStr = createdAt ? new Date(createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent';
+    const total = Number(pricing.total || 0).toFixed(2);
+
+    let statusClass = 'bg-amber-50 text-amber-600';
+    if (status === 'delivered' || status === 'completed') statusClass = 'bg-emerald-50 text-emerald-600';
+    if (status === 'cancelled') statusClass = 'bg-rose-50 text-rose-600';
+
+    return `
+        <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
+            <td class="px-5 py-3 font-mono font-bold text-gray-900 dark:text-white">${orderId}</td>
+            <td class="px-5 py-3 text-gray-400">${dateStr}</td>
+            <td class="px-5 py-3">
+                <div class="font-semibold text-gray-900 dark:text-white">${customerInfo.name || 'Client'}</div>
+                <div class="text-[11px] text-gray-400 font-mono">${customerInfo.email || ''}</div>
+            </td>
+            <td class="px-5 py-3 font-bold text-pink-600">EGP ${total}</td>
+            <td class="px-5 py-3">
+                <select onchange="updateOrderStatus('${orderId}', this.value)" class="text-[11px] font-bold rounded-full px-2.5 py-1 ${statusClass} border-none outline-none cursor-pointer">
+                    <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending</option>
+                    <option value="processing" ${status === 'processing' ? 'selected' : ''}>Processing</option>
+                    <option value="delivered" ${status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                    <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                </select>
+            </td>
+            <td class="px-5 py-3 text-right">
+                <button onclick="viewOrderDetails('${orderId}')" class="w-7 h-7 rounded-full bg-pink-50 text-pink-600 hover:bg-pink-100 flex items-center justify-center ml-auto transition" title="View Order">
+                    <i class="fas fa-eye text-xs"></i>
+                </button>
+            </td>
+        </tr>
+    `;
+};
+
+// User Table Row Builder
+const createUserTableRow = (user) => {
+    const { id, name = 'Client', email = '', orders = [], isBlocked = false } = user;
+    return `
+        <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
+            <td class="px-5 py-3 font-semibold text-gray-900 dark:text-white">${name}</td>
+            <td class="px-5 py-3 text-gray-400 font-mono">${email}</td>
+            <td class="px-5 py-3 font-bold text-pink-600">${orders.length} orders</td>
+            <td class="px-5 py-3">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${isBlocked ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}">
+                    ${isBlocked ? 'Blocked' : 'Active'}
+                </span>
+            </td>
+            <td class="px-5 py-3 text-right">
+                <button onclick="toggleUserBlock('${email}')" class="text-xs px-3 py-1 rounded-full font-semibold transition ${isBlocked ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' : 'bg-rose-50 text-rose-600 hover:bg-rose-100'}">
+                    ${isBlocked ? 'Unblock' : 'Block'}
+                </button>
+            </td>
+        </tr>
+    `;
+};
 
 // ============================================
-// PRODUCTS MANAGEMENT
+// DATA LOADERS & RENDER FUNCTIONS
 // ============================================
 
-var currentProductId = null;
+const loadDashboardOverview = () => {
+    try {
+        const products = getProducts();
+        const orders = getOrders();
+        const users = getUsers();
 
-function loadProducts() {
-    var products = getProducts();
-    var tbody = document.getElementById('productsTableBody');
+        const totalRevenue = orders.reduce((sum, o) => sum + (parseFloat(o.pricing?.total) || 0), 0);
 
-    if (products.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No products found</td></tr>';
-        return;
-    }
+        const prodEl = document.getElementById('totalProducts');
+        const ordEl = document.getElementById('totalOrders');
+        const userEl = document.getElementById('totalUsers');
+        const revEl = document.getElementById('totalRevenue');
 
-    var html = '';
-    products.forEach(function (product) {
-        var displayPrice = Number(product.salePrice || product.price || 0);
-        var originalPrice = Number(product.originalPrice || product.price || 0);
-        var hasDiscount = originalPrice > displayPrice && displayPrice > 0;
+        if (prodEl) prodEl.textContent = products.length;
+        if (ordEl) ordEl.textContent = orders.length;
+        if (userEl) userEl.textContent = users.length;
+        if (revEl) revEl.textContent = `EGP ${totalRevenue.toFixed(0)}`;
 
-        html += '<tr>';
-        html += '<td class="px-6 py-4"><img src="' + (product.image || '') + '" alt="' + product.name + '" class="w-16 h-16 object-cover rounded-lg"></td>';
-        html += '<td class="px-6 py-4"><div class="font-semibold">' + product.name + '</div><div class="text-xs text-gray-500 mt-1">' + (product.barcode || 'No barcode') + '</div></td>';
-        html += '<td class="px-6 py-4">';
-        if (hasDiscount) {
-            html += '<div class="text-gray-400 line-through text-sm">EGP ' + originalPrice.toFixed(2) + '</div>';
-            html += '<div class="text-primary-500 font-bold">EGP ' + displayPrice.toFixed(2) + '</div>';
-        } else {
-            html += '<div class="text-primary-500 font-bold">EGP ' + displayPrice.toFixed(2) + '</div>';
-        }
-        html += '</td>';
-        html += '<td class="px-6 py-4">' + product.category + '</td>';
-        html += '<td class="px-6 py-4">' + (product.stock || 0) + '</td>';
-        html += '<td class="px-6 py-4">';
-        html += '<button onclick="editProduct(' + product.id + ')" class="text-blue-500 hover:text-blue-600 mr-3"><i class="fas fa-edit"></i></button>';
-        html += '<button onclick="deleteProduct(' + product.id + ')" class="text-red-500 hover:text-red-600"><i class="fas fa-trash"></i></button>';
-        html += '</td>';
-        html += '</tr>';
-    });
-
-    tbody.innerHTML = html;
-}
-
-function showAddProductModal() {
-    currentProductId = null;
-    document.getElementById('modalTitle').textContent = 'Add New Product';
-    document.getElementById('productForm').reset();
-    populateProductCategoryOptions();
-    document.getElementById('productOriginalPrice').value = 0;
-    document.getElementById('productSalePrice').value = 0;
-    updateProductSavingsPreview();
-    document.getElementById('productModal').classList.remove('hidden');
-    document.getElementById('productModal').classList.add('flex');
-}
-
-function editProduct(productId) {
-    var products = getProducts();
-    var product = products.find(function (p) { return p.id === productId; });
-    if (!product) return;
-
-    currentProductId = productId;
-    populateProductCategoryOptions();
-
-    document.getElementById('modalTitle').textContent = 'Edit Product';
-    document.getElementById('productId').value = product.id;
-    document.getElementById('productName').value = product.name;
-    document.getElementById('productBarcode').value = product.barcode || '';
-    document.getElementById('productImageUrl').value = product.image || '';
-    document.getElementById('productDescription').value = product.description || '';
-    document.getElementById('productCategory').value = product.category || '';
-    document.getElementById('productSkinType').value = product.skinType || 'All';
-    document.getElementById('productOriginalPrice').value = product.originalPrice || product.price || 0;
-    document.getElementById('productSalePrice').value = product.salePrice || product.price || 0;
-    document.getElementById('productRating').value = product.rating || 5;
-    document.getElementById('productStock').value = product.stock || 100;
-    updateProductSavingsPreview();
-
-    document.getElementById('productModal').classList.remove('hidden');
-    document.getElementById('productModal').classList.add('flex');
-}
-
-function deleteProduct(productId) {
-    if (!confirm('Are you sure you want to delete this product?')) return;
-
-    var products = getProducts();
-    products = products.filter(function (p) { return p.id !== productId; });
-    saveProducts(products);
-    loadProducts();
-    showToast('Product deleted successfully');
-}
-
-function closeProductModal() {
-    document.getElementById('productModal').classList.add('hidden');
-    document.getElementById('productModal').classList.remove('flex');
-    currentProductId = null;
-}
-
-var productOriginalPriceInput = document.getElementById('productOriginalPrice');
-var productSalePriceInput = document.getElementById('productSalePrice');
-if (productOriginalPriceInput && productSalePriceInput) {
-    productOriginalPriceInput.addEventListener('input', updateProductSavingsPreview);
-    productSalePriceInput.addEventListener('input', updateProductSavingsPreview);
-}
-
-var productForm = document.getElementById('productForm');
-if (productForm) {
-    productForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        var products = getProducts();
-        var originalPrice = parseNumeric(document.getElementById('productOriginalPrice').value);
-        var salePrice = parseNumeric(document.getElementById('productSalePrice').value);
-        var pricing = calculateDiscountDetails(originalPrice, salePrice);
-
-        var productData = {
-            id: currentProductId || Date.now(),
-            name: document.getElementById('productName').value,
-            barcode: document.getElementById('productBarcode').value,
-            image: document.getElementById('productImageUrl').value || 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop',
-            description: document.getElementById('productDescription').value,
-            category: document.getElementById('productCategory').value,
-            skinType: document.getElementById('productSkinType').value,
-            rating: parseInt(document.getElementById('productRating').value),
-            stock: parseInt(document.getElementById('productStock').value),
-            price: pricing.salePrice,
-            originalPrice: pricing.originalPrice,
-            salePrice: pricing.salePrice,
-            savings: pricing.savings,
-            discountPercent: pricing.discountPercent,
-            reviews: Math.floor(Math.random() * 500 + 100)
-        };
-
-        if (currentProductId) {
-            var index = products.findIndex(function (p) { return p.id === currentProductId; });
-            if (index > -1) {
-                products[index] = productData;
+        const recentList = document.getElementById('recentOrdersList');
+        if (recentList) {
+            if (!orders.length) {
+                recentList.innerHTML = '<p class="text-gray-400 text-center py-6 text-xs">No orders recorded yet.</p>';
+            } else {
+                recentList.innerHTML = orders.slice(0, 5).map(createRecentOrderRow).join('');
             }
-            showToast('Product updated successfully');
-        } else {
-            products.push(productData);
-            showToast('Product added successfully');
         }
-
-        saveProducts(products);
-        loadProducts();
-        closeProductModal();
-    });
-}
-
-var categoryForm = document.getElementById('categoryForm');
-if (categoryForm) {
-    categoryForm.addEventListener('submit', saveCategoryFromForm);
-}
-
-var bannerForm = document.getElementById('bannerForm');
-if (bannerForm) {
-    bannerForm.addEventListener('submit', saveBannerFromForm);
-}
-
-var reviewForm = document.getElementById('reviewForm');
-if (reviewForm) {
-    reviewForm.addEventListener('submit', saveReviewFromForm);
-}
-
-// ============================================
-// ORDERS MANAGEMENT
-// ============================================
-
-async function fetchOrdersFromFirestore() {
-    try {
-        var firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
-        var configModule = await import('./firebase-config.js');
-        var { collection, getDocs, query, orderBy, doc, updateDoc, serverTimestamp } = firestoreModule;
-        var { db } = configModule;
-
-        var snapshot = await getDocs(query(collection(db, 'orders'), orderBy('createdAt', 'desc')));
-        var orders = snapshot.docs.map(function (docItem) {
-            return normalizeOrderRecord({ id: docItem.id, ...docItem.data() });
-        });
-
-        localStorage.setItem('luxe_orders', JSON.stringify(orders));
-        return orders;
-    } catch (error) {
-        console.warn('Orders Firestore fallback used:', error);
-        return getOrders();
+    } catch (e) {
+        console.error('Error loading dashboard overview:', e);
     }
-}
+};
 
-async function loadOrders() {
-    var tbody = document.getElementById('ordersTableBody');
-    if (!tbody) return;
+const loadProductsTable = () => {
+    const tableBody = document.getElementById('productsTableBody');
+    if (!tableBody) return;
 
-    try {
-        var orders = await fetchOrdersFromFirestore();
-
-        if (!orders || orders.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No orders found</td></tr>';
-            return;
-        }
-
-        var html = '';
-        orders.forEach(function (order) {
-            var statusClass = getStatusClass(order.status);
-            var orderId = order.orderId || order.id || 'N/A';
-
-            html += '<tr>';
-            html += '<td class="px-6 py-4 font-mono text-sm">#' + String(orderId).replace(/^ORD-/, '') + '</td>';
-            html += '<td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">' + formatDate(order.createdAt) + '</td>';
-            html += '<td class="px-6 py-4 font-bold text-primary-500">EGP ' + Number(order.total || 0).toFixed(2) + '</td>';
-            html += '<td class="px-6 py-4">';
-            html += '<select onchange="updateOrderStatus(\'' + (order.id || orderId) + '\', this.value)" class="px-3 py-1 rounded-full text-sm ' + statusClass + ' border border-transparent">';
-            html += '<option value="Under Review" ' + (order.status === 'Under Review' ? 'selected' : '') + '>Under Review</option>';
-            html += '<option value="Shipped" ' + (order.status === 'Shipped' ? 'selected' : '') + '>Shipped</option>';
-            html += '<option value="Delivered" ' + (order.status === 'Delivered' ? 'selected' : '') + '>Delivered</option>';
-            html += '<option value="Cancelled" ' + (order.status === 'Cancelled' ? 'selected' : '') + '>Cancelled</option>';
-            html += '</select>';
-            html += '</td>';
-            html += '<td class="px-6 py-4">';
-            html += '<button onclick="viewOrderDetails(\'' + (order.id || orderId) + '\')" class="text-blue-500 hover:text-blue-600 mr-3"><i class="fas fa-eye"></i></button>';
-            html += '<button onclick="cancelOrder(\'' + (order.id || orderId) + '\')" class="text-red-500 hover:text-red-600" title="Cancel order"><i class="fas fa-ban"></i></button>';
-            html += '</td>';
-            html += '</tr>';
-        });
-
-        tbody.innerHTML = html;
-    } catch (error) {
-        console.error('loadOrders error', error);
-        tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">Unable to load orders</td></tr>';
-        showToast('Unable to load orders', 'error');
-    }
-}
-
-async function updateOrderStatus(orderId, newStatus) {
-    try {
-        var firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
-        var configModule = await import('./firebase-config.js');
-        var { doc, updateDoc, serverTimestamp } = firestoreModule;
-        var { db } = configModule;
-
-        var orders = getOrders();
-        var order = orders.find(function (item) {
-            return String(item.id) === String(orderId) || String(item.orderId) === String(orderId);
-        });
-
-        if (!order) {
-            showToast('Order not found', 'error');
-            return;
-        }
-
-        await updateDoc(doc(db, 'orders', String(order.id)), {
-            status: newStatus,
-            updatedAt: serverTimestamp()
-        });
-
-        var savedOrders = JSON.parse(localStorage.getItem('luxe_orders')) || [];
-        savedOrders = savedOrders.map(function (item) {
-            if (String(item.id || item.orderId) === String(order.id || order.orderId)) {
-                item.status = newStatus;
-                item.updatedAt = new Date().toISOString();
-            }
-            return item;
-        });
-        localStorage.setItem('luxe_orders', JSON.stringify(savedOrders));
-
-        showToast('Order status updated to ' + newStatus, 'success');
-        loadOrders();
-    } catch (error) {
-        console.error('updateOrderStatus error', error);
-        showToast('Failed to update order status', 'error');
-    }
-}
-
-async function cancelOrder(orderId) {
-    if (!confirm('Are you sure you want to cancel this order?')) return;
-    await updateOrderStatus(orderId, 'Cancelled');
-}
-
-function viewOrderDetails(orderId) {
-    var orders = getOrders();
-    var order = orders.find(function (item) {
-        return String(item.id) === String(orderId) || String(item.orderId) === String(orderId);
-    });
-
-    if (!order) {
-        showToast('Order not found', 'error');
+    const products = getProducts();
+    if (!products.length) {
+        tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No products found</td></tr>';
         return;
     }
 
-    var modal = document.getElementById('orderDetailsModal');
-    var content = document.getElementById('orderDetailsContent');
-    if (!modal || !content) return;
+    tableBody.innerHTML = products.map(createProductTableRow).join('');
+};
 
-    var fullOrder = order.fullOrder || {};
-    var customer = fullOrder.customerInfo || {
-        name: order.customerName,
-        email: order.customerEmail,
-        phone: order.phone || '',
-        address: { street: order.address || '', city: '', state: '', zip: '', country: '' }
-    };
-    var items = Array.isArray(fullOrder.items) ? fullOrder.items : (Array.isArray(order.items) ? order.items : []);
-    var pricing = fullOrder.pricing || {};
+const loadCategoriesTable = () => {
+    const tableBody = document.getElementById('categoriesTableBody');
+    if (!tableBody) return;
 
-    var itemHtml = items.map(function (item) {
-        var safeName = item.name || 'Product';
-        var safeImage = item.image || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=300&h=300&fit=crop';
-        var price = Number(item.price || 0);
-        var quantity = Number(item.quantity || 1);
-        return '<div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-700 py-3">' +
-            '<img src="' + safeImage + '" alt="' + safeName + '" class="w-16 h-16 object-cover rounded-lg">' +
-            '<div class="flex-1">' +
-            '<p class="font-semibold">' + safeName + '</p>' +
-            '<p class="text-sm text-gray-500">Qty: ' + quantity + '</p>' +
-            '</div>' +
-            '<p class="font-semibold text-primary-500">EGP ' + (price * quantity).toFixed(2) + '</p>' +
-            '</div>';
-    }).join('');
+    const categories = getCategories();
+    if (!categories.length) {
+        tableBody.innerHTML = '<tr><td colspan="3" class="px-6 py-8 text-center text-gray-400">No categories found</td></tr>';
+        return;
+    }
 
-    var productListHtml = itemHtml || '<p class="text-gray-500">No products found</p>';
+    tableBody.innerHTML = categories.map(createCategoryTableRow).join('');
 
-    content.innerHTML = '<div class="space-y-6">' +
-        '<div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 dark:bg-gray-700 rounded-2xl p-4">' +
-        '<div><p class="text-sm text-gray-500">Order ID</p><p class="font-bold">#' + String(order.orderId || order.id).replace(/^ORD-/, '') + '</p></div>' +
-        '<div><p class="text-sm text-gray-500">Date</p><p class="font-semibold">' + formatDate(order.createdAt) + '</p></div>' +
-        '<div><p class="text-sm text-gray-500">Status</p><span class="inline-flex px-3 py-1 rounded-full text-sm ' + getStatusClass(order.status) + '">' + order.status + '</span></div>' +
-        '</div>' +
-        '<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">' +
-        '<div class="bg-gray-50 dark:bg-gray-700 rounded-2xl p-4">' +
-        '<h3 class="font-semibold text-lg mb-3">Customer Details</h3>' +
-        '<p><strong>Name:</strong> ' + (customer.name || order.customerName || 'N/A') + '</p>' +
-        '<p><strong>Email:</strong> ' + (customer.email || order.customerEmail || 'N/A') + '</p>' +
-        '<p><strong>Phone:</strong> ' + (customer.phone || order.phone || 'N/A') + '</p>' +
-        '<p><strong>Address:</strong> ' + (customer.address && (customer.address.street || customer.address.city || customer.address.country) ? [customer.address.street, customer.address.city, customer.address.state, customer.address.country].filter(Boolean).join(', ') : (order.address || 'N/A')) + '</p>' +
-        '</div>' +
-        '<div class="bg-gray-50 dark:bg-gray-700 rounded-2xl p-4">' +
-        '<h3 class="font-semibold text-lg mb-3">Order Summary</h3>' +
-        '<div class="space-y-2 text-sm">' +
-        '<div class="flex justify-between"><span>Subtotal</span><span>EGP ' + Number(pricing.subtotal || order.total || 0).toFixed(2) + '</span></div>' +
-        '<div class="flex justify-between"><span>Shipping</span><span>EGP ' + Number(pricing.shipping || 0).toFixed(2) + '</span></div>' +
-        '<div class="flex justify-between"><span>Tax</span><span>EGP ' + Number(pricing.tax || 0).toFixed(2) + '</span></div>' +
-        '<div class="flex justify-between font-bold text-primary-500"><span>Total</span><span>EGP ' + Number(order.total || 0).toFixed(2) + '</span></div>' +
-        '</div>' +
-        '</div>' +
-        '</div>' +
-        '<div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4">' +
-        '<h3 class="font-semibold text-lg mb-3">Products</h3>' +
-        productListHtml +
-        '</div>' +
-        '</div>';
+    // Also populate productCategory select in product modal
+    const catSelect = document.getElementById('productCategory');
+    if (catSelect) {
+        catSelect.innerHTML = categories.map((c) => `<option value="${c.name}">${c.name}</option>`).join('');
+    }
+};
+
+const loadBannersTable = async () => {
+    const tableBody = document.getElementById('bannersTableBody');
+    if (!tableBody) return;
+
+    const banners = await getBanners();
+    if (!banners.length) {
+        tableBody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">No banners found</td></tr>';
+        return;
+    }
+
+    tableBody.innerHTML = banners.map(createBannerTableRow).join('');
+};
+
+const loadReviewsTable = async () => {
+    const tableBody = document.getElementById('reviewsTableBody');
+    if (!tableBody) return;
+
+    const reviews = await getReviews();
+    if (!reviews.length) {
+        tableBody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">No reviews found</td></tr>';
+        return;
+    }
+
+    tableBody.innerHTML = reviews.map(createReviewTableRow).join('');
+};
+
+const loadOrdersTable = () => {
+    const tableBody = document.getElementById('ordersTableBody');
+    if (!tableBody) return;
+
+    const orders = getOrders();
+    if (!orders.length) {
+        tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No orders found</td></tr>';
+        return;
+    }
+
+    tableBody.innerHTML = orders.map(createOrderTableRow).join('');
+};
+
+const loadUsersTable = () => {
+    const tableBody = document.getElementById('usersTableBody');
+    if (!tableBody) return;
+
+    const users = getUsers();
+    if (!users.length) {
+        tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-400">No users found</td></tr>';
+        return;
+    }
+
+    tableBody.innerHTML = users.map(createUserTableRow).join('');
+};
+
+// ============================================
+// CRUD ACTIONS & EVENT HANDLERS
+// ============================================
+
+// Product Actions
+const showAddProductModal = () => {
+    const modal = document.getElementById('productModal');
+    const title = document.getElementById('productModalTitle');
+    const form = document.getElementById('productForm');
+
+    if (!modal) return;
+
+    if (title) title.textContent = 'Add New Product Formula';
+    if (form) form.reset();
+
+    document.getElementById('productId').value = '';
+    loadCategoriesTable();
 
     modal.classList.remove('hidden');
     modal.classList.add('flex');
-}
+    modal.style.display = 'flex';
+};
 
-function closeOrderDetailsModal() {
-    var modal = document.getElementById('orderDetailsModal');
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+const closeProductModal = () => {
+    const modal = document.getElementById('productModal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    modal.style.display = 'none';
+};
+
+const editProduct = (productId) => {
+    const products = getProducts();
+    const product = products.find((p) => p.id === productId);
+    if (!product) return;
+
+    showAddProductModal();
+
+    const title = document.getElementById('productModalTitle');
+    if (title) title.textContent = 'Edit Product Formula';
+
+    document.getElementById('productId').value = product.id;
+    document.getElementById('productName').value = product.name || '';
+    document.getElementById('productBarcode').value = product.barcode || '';
+    document.getElementById('productOriginalPrice').value = product.originalPrice || product.price || 0;
+    document.getElementById('productSalePrice').value = product.salePrice || product.price || 0;
+    document.getElementById('productImage').value = product.image || '';
+    document.getElementById('productDescription').value = product.description || '';
+    document.getElementById('productRating').value = product.rating || 5;
+    document.getElementById('productStock').value = product.stock || 50;
+    document.getElementById('productCategory').value = product.category || 'Serum';
+
+    updateDiscountLabels();
+};
+
+const deleteProduct = (productId) => {
+    if (confirm('Delete this product formula?')) {
+        let products = getProducts();
+        products = products.filter((p) => p.id !== productId);
+        saveProducts(products);
+        showToast('Product deleted');
+        loadProductsTable();
+        loadDashboardOverview();
     }
-}
+};
 
-// ============================================
-// USERS MANAGEMENT
-// ============================================
+const updateDiscountLabels = () => {
+    const orig = parseFloat(document.getElementById('productOriginalPrice')?.value || 0);
+    const sale = parseFloat(document.getElementById('productSalePrice')?.value || 0);
+    const details = calculateDiscountDetails(orig, sale);
 
-async function fetchUsersFromFirestore() {
-    try {
-        var firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
-        var configModule = await import('./firebase-config.js');
-        var { collection, getDocs, query, orderBy } = firestoreModule;
-        var { db } = configModule;
+    const discEl = document.getElementById('productDiscountLabel');
+    const saveEl = document.getElementById('productSavingsLabel');
 
-        var snapshot = await getDocs(query(collection(db, 'users'), orderBy('createdAt', 'desc')));
-        var users = snapshot.docs.map(function (docItem) {
-            return normalizeUserRecord({ id: docItem.id, ...docItem.data() });
-        });
+    if (discEl) discEl.textContent = `${details.discountPercent}% OFF`;
+    if (saveEl) saveEl.textContent = `EGP ${details.savings.toFixed(2)}`;
+};
 
-        localStorage.setItem('luxe_users', JSON.stringify(users));
-        return users;
-    } catch (error) {
-        console.warn('Users Firestore fallback used:', error);
-        return getUsers();
-    }
-}
-
-async function loadUsers() {
-    var tbody = document.getElementById('usersTableBody');
-    if (!tbody) return;
-
-    try {
-        var users = await fetchUsersFromFirestore();
-
-        if (!users || users.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">No users found</td></tr>';
-            return;
-        }
-
-        var html = '';
-        users.forEach(function (user) {
-            var isAdmin = user.role === 'admin';
-            var isBlocked = Boolean(user.isBlocked || user.status === 'Blocked');
-            html += '<tr>';
-            html += '<td data-label="Name" class="px-6 py-4 font-semibold">' + (user.name || 'Customer') + '</td>';
-            html += '<td data-label="Email" class="px-6 py-4">' + (user.email || 'N/A') + '</td>';
-            html += '<td data-label="Phone" class="px-6 py-4">' + (user.phone || 'N/A') + '</td>';
-            html += '<td data-label="Address" class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">' + (user.address || 'N/A') + '</td>';
-            html += '<td data-label="Status" class="px-6 py-4"><span class="px-3 py-1 rounded-full text-xs font-semibold ' + (isBlocked ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800') + '">' + (isBlocked ? 'Blocked' : 'Active') + '</span></td>';
-            html += '<td data-label="Role" class="px-6 py-4"><span class="px-3 py-1 rounded-full text-xs font-semibold ' + (isAdmin ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-700') + '">' + (isAdmin ? 'Admin' : 'Customer') + '</span></td>';
-            html += '<td data-label="Actions" class="px-6 py-4 space-x-2">';
-            html += '<button onclick="toggleUserRole(\'' + (user.id || '') + '\', \'' + (isAdmin ? 'customer' : 'admin') + '\')" class="' + (isAdmin ? 'text-red-500 hover:text-red-600' : 'text-blue-500 hover:text-blue-600') + ' font-semibold text-sm">' + (isAdmin ? 'Remove Admin' : 'Make Admin') + '</button>';
-            html += '<button onclick="toggleUserAccess(\'' + (user.id || '') + '\')" class="' + (isBlocked ? 'text-green-500 hover:text-green-600' : 'text-orange-500 hover:text-orange-600') + ' font-semibold text-sm">' + (isBlocked ? 'Unblock' : 'Block') + '</button>';
-            html += '<button onclick="deleteUser(\'' + (user.id || '') + '\')" class="text-red-500 hover:text-red-600 font-semibold text-sm">Delete</button>';
-            html += '</td>';
-            html += '</tr>';
-        });
-
-        tbody.innerHTML = html;
-    } catch (error) {
-        console.error('loadUsers error', error);
-        tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">Unable to load users</td></tr>';
-        showToast('Unable to load users', 'error');
-    }
-}
-
-function showAddUserForm() {
-    var card = document.getElementById('addUserFormCard');
-    if (card) {
-        card.classList.remove('hidden');
-    }
-}
-
-function hideAddUserForm() {
-    var card = document.getElementById('addUserFormCard');
-    if (card) {
-        card.classList.add('hidden');
-    }
-    var form = document.getElementById('addUserForm');
+// Category Actions
+const resetCategoryForm = () => {
+    const form = document.getElementById('categoryForm');
     if (form) form.reset();
-}
+    document.getElementById('categoryId').value = '';
+    const title = document.getElementById('categoryFormTitle');
+    if (title) title.textContent = 'Add New Category';
+};
 
-function saveManualCustomer(formData) {
-    var users = getUsers();
-    var email = (formData.email || '').trim().toLowerCase();
-    if (!email) {
-        showToast('Email is required', 'error');
-        return;
+const deleteCategory = (catId) => {
+    if (confirm('Delete this category?')) {
+        let categories = getCategories();
+        categories = categories.filter((c) => c.id !== catId);
+        saveCategories(categories);
+        showToast('Category deleted');
+        loadCategoriesTable();
     }
+};
 
-    var existingUser = users.find(function (user) { return String(user.email || '').toLowerCase() === email; });
-    if (existingUser) {
-        showToast('This customer already exists', 'error');
-        return;
+// Banner Actions
+const resetBannerForm = () => {
+    const form = document.getElementById('bannerForm');
+    if (form) form.reset();
+    document.getElementById('bannerId').value = '';
+    const title = document.getElementById('bannerFormTitle');
+    if (title) title.textContent = 'Add New Banner';
+};
+
+const deleteBanner = async (bannerId) => {
+    if (confirm('Delete this campaign banner?')) {
+        let banners = await getBanners();
+        banners = banners.filter((b) => String(b.id) !== String(bannerId));
+        await saveBanners(banners);
+        showToast('Banner deleted');
+        loadBannersTable();
     }
+};
 
-    var newCustomer = {
-        id: 'manual-' + Date.now(),
-        name: formData.name || 'New Customer',
-        email: email,
-        phone: formData.phone || '',
-        address: formData.address || 'N/A',
-        role: 'customer',
-        isBlocked: false,
-        status: 'Active',
-        createdAt: new Date().toISOString(),
-        orders: []
-    };
+// Review Actions
+const resetReviewForm = () => {
+    const form = document.getElementById('reviewForm');
+    if (form) form.reset();
+    document.getElementById('reviewId').value = '';
+    const title = document.getElementById('reviewFormTitle');
+    if (title) title.textContent = 'Add New Review';
+};
 
-    users.unshift(newCustomer);
-    localStorage.setItem('luxe_users', JSON.stringify(users));
-    showToast('Customer added successfully');
-    loadUsers();
-    hideAddUserForm();
-}
-
-var addUserForm = document.getElementById('addUserForm');
-if (addUserForm) {
-    addUserForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-        saveManualCustomer({
-            name: document.getElementById('newUserName').value.trim(),
-            email: document.getElementById('newUserEmail').value.trim(),
-            phone: document.getElementById('newUserPhone').value.trim(),
-            address: document.getElementById('newUserAddress').value.trim()
-        });
-    });
-}
-
-async function toggleUserRole(userId, nextRole) {
-    if (!userId) {
-        showToast('User is missing.', 'error');
-        return;
+const deleteReview = async (reviewId) => {
+    if (confirm('Delete this customer testimonial?')) {
+        let reviews = await getReviews();
+        reviews = reviews.filter((r) => String(r.id) !== String(reviewId));
+        await saveReviews(reviews);
+        showToast('Review removed');
+        loadReviewsTable();
     }
+};
 
-    try {
-        var firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
-        var configModule = await import('./firebase-config.js');
-        var { doc, updateDoc, serverTimestamp } = firestoreModule;
-        var { db } = configModule;
-
-        await updateDoc(doc(db, 'users', userId), {
-            role: nextRole,
-            updatedAt: serverTimestamp()
-        });
-
-        var users = getUsers().map(function (user) {
-            if (String(user.id) === String(userId)) {
-                user.role = nextRole;
-            }
-            return user;
-        });
-        localStorage.setItem('luxe_users', JSON.stringify(users));
-
-        showToast('User role updated successfully', 'success');
-        loadUsers();
-    } catch (error) {
-        console.error('toggleUserRole error', error);
-        showToast('Failed to update user role', 'error');
-    }
-}
-
-function toggleUserAccess(userId) {
-    var users = getUsers();
-    var targetUser = users.find(function (user) { return String(user.id) === String(userId); });
-    if (!targetUser) {
-        showToast('User not found', 'error');
-        return;
-    }
-
-    targetUser.isBlocked = !Boolean(targetUser.isBlocked);
-    targetUser.status = targetUser.isBlocked ? 'Blocked' : 'Active';
-    localStorage.setItem('luxe_users', JSON.stringify(users));
-    showToast(targetUser.isBlocked ? 'Customer blocked successfully' : 'Customer unblocked successfully');
-    loadUsers();
-}
-
-function deleteUser(userId) {
-    if (!confirm('Are you sure you want to delete this customer?')) return;
-
-    var users = getUsers().filter(function (user) { return String(user.id) !== String(userId); });
-    localStorage.setItem('luxe_users', JSON.stringify(users));
-    showToast('Customer deleted successfully');
-    loadUsers();
-}
-
-// ============================================
-// SETTINGS
-// ============================================
-
-function loadSettings() {
-    var settings = getSettings();
-    document.getElementById('maintenanceToggle').checked = settings.maintenanceMode;
-    document.getElementById('siteBanner').value = settings.siteBanner || '';
-}
-
-var maintenanceToggle = document.getElementById('maintenanceToggle');
-if (maintenanceToggle) {
-    maintenanceToggle.addEventListener('change', function () {
-        var settings = getSettings();
-        settings.maintenanceMode = this.checked;
-        saveSettings(settings);
-        showToast('Maintenance mode ' + (this.checked ? 'enabled' : 'disabled'));
-    });
-}
-
-function saveBanner() {
-    var settings = getSettings();
-    settings.siteBanner = document.getElementById('siteBanner').value;
-    saveSettings(settings);
-    showToast('Banner saved successfully');
-}
-
-// ============================================
-// UTILITY FUNCTIONS
-// ============================================
-
-function formatDate(dateString) {
-    if (!dateString) return 'N/A';
-    var date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-}
-
-function showToast(message, type) {
-    var toast = document.getElementById('toast');
-    var toastMessage = document.getElementById('toastMessage');
-    var toastIcon = document.getElementById('toastIcon');
-
-    if (!toast || !toastMessage) return;
-
-    type = type || 'success';
-    toast.classList.remove('bg-green-500', 'bg-red-500', 'bg-blue-500');
-    toast.classList.add(type === 'error' ? 'bg-red-500' : type === 'info' ? 'bg-blue-500' : 'bg-green-500');
-
-    if (toastIcon) {
-        toastIcon.className = 'text-2xl ' + (type === 'error' ? 'fas fa-exclamation-circle' : type === 'info' ? 'fas fa-info-circle' : 'fas fa-check-circle');
-    }
-
-    toastMessage.textContent = message;
-    toast.style.transform = 'translateY(0)';
-
-    setTimeout(function () {
-        toast.style.transform = 'translateY(8rem)';
-    }, 3000);
-}
-
-function logout() {
-    if (confirm('Are you sure you want to logout?')) {
-        import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js')
-            .then(function (firebaseAuth) {
-                return import('./firebase-config.js').then(function (config) {
-                    return firebaseAuth.signOut(config.auth);
-                });
-            })
-            .catch(function () { /* ignore if firebase not available */ })
-            .finally(function () {
-                localStorage.removeItem('luxe_currentUser');
-                localStorage.removeItem('luxe_isAdmin');
-                localStorage.removeItem('luxe_adminEmail');
-                localStorage.removeItem('luxe_adminLoginTime');
-                window.location.href = 'login.html';
-            });
-    }
-}
-
-// ============================================
-// INITIALIZE DASHBOARD
-// ============================================
-
-document.addEventListener('DOMContentLoaded', function () {
-    loadDashboardStats();
-});
-
-
-// ============================================
-// NOTIFICATION SYSTEM
-// ============================================
-
-function loadAdminNotifications() {
-    var notifications = JSON.parse(localStorage.getItem('luxe_adminNotifications')) || [];
-    var container = document.getElementById('notificationsList');
-
-    if (!container) return;
-
-    if (notifications.length === 0) {
-        container.innerHTML = '<div class="text-center py-8 text-gray-500">No notifications</div>';
-        return;
-    }
-
-    var html = '';
-    notifications.forEach(function (notification, index) {
-        var bgClass = notification.isRead ? 'bg-gray-50 dark:bg-gray-700' : 'bg-blue-50 dark:bg-blue-900/20';
-        var iconClass = getNotificationIcon(notification.type);
-        var iconColor = getNotificationColor(notification.type);
-
-        html += '<div class="' + bgClass + ' rounded-lg p-4 mb-3 cursor-pointer hover:shadow-md transition" onclick="markNotificationAsRead(' + index + ')">';
-        html += '<div class="flex items-start space-x-3">';
-        html += '<div class="w-10 h-10 rounded-full ' + iconColor + ' flex items-center justify-center flex-shrink-0">';
-        html += '<i class="' + iconClass + '"></i>';
-        html += '</div>';
-        html += '<div class="flex-1">';
-        html += '<p class="font-semibold mb-1">' + notification.message + '</p>';
-        html += '<p class="text-sm text-gray-500">' + formatNotificationTime(notification.timestamp) + '</p>';
-        if (notification.orderTotal) {
-            html += '<p class="text-sm text-primary-500 font-semibold mt-1">Order Total: EGP ' + notification.orderTotal.toFixed(2) + '</p>';
-        }
-        html += '</div>';
-        if (!notification.isRead) {
-            html += '<div class="w-2 h-2 bg-blue-500 rounded-full"></div>';
-        }
-        html += '</div>';
-        html += '</div>';
-    });
-
-    container.innerHTML = html;
-    updateNotificationBadge();
-}
-
-function getNotificationIcon(type) {
-    var icons = {
-        'order_cancelled': 'fas fa-times-circle',
-        'order_placed': 'fas fa-shopping-bag',
-        'order_updated': 'fas fa-sync-alt',
-        'new_user': 'fas fa-user-plus'
-    };
-    return icons[type] || 'fas fa-bell';
-}
-
-function getNotificationColor(type) {
-    var colors = {
-        'order_cancelled': 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400',
-        'order_placed': 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
-        'order_updated': 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
-        'new_user': 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400'
-    };
-    return colors[type] || 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400';
-}
-
-function formatNotificationTime(timestamp) {
-    var date = new Date(timestamp);
-    var now = new Date();
-    var diff = now - date;
-    var minutes = Math.floor(diff / 60000);
-    var hours = Math.floor(diff / 3600000);
-    var days = Math.floor(diff / 86400000);
-
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return minutes + ' minutes ago';
-    if (hours < 24) return hours + ' hours ago';
-    if (days < 7) return days + ' days ago';
-    return date.toLocaleDateString();
-}
-
-function markNotificationAsRead(index) {
-    var notifications = JSON.parse(localStorage.getItem('luxe_adminNotifications')) || [];
-    if (notifications[index]) {
-        notifications[index].isRead = true;
-        localStorage.setItem('luxe_adminNotifications', JSON.stringify(notifications));
-        loadAdminNotifications();
-    }
-}
-
-function markAllNotificationsAsRead() {
-    var notifications = JSON.parse(localStorage.getItem('luxe_adminNotifications')) || [];
-    notifications.forEach(function (n) { n.isRead = true; });
-    localStorage.setItem('luxe_adminNotifications', JSON.stringify(notifications));
-    loadAdminNotifications();
-    showToast('All notifications marked as read');
-}
-
-function clearAllNotifications() {
-    if (!confirm('Are you sure you want to clear all notifications?')) return;
-    localStorage.setItem('luxe_adminNotifications', JSON.stringify([]));
-    loadAdminNotifications();
-    showToast('All notifications cleared');
-}
-
-function updateNotificationBadge() {
-    var notifications = JSON.parse(localStorage.getItem('luxe_adminNotifications')) || [];
-    var unreadCount = notifications.filter(function (n) { return !n.isRead; }).length;
-
-    var badge = document.getElementById('notificationBadge');
-    if (badge) {
-        badge.textContent = unreadCount;
-        if (unreadCount > 0) {
-            badge.classList.remove('hidden');
-        } else {
-            badge.classList.add('hidden');
-        }
-    }
-}
-
-// Update order status with notification
-function updateOrderStatusWithNotification(orderId, newStatus) {
-    var orders = JSON.parse(localStorage.getItem('luxe_orders')) || [];
-    var order = orders.find(function (o) { return o.orderId === orderId; });
+// Order Actions
+const updateOrderStatus = (orderId, newStatus) => {
+    const orders = getOrders();
+    const order = orders.find((o) => o.orderId === orderId);
 
     if (order) {
-        var oldStatus = order.status;
         order.status = newStatus;
         order.updatedAt = new Date().toISOString();
+        order.statusHistory = order.statusHistory || [];
         order.statusHistory.push({
             status: newStatus,
             timestamp: new Date().toISOString(),
-            note: 'Status updated by admin',
-            updatedBy: 'admin'
+            note: `Status updated by Admin to ${newStatus}`
         });
 
-        localStorage.setItem('luxe_orders', JSON.stringify(orders));
-
-        // Create notification for customer
-        createCustomerNotificationFromAdmin(order.customerInfo.email, {
-            type: 'order_updated',
-            orderId: orderId,
-            newStatus: newStatus,
-            timestamp: new Date().toISOString(),
-            message: 'Your order #' + orderId.split('-')[1] + ' status has been updated to ' + newStatus,
-            isRead: false
-        });
-
-        showToast('Order status updated to ' + newStatus + '. Customer has been notified.');
-        loadOrders();
+        saveOrders(orders);
+        showToast(`Order status updated to ${newStatus}`);
     }
-}
+};
 
-function createCustomerNotificationFromAdmin(customerEmail, notification) {
-    var key = 'luxe_customerNotifications_' + customerEmail;
-    var notifications = JSON.parse(localStorage.getItem(key)) || [];
-    notifications.unshift(notification);
-    localStorage.setItem(key, JSON.stringify(notifications));
-}
+const viewOrderDetails = (orderId) => {
+    const orders = getOrders();
+    const order = orders.find((o) => o.orderId === orderId);
+    if (!order) return;
 
-// Initialize notifications on page load
-if (document.getElementById('notificationsList')) {
+    const modal = document.getElementById('orderDetailsModal');
+    const content = document.getElementById('orderDetailsContent');
+    if (!modal || !content) return;
+
+    const { customerInfo = {}, pricing = {}, items = [], status = 'pending', payment = {} } = order;
+
+    content.innerHTML = `
+        <div class="space-y-4">
+            <div class="flex justify-between items-center bg-pink-50/50 dark:bg-slate-700/40 p-4 rounded-2xl">
+                <div>
+                    <h3 class="font-bold text-gray-900 dark:text-white font-mono text-sm">${orderId}</h3>
+                    <p class="text-gray-400 text-xs">Customer: ${customerInfo.name || 'Client'} (${customerInfo.email || ''})</p>
+                </div>
+                <span class="text-sm font-bold text-pink-600">EGP ${Number(pricing.total || 0).toFixed(2)}</span>
+            </div>
+
+            <div>
+                <h4 class="font-bold uppercase tracking-wider text-gray-400 mb-2">Formulations Ordered:</h4>
+                <div class="divide-y divide-pink-50 dark:divide-slate-700">
+                    ${items.map((item) => `
+                        <div class="py-2.5 flex items-center justify-between">
+                            <div class="flex items-center space-x-2.5">
+                                <img src="${item.image}" alt="${item.name}" class="w-8 h-8 rounded-lg object-cover">
+                                <span>${item.name} (x${item.quantity || 1})</span>
+                            </div>
+                            <span class="font-semibold text-pink-600">EGP ${(item.price * (item.quantity || 1)).toFixed(2)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-slate-700/30 p-3.5 rounded-2xl">
+                <p><strong>Shipping Address:</strong> ${customerInfo.address?.street || ''}, ${customerInfo.address?.city || ''}, ${customerInfo.address?.country || ''}</p>
+                <p><strong>Phone:</strong> ${customerInfo.phone || 'N/A'}</p>
+                <p><strong>Payment:</strong> ${(payment.method || 'cod').toUpperCase()} (${payment.status || 'pending'})</p>
+            </div>
+        </div>
+    `;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    modal.style.display = 'flex';
+};
+
+const closeOrderDetailsModal = () => {
+    const modal = document.getElementById('orderDetailsModal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    modal.style.display = 'none';
+};
+
+// User Actions
+const showAddUserForm = () => {
+    const card = document.getElementById('addUserFormCard');
+    if (card) card.classList.remove('hidden');
+};
+
+const hideAddUserForm = () => {
+    const card = document.getElementById('addUserFormCard');
+    if (card) card.classList.add('hidden');
+};
+
+const toggleUserBlock = (email) => {
+    const users = getUsers();
+    const user = users.find((u) => u.email?.toLowerCase() === email?.toLowerCase());
+    if (user) {
+        user.isBlocked = !user.isBlocked;
+        saveUsers(users);
+        showToast(user.isBlocked ? 'Customer blocked' : 'Customer unblocked');
+        loadUsersTable();
+    }
+};
+
+// Notification Helpers
+const loadAdminNotifications = () => {
+    const notifications = JSON.parse(localStorage.getItem('luxe_adminNotifications')) || [];
+    const container = document.getElementById('notificationsList');
+    if (!container) return;
+
+    if (!notifications.length) {
+        container.innerHTML = '<div class="text-center py-8 text-gray-400 text-xs">No notifications recorded</div>';
+        return;
+    }
+
+    container.innerHTML = notifications.map((n) => `
+        <div class="p-3.5 rounded-2xl bg-pink-50/30 dark:bg-slate-700/30 border border-pink-100 dark:border-slate-700 text-xs flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-bell text-pink-500"></i>
+                <div>
+                    <h5 class="font-semibold text-gray-900 dark:text-white">${n.message}</h5>
+                    <span class="text-[10px] text-gray-400">${new Date(n.timestamp).toLocaleTimeString()}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+};
+
+const markAllNotificationsAsRead = () => {
+    const notifications = JSON.parse(localStorage.getItem('luxe_adminNotifications')) || [];
+    notifications.forEach((n) => { n.isRead = true; });
+    localStorage.setItem('luxe_adminNotifications', JSON.stringify(notifications));
     loadAdminNotifications();
-    // Refresh notifications every 30 seconds
-    setInterval(function () {
-        updateNotificationBadge();
-    }, 30000);
-}
+    showToast('All notifications marked as read');
+};
+
+const clearAllNotifications = () => {
+    if (confirm('Clear all system alerts?')) {
+        localStorage.setItem('luxe_adminNotifications', JSON.stringify([]));
+        loadAdminNotifications();
+        showToast('All alerts cleared');
+    }
+};
+
+// Sign Out
+const logout = async () => {
+    if (confirm('Sign out from Admin Studio?')) {
+        try {
+            const firebaseAuth = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js');
+            const config = await import('./firebase-config.js');
+            await firebaseAuth.signOut(config.auth);
+        } catch (e) {
+            // ignore if offline
+        }
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('luxe_currentUser');
+        window.location.href = 'login.html';
+    }
+};
+
+// Toast Notifications
+const showToast = (message, type = 'success') => {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+    const toastIcon = document.getElementById('toastIcon');
+
+    if (!toast || !toastMessage) return;
+
+    toastMessage.textContent = message;
+
+    if (type === 'error') {
+        toast.className = 'fixed bottom-8 right-8 bg-rose-500 text-white px-5 py-3 rounded-2xl shadow-xl transform translate-y-0 transition-transform duration-300 z-50 flex items-center space-x-3 text-xs';
+        if (toastIcon) toastIcon.className = 'fas fa-circle-exclamation text-base text-white';
+    } else {
+        toast.className = 'fixed bottom-8 right-8 bg-white dark:bg-slate-800 border border-pink-200 dark:border-slate-700 text-gray-800 dark:text-white px-5 py-3 rounded-2xl shadow-xl transform translate-y-0 transition-transform duration-300 z-50 flex items-center space-x-3 text-xs';
+        if (toastIcon) toastIcon.className = 'fas fa-check-circle text-pink-500 text-base';
+    }
+
+    setTimeout(() => {
+        toast.style.transform = 'translateY(8rem)';
+    }, 3200);
+};
+
+// ============================================
+// INITIALIZATION & FORM SUBMISSIONS
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadDashboardOverview();
+    loadCategoriesTable();
+
+    // Discount calculator inputs
+    const origInput = document.getElementById('productOriginalPrice');
+    const saleInput = document.getElementById('productSalePrice');
+    if (origInput && saleInput) {
+        origInput.addEventListener('input', updateDiscountLabels);
+        saleInput.addEventListener('input', updateDiscountLabels);
+    }
+
+    // Product Form
+    const productForm = document.getElementById('productForm');
+    if (productForm) {
+        productForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const productId = document.getElementById('productId').value;
+            const originalPrice = parseFloat(document.getElementById('productOriginalPrice').value) || 0;
+            const salePrice = parseFloat(document.getElementById('productSalePrice').value) || originalPrice;
+
+            const newProduct = {
+                id: productId ? parseInt(productId, 10) : Date.now(),
+                name: document.getElementById('productName').value.trim(),
+                barcode: document.getElementById('productBarcode').value.trim(),
+                category: document.getElementById('productCategory').value,
+                originalPrice,
+                salePrice,
+                price: salePrice,
+                image: document.getElementById('productImage').value.trim(),
+                description: document.getElementById('productDescription').value.trim(),
+                rating: parseInt(document.getElementById('productRating').value, 10) || 5,
+                stock: parseInt(document.getElementById('productStock').value, 10) || 50
+            };
+
+            let products = getProducts();
+            if (productId) {
+                const idx = products.findIndex((p) => p.id === parseInt(productId, 10));
+                if (idx > -1) products[idx] = newProduct;
+            } else {
+                products.push(newProduct);
+            }
+
+            saveProducts(products);
+            closeProductModal();
+            showToast('Product saved successfully');
+            loadProductsTable();
+            loadDashboardOverview();
+        });
+    }
+
+    // Category Form
+    const categoryForm = document.getElementById('categoryForm');
+    if (categoryForm) {
+        categoryForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('categoryName').value.trim();
+            const image = document.getElementById('categoryImage').value.trim();
+
+            const categories = getCategories();
+            categories.push({ id: Date.now(), name, image });
+            saveCategories(categories);
+
+            resetCategoryForm();
+            showToast('Category saved');
+            loadCategoriesTable();
+        });
+    }
+
+    // Banner Form
+    const bannerForm = document.getElementById('bannerForm');
+    if (bannerForm) {
+        bannerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const newBanner = {
+                id: document.getElementById('bannerId').value || `banner-${Date.now()}`,
+                badge: document.getElementById('bannerBadge').value.trim() || 'Featured Ritual',
+                title: document.getElementById('bannerTitle').value.trim(),
+                subtitle: document.getElementById('bannerSubtitle').value.trim(),
+                description: document.getElementById('bannerDescription').value.trim(),
+                buttonText: document.getElementById('bannerButtonText').value.trim(),
+                imageUrl: document.getElementById('bannerImageUrl').value.trim(),
+                targetUrl: document.getElementById('bannerTargetUrl').value.trim() || 'products.html'
+            };
+
+            const banners = await getBanners();
+            banners.push(newBanner);
+            await saveBanners(banners);
+
+            resetBannerForm();
+            showToast('Banner saved');
+            loadBannersTable();
+        });
+    }
+
+    // Review Form
+    const reviewForm = document.getElementById('reviewForm');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const newReview = {
+                id: document.getElementById('reviewId').value || `review-${Date.now()}`,
+                customerName: document.getElementById('reviewCustomerName').value.trim(),
+                profileImage: document.getElementById('reviewProfileImage').value.trim(),
+                rating: parseInt(document.getElementById('reviewRating').value, 10) || 5,
+                text: document.getElementById('reviewText').value.trim()
+            };
+
+            const reviews = await getReviews();
+            reviews.push(newReview);
+            await saveReviews(reviews);
+
+            resetReviewForm();
+            showToast('Review saved');
+            loadReviewsTable();
+        });
+    }
+
+    // Add User Form
+    const addUserForm = document.getElementById('addUserForm');
+    if (addUserForm) {
+        addUserForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const newUser = {
+                id: Date.now(),
+                name: document.getElementById('newUserName').value.trim(),
+                email: document.getElementById('newUserEmail').value.trim(),
+                phone: document.getElementById('newUserPhone').value.trim(),
+                address: document.getElementById('newUserAddress').value.trim(),
+                orders: [],
+                isBlocked: false,
+                createdAt: new Date().toISOString()
+            };
+
+            const users = getUsers();
+            users.push(newUser);
+            saveUsers(users);
+
+            hideAddUserForm();
+            addUserForm.reset();
+            showToast('Customer added successfully');
+            loadUsersTable();
+            loadDashboardOverview();
+        });
+    }
+
+    // Store Settings Form
+    const storeSettingsForm = document.getElementById('storeSettingsForm');
+    if (storeSettingsForm) {
+        storeSettingsForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            showToast('Store settings saved successfully');
+        });
+    }
+
+    // Sidebar Mobile Toggle
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+        });
+    }
+});

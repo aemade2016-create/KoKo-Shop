@@ -4,22 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart - Luxe Beauty</title>
+    <title>Your Shopping Bag - Koko Shop</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="responsive.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
 
-        .font-display {
-            font-family: 'Playfair Display', serif;
-        }
-    </style>
+    <!-- I18n Localization Engine -->
+    <script src="i18n.js"></script>
+
+    <!-- Firebase Configuration -->
+    <script type="module" src="firebase-config.js"></script>
+
+    <script src="init-products.js"></script>
+    <script src="app.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -37,365 +38,600 @@
                             700: '#be185d',
                             800: '#9d174d',
                             900: '#831843',
+                            950: '#500724',
                         }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', '"Poppins"', 'sans-serif'],
+                        display: ['"Playfair Display"', 'Georgia', 'serif'],
                     }
                 }
             }
-        }
+        };
     </script>
 </head>
 
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+<body class="bg-[#fdf8fa] dark:bg-[#0f172a] text-gray-800 dark:text-gray-100 transition-colors duration-300 antialiased selection:bg-pink-100 selection:text-pink-600 min-h-screen flex flex-col">
 
-    <!-- Navbar -->
-    <nav
-        class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-md transition-colors duration-300">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <a href="index.html" class="flex items-center space-x-2">
-                    <i class="fa-brands fa-shopify text-primary-500 text-4xl"></i>
-                    <span
-                        class="text-3xl font-display font-bold bg-gradient-to-r from-primary-500 to-pink-600 bg-clip-text text-transparent">Koko
-                        Shop</span>
+    <!-- Top Announcement Bar -->
+    <aside aria-label="Announcement" class="bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white text-xs font-medium py-2.5 px-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="hidden sm:flex items-center space-x-2">
+                <i class="fas fa-sparkles text-xs"></i>
+                <span data-i18n="announcement_shipping">Complimentary Express Shipping on Orders Over EGP 500</span>
+            </div>
+            <div class="w-full sm:w-auto text-center sm:text-right flex items-center justify-center sm:justify-end space-x-4">
+                <span class="inline-flex items-center">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
+                    <span data-i18n="announcement_clean">100% Certified Clean Formulas</span>
+                </span>
+                <span class="text-pink-200">|</span>
+                <a href="index.html#skin-quiz" class="hover:underline flex items-center">
+                    <span data-i18n="announcement_quiz">Free 2-Min Skin Quiz</span>
+                    <i class="fas fa-chevron-right text-[9px] ml-1"></i>
                 </a>
-    
-                <div class="hidden lg:flex items-center space-x-8">
-                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
-                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
-                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
-                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
-                </div>
-    
-                <div class="flex items-center space-x-4">
-                    <button id="themeToggle" class="hover:text-primary-500 transition">
-                        <i class="fas fa-moon dark:hidden"></i>
-                        <i class="fas fa-sun hidden dark:inline"></i>
-                    </button>
-    
-                    <!-- Admin Panel Icon (Visible ONLY for admin@aemade2016@gmail.com) -->
+            </div>
+        </div>
+    </aside>
+
+    <!-- Global Floating Glassmorphic Navbar -->
+    <header class="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-pink-100 dark:border-slate-800 shadow-sm transition-colors duration-300">
+        <div class="container mx-auto px-4 py-3.5">
+            <div class="flex items-center justify-between">
+                <!-- Brand Logo -->
+                <a href="index.html" class="flex items-center space-x-2.5 group">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 to-rose-400 text-white flex items-center justify-center shadow-md shadow-pink-500/25 group-hover:scale-105 transition-transform">
+                        <i class="fa-brands fa-shopify text-xl"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-2xl font-display font-bold tracking-tight text-gray-900 dark:text-white">
+                            KoKo <span class="italic font-normal text-pink-500">Shop</span>
+                        </span>
+                        <span class="text-[9px] uppercase tracking-widest text-pink-500 font-semibold -mt-1">Clean Beauty Rituals</span>
+                    </div>
+                </a>
+
+                <!-- Centered Navigation Links -->
+                <nav class="hidden lg:flex items-center space-x-8 text-sm font-medium text-gray-700 dark:text-gray-200">
+                    <a href="index.html" class="hover:text-pink-500 transition" data-i18n="nav_home">Home</a>
+                    <a href="products.html" class="hover:text-pink-500 transition" data-i18n="nav_shop_all">Shop All</a>
+                    <a href="products.html?category=Serum" class="hover:text-pink-500 transition" data-i18n="nav_serums">Serums</a>
+                    <a href="products.html?category=Moisturizer" class="hover:text-pink-500 transition" data-i18n="nav_moisturizers">Moisturizers</a>
+                    <a href="index.html#skin-quiz" class="hover:text-pink-500 transition" data-i18n="nav_skin_diagnostic">Skin Diagnostic</a>
+                    <a href="about.html" class="hover:text-pink-500 transition" data-i18n="nav_our_ethos">Our Ethos</a>
+                </nav>
+
+                <!-- Action Utilities (Search, User, Wishlist, Cart, Theme, Lang) -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <!-- Admin Panel Link (Protected for Admin) -->
                     <a href="admin-dashboard.html" id="adminPanelIcon"
-                        class="hidden text-purple-500 hover:text-purple-600 transition group relative"
+                        class="hidden p-2 rounded-full text-pink-600 bg-pink-50 hover:bg-pink-100 dark:bg-pink-950/50 dark:hover:bg-pink-900/50 transition"
                         title="Admin Dashboard">
-                        <div class="flex items-center space-x-1">
-                            <i class="fas fa-cog text-xl group-hover:rotate-90 transition-transform duration-300"></i>
-                            <span class="text-xs font-semibold">Admin</span>
-                        </div>
+                        <i class="fas fa-crown text-sm"></i>
                     </a>
-    
-                    <a href="./profile.html" id="accountLink" class="text-primary-500 transition">
-                        <i class="fas fa-user"></i>
+
+                    <!-- Account Link -->
+                    <a href="login.html" id="accountLink"
+                        class="p-2 text-gray-600 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-800 rounded-full transition"
+                        title="Account">
+                        <i class="far fa-user text-base"></i>
                     </a>
-    
-                    <a href="wishlist.html" class="relative hover:text-primary-500 transition">
-                        <i class="fas fa-heart"></i>
+
+                    <!-- Wishlist -->
+                    <a href="wishlist.html"
+                        class="relative p-2 text-gray-600 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-800 rounded-full transition"
+                        title="Wishlist">
+                        <i class="far fa-heart text-base"></i>
                         <span id="wishlistCount"
-                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                            class="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
                     </a>
-    
-                    <a href="cart.html" class="relative hover:text-primary-500 transition">
-                        <i class="fas fa-shopping-bag"></i>
+
+                    <!-- Cart Button with Pill Badge (Active) -->
+                    <a href="cart.html"
+                        class="relative p-2 text-pink-600 bg-pink-50 dark:bg-pink-950/60 dark:text-pink-400 rounded-full transition"
+                        title="Shopping Bag">
+                        <i class="fas fa-bag-shopping text-base"></i>
                         <span id="cartCount"
-                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                            class="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-sm shadow-pink-500/30">0</span>
                     </a>
-    
-                    <button id="mobileMenuBtn" class="lg:hidden hover:text-primary-500 transition">
+
+                    <!-- Theme Toggle -->
+                    <button id="themeToggle"
+                        class="p-2 text-gray-600 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-800 rounded-full transition"
+                        title="Toggle Light/Dark Theme">
+                        <i class="fas fa-moon text-base dark:hidden"></i>
+                        <i class="fas fa-sun text-base hidden dark:inline"></i>
+                    </button>
+
+                    <!-- Language Switcher -->
+                    <button onclick="toggleLanguage()"
+                        class="px-2.5 py-1 text-xs font-semibold rounded-full border border-pink-200 dark:border-slate-700 text-gray-700 dark:text-gray-200 hover:border-pink-500 hover:text-pink-500 transition">
+                        <span id="langText">AR</span>
+                    </button>
+
+                    <!-- Mobile Menu Trigger -->
+                    <button id="mobileMenuBtn"
+                        class="lg:hidden p-2 text-gray-700 dark:text-gray-200 hover:text-pink-500 rounded-lg">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
                 </div>
             </div>
-    
-            <!-- Mobile Menu -->
-            <div id="mobileMenu" class="hidden lg:hidden mt-4 pb-4 border-t dark:border-gray-700 pt-4">
-                <div class="flex flex-col space-y-3">
-                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
-                    <a href="products.html" class="hover:text-primary-500 transition">Shop</a>
-                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
-                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
-                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
-                </div>
+
+            <!-- Mobile Navigation Drawer -->
+            <div id="mobileMenu" class="hidden lg:hidden mt-4 pt-4 border-t border-pink-100 dark:border-slate-800 space-y-3 pb-2">
+                <a href="index.html" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_home">Home</a>
+                <a href="products.html" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_shop_all_products">Shop All Products</a>
+                <a href="products.html?category=Serum" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_serums_elixirs">Serums & Elixirs</a>
+                <a href="products.html?category=Moisturizer" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_barrier_creams">Barrier Creams</a>
+                <a href="index.html#skin-quiz" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_diagnostic_quiz">Skin Diagnostic Quiz</a>
+                <a href="about.html" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_about_ethos">About Our Ethos</a>
             </div>
         </div>
-    </nav>
+    </header>
 
     <!-- Page Header -->
-    <section class="bg-gradient-to-r from-primary-500 to-pink-600 text-white py-16">
-        <div class="container mx-auto px-4 text-center">
-            <h1 class="text-5xl font-display font-bold mb-4">Shopping Cart</h1>
-            <p class="text-xl opacity-90">Review your items before checkout</p>
+    <header class="relative overflow-hidden bg-gradient-to-b from-pink-100/60 via-pink-50/40 to-transparent dark:from-slate-800/50 dark:via-slate-900/20 dark:to-transparent py-12 md:py-14">
+        <!-- Ambient radial glow -->
+        <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-tr from-pink-300/30 via-rose-200/20 to-pink-100/30 blur-3xl rounded-full -z-10 pointer-events-none"></div>
+
+        <div class="container mx-auto px-4 text-center max-w-3xl">
+            <span class="inline-flex items-center space-x-2 bg-pink-100 dark:bg-pink-950/60 text-pink-600 dark:text-pink-300 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
+                <i class="fas fa-bag-shopping text-[11px] mr-1"></i>
+                Review Your Ritual Selection
+            </span>
+            <h1 class="text-4xl sm:text-5xl font-display font-bold text-gray-900 dark:text-white mb-3 tracking-tight">
+                Your Shopping <span class="font-display italic font-normal text-pink-500">Bag</span>
+            </h1>
+            <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-xl mx-auto leading-relaxed">
+                Every formulation is crafted with biocompatible botanical actives. Enjoy complimentary carbon-neutral shipping on orders above EGP 500.
+            </p>
         </div>
-    </section>
+    </header>
 
-    <!-- Cart Content -->
-    <section class="py-12">
-        <div class="container mx-auto px-4">
-            <div id="cartContent">
-                <!-- Cart items will be loaded here -->
+    <!-- Cart Content Section -->
+    <main class="container mx-auto px-4 pb-20 flex-1">
+        <div id="cartContent">
+            <!-- Dynamic content managed via ES6 JavaScript -->
+        </div>
+
+        <!-- Empty Cart Message -->
+        <div id="emptyCart" class="hidden text-center py-16 bg-white dark:bg-slate-800 rounded-3xl border border-pink-100 dark:border-slate-700 p-8 sm:p-12 shadow-sm max-w-2xl mx-auto my-8">
+            <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-pink-100 to-rose-50 dark:from-slate-700 dark:to-slate-600 text-pink-500 flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner">
+                <i class="fas fa-bag-shopping"></i>
             </div>
+            <h2 class="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white mb-3">Your Bag is Empty</h2>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mb-8 max-w-md mx-auto leading-relaxed">
+                Discover our clinical skincare rituals and targeted formulas designed to awaken healthy, luminous skin.
+            </p>
+            <a href="products.html" class="inline-flex items-center space-x-2 bg-pink-500 hover:bg-pink-600 text-white px-8 py-3.5 rounded-full text-xs font-semibold transition-all duration-300 shadow-md shadow-pink-500/25 transform hover:scale-[1.02]">
+                <span>Explore Formulations</span>
+                <i class="fas fa-arrow-right text-xs ml-1"></i>
+            </a>
+        </div>
 
-            <!-- Empty Cart Message -->
-            <div id="emptyCart" class="hidden text-center py-20">
-                <i class="fas fa-shopping-cart text-8xl text-gray-300 dark:text-gray-600 mb-6"></i>
-                <h2 class="text-3xl font-display font-bold mb-4">Your Cart is Empty</h2>
-                <p class="text-gray-600 dark:text-gray-400 mb-8">Looks like you haven't added any items to your cart yet
-                </p>
-                <a href="products.html"
-                    class="inline-block bg-primary-500 hover:bg-primary-600 text-white px-8 py-4 rounded-full font-semibold transition transform hover:scale-105">
-                    Continue Shopping
-                </a>
-            </div>
-
-            <!-- Cart Items Grid -->
-            <div id="cartItems" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Cart Items List -->
-                <div class="lg:col-span-2">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
-                        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                            <h2 class="text-2xl font-display font-bold">Cart Items (<span id="itemCount">0</span>)</h2>
+        <!-- Cart Items & Order Summary Grid -->
+        <div id="cartItems" class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <!-- Cart Items List (Left Column) -->
+            <div class="lg:col-span-2">
+                <div class="bg-white dark:bg-slate-800 rounded-3xl border border-pink-100/80 dark:border-slate-700/80 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-pink-50 dark:border-slate-700/60 flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-sparkles text-pink-500 text-sm"></i>
+                            <h2 class="font-display font-bold text-gray-900 dark:text-white text-lg sm:text-xl">
+                                Selected Formulations (<span id="itemCount" class="text-pink-600">0</span>)
+                            </h2>
                         </div>
-                        <div id="cartItemsList" class="divide-y divide-gray-200 dark:divide-gray-700">
-                            <!-- Items will be loaded here -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Order Summary -->
-                <div class="lg:col-span-1">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 sticky top-24">
-                        <h2 class="text-2xl font-display font-bold mb-6">Order Summary</h2>
-
-                        <div class="space-y-4 mb-6">
-                            <div class="flex justify-between">
-                                <span class="text-gray-600 dark:text-gray-400">Subtotal</span>
-                                <span class="font-semibold" id="subtotal">EGP 0.00</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600 dark:text-gray-400">Shipping</span>
-                                <span class="font-semibold text-green-600" id="shipping">FREE</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600 dark:text-gray-400">Tax</span>
-                                <span class="font-semibold" id="tax">EGP 0.00</span>
-                            </div>
-                            <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-xl font-bold">Total</span>
-                                    <span class="text-2xl font-bold text-primary-500" id="total">EGP 0.00</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <button onclick="checkout()"
-                            class="w-full bg-primary-500 hover:bg-primary-600 text-white py-4 rounded-full font-semibold transition transform hover:scale-105 mb-4">
-                            <i class="fas fa-lock mr-2"></i>Proceed to Checkout
-                        </button>
-
-                        <a href="products.html" class="block text-center text-primary-500 hover:underline">
-                            <i class="fas fa-arrow-left mr-2"></i>Continue Shopping
+                        <a href="products.html" class="text-xs text-pink-600 hover:text-pink-700 font-semibold transition flex items-center">
+                            <i class="fas fa-plus text-[10px] mr-1.5"></i> Add More Rituals
                         </a>
+                    </div>
+                    
+                    <div id="cartItemsList" class="divide-y divide-pink-50 dark:divide-slate-700/60 p-2 sm:p-4">
+                        <!-- Dynamic Cart Item Rows inserted via createCartItemRow() -->
+                    </div>
+                </div>
+            </div>
 
-                        <!-- Promo Code -->
-                        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                            <h3 class="font-semibold mb-3">Have a promo code?</h3>
-                            <div class="flex gap-2">
-                                <input type="text" id="promoCode" placeholder="Enter code"
-                                    class="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary-500 outline-none">
-                                <button onclick="applyPromo()"
-                                    class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-4 py-2 rounded-lg font-semibold transition">
-                                    Apply
-                                </button>
+            <!-- Order Summary (Right Column) -->
+            <div class="lg:col-span-1">
+                <div class="bg-white dark:bg-slate-800 rounded-3xl border border-pink-100/80 dark:border-slate-700/80 shadow-sm p-6 sticky top-28">
+                    <h2 class="font-display font-bold text-gray-900 dark:text-white text-xl mb-6 flex items-center justify-between pb-4 border-b border-pink-50 dark:border-slate-700/60">
+                        <span>Order Summary</span>
+                        <i class="fas fa-receipt text-pink-400 text-sm"></i>
+                    </h2>
+
+                    <div class="space-y-4 mb-6 text-sm">
+                        <div class="flex justify-between items-center text-gray-600 dark:text-gray-400">
+                            <span>Subtotal</span>
+                            <span class="font-semibold text-gray-900 dark:text-white" id="subtotal">EGP 0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center text-gray-600 dark:text-gray-400">
+                            <span>Carbon-Neutral Delivery</span>
+                            <span class="font-semibold text-emerald-600 dark:text-emerald-400" id="shipping">FREE</span>
+                        </div>
+                        <div class="flex justify-between items-center text-gray-600 dark:text-gray-400">
+                            <span>Clinical Tax (10%)</span>
+                            <span class="font-semibold text-gray-900 dark:text-white" id="tax">EGP 0.00</span>
+                        </div>
+
+                        <div class="border-t border-pink-50 dark:border-slate-700/60 pt-4">
+                            <div class="flex justify-between items-baseline">
+                                <span class="font-display font-bold text-base text-gray-900 dark:text-white">Estimated Total</span>
+                                <span class="text-2xl font-display font-bold text-pink-600" id="total">EGP 0.00</span>
                             </div>
+                            <span class="text-[11px] text-gray-400 block mt-1">Includes applicable taxes and formulation duties</span>
+                        </div>
+                    </div>
+
+                    <!-- Checkout Button -->
+                    <button onclick="checkout()"
+                        class="w-full bg-pink-500 hover:bg-pink-600 text-white py-3.5 px-6 rounded-full font-semibold text-xs tracking-wider uppercase transition-all duration-300 shadow-md shadow-pink-500/25 flex items-center justify-center space-x-2 transform hover:scale-[1.01] mb-4">
+                        <i class="fas fa-lock text-xs"></i>
+                        <span>Proceed to Checkout</span>
+                    </button>
+
+                    <a href="products.html" class="block text-center text-xs text-gray-500 hover:text-pink-600 dark:text-gray-400 transition font-medium">
+                        <i class="fas fa-arrow-left text-[10px] mr-1.5"></i> Continue Exploring Products
+                    </a>
+
+                    <!-- Promo Code Accordion -->
+                    <div class="mt-6 pt-6 border-t border-pink-50 dark:border-slate-700/60">
+                        <label for="promoCode" class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 block mb-2.5">
+                            Promo or Concierge Code
+                        </label>
+                        <div class="flex gap-2">
+                            <input type="text" id="promoCode" placeholder="Try LUXE10 or WELCOME20"
+                                class="flex-1 px-4 py-2 text-xs rounded-full border border-pink-100 dark:border-slate-700 bg-pink-50/40 dark:bg-slate-700/40 focus:ring-2 focus:ring-pink-400 outline-none uppercase font-mono">
+                            <button onclick="applyPromo()"
+                                class="bg-pink-100 dark:bg-slate-700 hover:bg-pink-200 dark:hover:bg-slate-600 text-pink-600 dark:text-pink-300 px-5 py-2 rounded-full text-xs font-semibold transition">
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Trust Pillars -->
+                    <div class="mt-6 pt-6 border-t border-pink-50 dark:border-slate-700/60 space-y-2 text-[11px] text-gray-400">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-shield-check text-pink-500 text-xs"></i>
+                            <span>256-Bit Bank Grade SSL Encrypted Checkout</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-rotate-left text-pink-500 text-xs"></i>
+                            <span>30-Day Ritual Satisfaction Guarantee</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </main>
 
-    <!-- Toast -->
+    <!-- Toast Notification -->
     <div id="toast"
-        class="fixed bottom-8 right-8 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg transform translate-y-32 transition-transform duration-300 z-50">
-        <div class="flex items-center space-x-3">
-            <i class="fas fa-check-circle text-2xl"></i>
-            <span id="toastMessage">Success!</span>
-        </div>
+        class="fixed bottom-8 right-8 bg-white dark:bg-slate-800 border border-pink-200 dark:border-slate-700 text-gray-800 dark:text-white px-5 py-3.5 rounded-2xl shadow-xl transform translate-y-32 transition-transform duration-300 z-50 flex items-center space-x-3">
+        <i class="fas fa-check-circle text-pink-500 text-lg"></i>
+        <span id="toastMessage" class="text-xs font-semibold">Action completed</span>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-gray-300 py-12 mt-16">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                <div>
-                    <div class="flex items-center space-x-2 mb-4">
-                        <i class="fas fa-gem text-primary-500 text-2xl"></i>
-                        <span class="text-2xl font-display font-bold text-white">Luxe Beauty</span>
+    <!-- Luxury Dark Footer -->
+    <footer class="bg-slate-900 text-gray-300 pt-16 pb-12 mt-auto border-t border-pink-900/20">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+                <!-- Brand Info -->
+                <div class="md:col-span-1">
+                    <div class="flex items-center space-x-2.5 mb-4">
+                        <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white">
+                            <i class="fa-brands fa-shopify text-base"></i>
+                        </div>
+                        <span class="text-2xl font-display font-bold text-white tracking-tight">Koko Shop</span>
                     </div>
-                    <p class="mb-4">Your trusted destination for premium beauty products.</p>
+                    <p class="text-xs text-gray-400 leading-relaxed mb-6">
+                        Clean botanical clinical formulations crafted for discerning skincare rituals. Certified non-comedogenic and cruelty-free.
+                    </p>
+                    <div class="flex space-x-3 text-sm text-gray-400">
+                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-pink-400 hover:bg-slate-700 transition"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-pink-400 hover:bg-slate-700 transition"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-pink-400 hover:bg-slate-700 transition"><i class="fab fa-tiktok"></i></a>
+                    </div>
                 </div>
 
+                <!-- Quick Links -->
                 <div>
-                    <h3 class="text-white font-semibold text-lg mb-4">Quick Links</h3>
-                    <ul class="space-y-2">
-                        <li><a href="index.html" class="hover:text-primary-500 transition">Home</a></li>
-                        <li><a href="products.html" class="hover:text-primary-500 transition">Products</a></li>
-                        <li><a href="about.html" class="hover:text-primary-500 transition">About</a></li>
-                        <li><a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a></li>
+                    <h3 class="text-white font-display font-semibold text-sm mb-4 tracking-wider uppercase text-pink-400">Quick Links</h3>
+                    <ul class="space-y-2.5 text-xs text-gray-400">
+                        <li><a href="index.html" class="hover:text-pink-400 transition">Home</a></li>
+                        <li><a href="products.html" class="hover:text-pink-400 transition">Products & Catalog</a></li>
+                        <li><a href="about.html" class="hover:text-pink-400 transition">About Our Philosophy</a></li>
+                        <li><a href="index.html#contact" class="hover:text-pink-400 transition">Contact Concierge</a></li>
                     </ul>
                 </div>
 
+                <!-- Client Service -->
                 <div>
-                    <h3 class="text-white font-semibold text-lg mb-4">Customer Service</h3>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="hover:text-primary-500 transition">Shipping Info</a></li>
-                        <li><a href="#" class="hover:text-primary-500 transition">Returns</a></li>
-                        <li><a href="#" class="hover:text-primary-500 transition">FAQ</a></li>
+                    <h3 class="text-white font-display font-semibold text-sm mb-4 tracking-wider uppercase text-pink-400">Client Service</h3>
+                    <ul class="space-y-2.5 text-xs text-gray-400">
+                        <li><a href="profile.html" class="hover:text-pink-400 transition">Order History & Tracking</a></li>
+                        <li><a href="wishlist.html" class="hover:text-pink-400 transition">Saved Formulations</a></li>
+                        <li><a href="index.html#skin-quiz" class="hover:text-pink-400 transition">Skin Quiz Concierge</a></li>
+                        <li><a href="#" class="hover:text-pink-400 transition">Shipping & Return Policy</a></li>
                     </ul>
                 </div>
 
+                <!-- Guarantee & Assurance -->
                 <div>
-                    <h3 class="text-white font-semibold text-lg mb-4">Contact</h3>
-                    <ul class="space-y-2">
-                        <li><i class="fas fa-phone text-primary-500 mr-2"></i>+1 (555) 123-4567</li>
-                        <li><i class="fas fa-envelope text-primary-500 mr-2"></i>support@luxebeauty.com</li>
+                    <h3 class="text-white font-display font-semibold text-sm mb-4 tracking-wider uppercase text-pink-400">Clinical Assurance</h3>
+                    <ul class="space-y-2.5 text-xs text-gray-400">
+                        <li class="flex items-center"><i class="fas fa-check text-pink-500 mr-2"></i> 30-Day Money-Back Guarantee</li>
+                        <li class="flex items-center"><i class="fas fa-check text-pink-500 mr-2"></i> Free Carbon-Neutral Delivery</li>
+                        <li class="flex items-center"><i class="fas fa-envelope text-pink-500 mr-2"></i> concierge@kokoshop.com</li>
                     </ul>
                 </div>
             </div>
 
-            <div class="border-t border-gray-800 pt-8 text-center text-sm">
-                <p>&copy; 2026 Luxe Beauty. All rights reserved.</p>
+            <div class="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+                <p>&copy; 2026 Koko Shop. All botanical clinical formulations preserved.</p>
+                <div class="flex items-center space-x-4 text-gray-400">
+                    <span class="flex items-center"><i class="fab fa-cc-visa text-lg mr-2"></i> Visa</span>
+                    <span class="flex items-center"><i class="fab fa-cc-mastercard text-lg mr-2"></i> Mastercard</span>
+                    <span class="flex items-center"><i class="fas fa-money-bill-wave text-sm mr-2 text-pink-400"></i> Cash on Delivery</span>
+                </div>
             </div>
         </div>
     </footer>
 
-    <script src="init-products.js"></script>
-    <script src="app.js"></script>
+    <!-- Modern ES6+ Clean JavaScript -->
     <script>
-        // Load and display cart items
-        function loadCart() {
-            var cart = getCart();
-            var cartContent = document.getElementById('cartContent');
-            var emptyCart = document.getElementById('emptyCart');
-            var cartItems = document.getElementById('cartItems');
-            var cartItemsList = document.getElementById('cartItemsList');
+        // State discount multiplier (applied if promo code active)
+        let discountMultiplier = 0;
 
-            if (cart.length === 0) {
-                cartContent.innerHTML = '';
-                emptyCart.classList.remove('hidden');
-                cartItems.classList.add('hidden');
+        // Modular ES6 Cart Item Builder
+        const createCartItemRow = (item) => {
+            const {
+                id,
+                name = 'Botanical Ritual',
+                price = 0,
+                image = './images/slider 1.jpeg',
+                quantity = 1
+            } = item;
+
+            const unitPrice = parseFloat(price) || 0;
+            const itemTotal = unitPrice * (parseInt(quantity, 10) || 1);
+            const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+            const unitPriceFormatted = isAr ? `${unitPrice.toFixed(2)} ج.م` : `EGP ${unitPrice.toFixed(2)}`;
+            const itemTotalFormatted = isAr ? `${itemTotal.toFixed(2)} ج.م` : `EGP ${itemTotal.toFixed(2)}`;
+            const perUnitText = isAr ? 'لكل عبوة' : '/ unit';
+            const removeTitle = isAr ? 'حذف المنتج من الحقيبة' : 'Remove item';
+
+            return `
+                <div class="p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 hover:bg-pink-50/30 dark:hover:bg-slate-700/30 rounded-2xl transition-all duration-300">
+                    <!-- Thumbnail -->
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-pink-50 dark:bg-slate-900 border border-pink-100 dark:border-slate-700 flex-shrink-0">
+                        <img src="${image}" alt="${name}" class="w-full h-full object-cover">
+                    </div>
+
+                    <!-- Details -->
+                    <div class="flex-1 text-center sm:text-left">
+                        <h3 class="font-display font-semibold text-gray-900 dark:text-white text-base mb-1">${name}</h3>
+                        <p class="text-xs font-semibold text-pink-600 dark:text-pink-400 mb-3">
+                            ${unitPriceFormatted} <span class="text-gray-400 font-normal">${perUnitText}</span>
+                        </p>
+
+                        <!-- Quantity Stepper -->
+                        <div class="inline-flex items-center space-x-3 bg-pink-50/70 dark:bg-slate-700/70 p-1 rounded-full border border-pink-100/60 dark:border-slate-600">
+                            <button onclick="updateQuantity(${id}, -1)" 
+                                class="w-7 h-7 bg-white dark:bg-slate-800 rounded-full text-gray-700 dark:text-gray-300 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-slate-700 transition flex items-center justify-center text-xs shadow-sm"
+                                title="Decrease quantity" aria-label="Decrease quantity">
+                                <i class="fas fa-minus text-[10px]"></i>
+                            </button>
+                            <span class="font-semibold text-xs text-gray-900 dark:text-white w-6 text-center">${quantity}</span>
+                            <button onclick="updateQuantity(${id}, 1)" 
+                                class="w-7 h-7 bg-white dark:bg-slate-800 rounded-full text-gray-700 dark:text-gray-300 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-slate-700 transition flex items-center justify-center text-xs shadow-sm"
+                                title="Increase quantity" aria-label="Increase quantity">
+                                <i class="fas fa-plus text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Subtotal & Remove -->
+                    <div class="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-4">
+                        <button onclick="removeFromCartPage(${id})" 
+                            class="text-gray-400 hover:text-rose-500 w-8 h-8 rounded-full hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center justify-center transition"
+                            title="${removeTitle}" aria-label="${removeTitle}">
+                            <i class="far fa-trash-can text-sm"></i>
+                        </button>
+                        <span class="text-base font-bold font-display text-gray-900 dark:text-white">
+                            ${itemTotalFormatted}
+                        </span>
+                    </div>
+                </div>
+            `;
+        };
+
+        // Load and Display Cart
+        const loadCart = () => {
+            const cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
+            const emptyCart = document.getElementById('emptyCart');
+            const cartItems = document.getElementById('cartItems');
+            const cartItemsList = document.getElementById('cartItemsList');
+            const itemCount = document.getElementById('itemCount');
+
+            if (!cart || cart.length === 0) {
+                if (emptyCart) emptyCart.classList.remove('hidden');
+                if (cartItems) cartItems.classList.add('hidden');
                 return;
             }
 
-            emptyCart.classList.add('hidden');
-            cartItems.classList.remove('hidden');
+            if (emptyCart) emptyCart.classList.add('hidden');
+            if (cartItems) cartItems.classList.remove('hidden');
 
-            // Update item count
-            document.getElementById('itemCount').textContent = cart.length;
+            // Count total units in cart
+            const totalUnits = cart.reduce((sum, item) => sum + (parseInt(item.quantity, 10) || 1), 0);
+            if (itemCount) itemCount.textContent = totalUnits;
 
-            // Render cart items
-            var html = '';
-            cart.forEach(function (item) {
-                html += '<div class="p-6 flex flex-col sm:flex-row gap-4">';
-                html += '<img src="' + item.image + '" alt="' + item.name + '" class="w-24 h-24 object-cover rounded-lg">';
-                html += '<div class="flex-1">';
-                html += '<h3 class="font-semibold text-lg mb-2">' + item.name + '</h3>';
-                html += '<p class="text-primary-500 font-bold mb-3">$' + item.price + '</p>';
-                html += '<div class="flex items-center gap-3">';
-                html += '<button onclick="updateQuantity(' + item.id + ', -1)" class="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition">';
-                html += '<i class="fas fa-minus text-sm"></i>';
-                html += '</button>';
-                html += '<span class="font-semibold w-8 text-center">' + (item.quantity || 1) + '</span>';
-                html += '<button onclick="updateQuantity(' + item.id + ', 1)" class="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 transition">';
-                html += '<i class="fas fa-plus text-sm"></i>';
-                html += '</button>';
-                html += '</div>';
-                html += '</div>';
-                html += '<div class="flex flex-col items-end justify-between">';
-                html += '<button onclick="removeFromCartPage(' + item.id + ')" class="text-red-500 hover:text-red-600 transition">';
-                html += '<i class="fas fa-trash"></i>';
-                html += '</button>';
-                html += '<p class="text-xl font-bold">$' + (item.price * (item.quantity || 1)).toFixed(2) + '</p>';
-                html += '</div>';
-                html += '</div>';
-            });
+            // Render Rows
+            if (cartItemsList) {
+                cartItemsList.innerHTML = cart.map(createCartItemRow).join('');
+            }
 
-            cartItemsList.innerHTML = html;
-
-            // Calculate totals
             calculateTotals();
-        }
+        };
 
-        // Update quantity
-        function updateQuantity(productId, change) {
-            var cart = getCart();
-            var item = cart.find(function (i) { return i.id === productId; });
+        // Update Item Quantity
+        const updateQuantity = (productId, change) => {
+            try {
+                const cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
+                const item = cart.find((i) => i.id === productId);
 
-            if (item) {
-                item.quantity = (item.quantity || 1) + change;
+                if (item) {
+                    item.quantity = (parseInt(item.quantity, 10) || 1) + change;
 
-                if (item.quantity <= 0) {
-                    removeFromCartPage(productId);
-                    return;
+                    if (item.quantity <= 0) {
+                        removeFromCartPage(productId);
+                        return;
+                    }
+
+                    if (typeof saveCart === 'function') {
+                        saveCart(cart);
+                    } else {
+                        localStorage.setItem('luxe_cart', JSON.stringify(cart));
+                        if (typeof updateCartCount === 'function') updateCartCount();
+                    }
+
+                    loadCart();
                 }
-
-                saveCart(cart);
-                loadCart();
+            } catch (error) {
+                console.error('Error updating cart quantity:', error);
             }
-        }
+        };
 
-        // Remove from cart
-        function removeFromCartPage(productId) {
-            if (confirm('Remove this item from cart?')) {
-                removeFromCart(productId);
-                loadCart();
+        // Remove from Cart with Smooth Experience
+        const removeFromCartPage = (productId) => {
+            try {
+                if (confirm('Remove this formulation from your shopping bag?')) {
+                    if (typeof removeFromCart === 'function') {
+                        removeFromCart(productId);
+                    } else {
+                        let cart = JSON.parse(localStorage.getItem('luxe_cart') || '[]');
+                        cart = cart.filter((item) => item.id !== productId);
+                        localStorage.setItem('luxe_cart', JSON.stringify(cart));
+                        if (typeof updateCartCount === 'function') updateCartCount();
+                    }
+                    showToast('Formulation removed from bag');
+                    loadCart();
+                }
+            } catch (error) {
+                console.error('Error removing from cart:', error);
             }
-        }
+        };
 
-        // Calculate totals
-        function calculateTotals() {
-            var cart = getCart();
-            var subtotal = 0;
+        // Calculate Totals
+        const calculateTotals = () => {
+            const cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
+            let subtotal = 0;
 
-            cart.forEach(function (item) {
-                subtotal += item.price * (item.quantity || 1);
+            cart.forEach((item) => {
+                const price = parseFloat(item.price) || 0;
+                const qty = parseInt(item.quantity, 10) || 1;
+                subtotal += price * qty;
             });
 
-            var tax = subtotal * 0.1; // 10% tax
-            var shipping = subtotal > 50 ? 0 : 5.99;
-            var total = subtotal + tax + (shipping > 0 ? shipping : 0);
+            // Apply promo discount if active
+            const discountAmount = subtotal * discountMultiplier;
+            const discountedSubtotal = Math.max(subtotal - discountAmount, 0);
 
-            document.getElementById('subtotal').textContent = 'EGP ' + subtotal.toFixed(2);
-            document.getElementById('tax').textContent = 'EGP ' + tax.toFixed(2);
-            document.getElementById('shipping').textContent = shipping > 0 ? 'EGP ' + shipping.toFixed(2) : 'FREE';
-            document.getElementById('total').textContent = 'EGP ' + total.toFixed(2);
-        }
+            // Free shipping on orders over EGP 500
+            const shipping = (discountedSubtotal > 500 || discountedSubtotal === 0) ? 0 : 49.00;
+            const tax = discountedSubtotal * 0.10; // 10% Clinical VAT
+            const total = discountedSubtotal + tax + shipping;
 
-        // Checkout
-        function checkout() {
-            var cart = getCart();
+            const subtotalEl = document.getElementById('subtotal');
+            const taxEl = document.getElementById('tax');
+            const shippingEl = document.getElementById('shipping');
+            const totalEl = document.getElementById('total');
 
-            if (cart.length === 0) {
-                showToast('Your cart is empty!', 'error');
-                return;
+            const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+            const formatPriceLocal = (amount) => isAr ? `${amount.toFixed(2)} ج.م` : `EGP ${amount.toFixed(2)}`;
+
+            if (subtotalEl) {
+                subtotalEl.innerHTML = discountMultiplier > 0 
+                    ? `<span class="line-through text-xs text-gray-400 mr-1.5">${formatPriceLocal(subtotal)}</span> ${formatPriceLocal(discountedSubtotal)}`
+                    : formatPriceLocal(subtotal);
             }
+            if (taxEl) taxEl.textContent = formatPriceLocal(tax);
+            if (shippingEl) shippingEl.textContent = shipping > 0 ? formatPriceLocal(shipping) : (isAr ? 'مجاناً' : 'FREE');
+            if (totalEl) totalEl.textContent = formatPriceLocal(total);
+        };
 
-            // Redirect to checkout page
-            window.location.href = 'checkout.html';
-        }
+        // Expose loadCart globally so i18n can trigger re-rendering
+        window.loadCart = loadCart;
 
-        // Apply promo code
-        function applyPromo() {
-            var code = document.getElementById('promoCode').value.toUpperCase();
+        // Apply Promo Code
+        const applyPromo = () => {
+            const input = document.getElementById('promoCode');
+            const code = (input?.value || '').trim().toUpperCase();
 
             if (code === 'LUXE10') {
-                showToast('Promo code applied! 10% discount');
+                discountMultiplier = 0.10;
+                showToast('10% VIP Discount Applied!');
+                calculateTotals();
             } else if (code === 'WELCOME20') {
-                showToast('Promo code applied! 20% discount');
+                discountMultiplier = 0.20;
+                showToast('20% Welcome Ritual Discount Applied!');
+                calculateTotals();
             } else {
-                showToast('Invalid promo code', 'error');
+                showToast('Invalid promo code. Try LUXE10');
             }
-        }
+        };
 
-        // Initialize
-        loadCart();
+        // Proceed to Checkout
+        const checkout = () => {
+            const cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
+
+            if (!cart || cart.length === 0) {
+                showToast('Your bag is currently empty!');
+                return;
+            }
+
+            window.location.href = 'checkout.html';
+        };
+
+        // Toast Helper
+        const showToast = (message) => {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            if (!toast || !toastMessage) return;
+
+            toastMessage.textContent = message;
+            toast.style.transform = 'translateY(0)';
+
+            setTimeout(() => {
+                toast.style.transform = 'translateY(8rem)';
+            }, 3000);
+        };
+
+        // Initialize on DOM Ready
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                loadCart();
+
+                // Check Admin Crown Icon
+                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                const adminIcon = document.getElementById('adminPanelIcon');
+                if (adminIcon && (currentUser.email === 'aemade2016@gmail.com' || currentUser.isAdmin)) {
+                    adminIcon.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.warn('Cart initialization notice:', error);
+            }
+
+            // Mobile Menu Toggle
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        });
     </script>
 </body>
 

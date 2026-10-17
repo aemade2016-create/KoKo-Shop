@@ -4,14 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products - Luxe Beauty</title>
+    <title>Curated Products - Koko Shop</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="responsive.css">
+
+    <!-- I18n Localization Engine -->
+    <script src="i18n.js"></script>
 
     <!-- Firebase Configuration -->
     <script type="module" src="firebase-config.js"></script>
@@ -35,339 +38,483 @@
                             700: '#be185d',
                             800: '#9d174d',
                             900: '#831843',
+                            950: '#500724',
                         }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', '"Poppins"', 'sans-serif'],
+                        display: ['"Playfair Display"', 'Georgia', 'serif'],
                     }
                 }
             }
-        }
+        };
     </script>
 </head>
 
-<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+<body class="bg-[#fdf8fa] dark:bg-[#0f172a] text-gray-800 dark:text-gray-100 transition-colors duration-300 antialiased selection:bg-pink-100 selection:text-pink-600 min-h-screen flex flex-col">
 
-    <!-- Navbar -->
-    <nav
-        class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-md transition-colors duration-300">
-        <div class="container mx-auto px-4 py-4">
+    <!-- Top Announcement Bar -->
+    <aside aria-label="Announcement" class="bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white text-xs font-medium py-2.5 px-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="hidden sm:flex items-center space-x-2">
+                <i class="fas fa-sparkles text-xs"></i>
+                <span data-i18n="announcement_shipping">Complimentary Express Shipping on Orders Over EGP 500</span>
+            </div>
+            <div class="w-full sm:w-auto text-center sm:text-right flex items-center justify-center sm:justify-end space-x-4">
+                <span class="inline-flex items-center">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
+                    <span data-i18n="announcement_clean">100% Certified Clean Formulas</span>
+                </span>
+                <span class="text-pink-200">|</span>
+                <a href="index.html#skin-quiz" class="hover:underline flex items-center">
+                    <span data-i18n="announcement_quiz">Free 2-Min Skin Quiz</span>
+                    <i class="fas fa-chevron-right text-[9px] ml-1"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Global Floating Glassmorphic Navbar -->
+    <header class="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-pink-100 dark:border-slate-800 shadow-sm transition-colors duration-300">
+        <div class="container mx-auto px-4 py-3.5">
             <div class="flex items-center justify-between">
-                <a href="index.html" class="flex items-center space-x-2">
-                    <i class="fa-brands fa-shopify text-primary-500 text-4xl"></i>
-                    <span
-                        class="text-3xl font-display font-bold bg-gradient-to-r from-primary-500 to-pink-600 bg-clip-text text-transparent">Koko
-                        Shop</span>
+                <!-- Brand Logo -->
+                <a href="index.html" class="flex items-center space-x-2.5 group">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 to-rose-400 text-white flex items-center justify-center shadow-md shadow-pink-500/25 group-hover:scale-105 transition-transform">
+                        <i class="fa-brands fa-shopify text-xl"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-2xl font-display font-bold tracking-tight text-gray-900 dark:text-white">
+                            KoKo <span class="italic font-normal text-pink-500">Shop</span>
+                        </span>
+                        <span class="text-[9px] uppercase tracking-widest text-pink-500 font-semibold -mt-1">Clean Beauty Rituals</span>
+                    </div>
                 </a>
 
-                <div class="hidden lg:flex items-center space-x-8">
-                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
-                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
-                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
-                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
-                </div>
+                <!-- Centered Navigation Links -->
+                <nav class="hidden lg:flex items-center space-x-8 text-sm font-medium text-gray-700 dark:text-gray-200">
+                    <a href="index.html" class="hover:text-pink-500 transition" data-i18n="nav_home">Home</a>
+                    <a href="products.html" class="text-pink-500 font-semibold border-b-2 border-pink-500 pb-0.5 transition" data-i18n="nav_shop_all">Shop All</a>
+                    <a href="products.html?category=Serum" class="hover:text-pink-500 transition" data-i18n="nav_serums">Serums</a>
+                    <a href="products.html?category=Moisturizer" class="hover:text-pink-500 transition" data-i18n="nav_moisturizers">Moisturizers</a>
+                    <a href="index.html#skin-quiz" class="hover:text-pink-500 transition" data-i18n="nav_skin_diagnostic">Skin Diagnostic</a>
+                    <a href="about.html" class="hover:text-pink-500 transition" data-i18n="nav_our_ethos">Our Ethos</a>
+                </nav>
 
-                <div class="flex items-center space-x-4">
-                    <button id="themeToggle" class="hover:text-primary-500 transition">
-                        <i class="fas fa-moon dark:hidden"></i>
-                        <i class="fas fa-sun hidden dark:inline"></i>
+                <!-- Action Utilities (Search, User, Wishlist, Cart, Theme, Lang) -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <!-- Admin Panel Link (Protected for Admin) -->
+                    <a href="admin-dashboard.html" id="adminPanelIcon"
+                        class="hidden p-2 rounded-full text-pink-600 bg-pink-50 hover:bg-pink-100 dark:bg-pink-950/50 dark:hover:bg-pink-900/50 transition"
+                        title="Admin Dashboard">
+                        <i class="fas fa-crown text-sm"></i>
+                    </a>
+
+                    <!-- Account Link -->
+                    <a href="login.html" id="accountLink"
+                        class="p-2 text-gray-600 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-800 rounded-full transition"
+                        title="Account">
+                        <i class="far fa-user text-base"></i>
+                    </a>
+
+                    <!-- Wishlist -->
+                    <a href="wishlist.html"
+                        class="relative p-2 text-gray-600 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-800 rounded-full transition"
+                        title="Wishlist">
+                        <i class="far fa-heart text-base"></i>
+                        <span id="wishlistCount"
+                            class="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+                    </a>
+
+                    <!-- Cart Button with Pill Badge -->
+                    <a href="cart.html"
+                        class="relative p-2 text-gray-600 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-800 rounded-full transition"
+                        title="Shopping Bag">
+                        <i class="fas fa-bag-shopping text-base"></i>
+                        <span id="cartCount"
+                            class="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-sm shadow-pink-500/30">0</span>
+                    </a>
+
+                    <!-- Theme Toggle -->
+                    <button id="themeToggle"
+                        class="p-2 text-gray-600 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-800 rounded-full transition"
+                        title="Toggle Light/Dark Theme">
+                        <i class="fas fa-moon text-base dark:hidden"></i>
+                        <i class="fas fa-sun text-base hidden dark:inline"></i>
                     </button>
 
-                    <!-- Admin Panel Icon (Visible ONLY for admin@aemade2016@gmail.com) -->
-                    <a href="admin-dashboard.html" id="adminPanelIcon"
-                        class="hidden text-purple-500 hover:text-purple-600 transition group relative"
-                        title="Admin Dashboard">
-                        <div class="flex items-center space-x-1">
-                            <i class="fas fa-cog text-xl group-hover:rotate-90 transition-transform duration-300"></i>
-                            <span class="text-xs font-semibold">Admin</span>
-                        </div>
-                    </a>
+                    <!-- Language Switcher -->
+                    <button onclick="toggleLanguage()"
+                        class="px-2.5 py-1 text-xs font-semibold rounded-full border border-pink-200 dark:border-slate-700 text-gray-700 dark:text-gray-200 hover:border-pink-500 hover:text-pink-500 transition">
+                        <span id="langText">AR</span>
+                    </button>
 
-                    <a href="./profile.html" id="accountLink" class="text-primary-500 transition">
-                        <i class="fas fa-user"></i>
-                    </a>
-
-                    <a href="wishlist.html" class="relative hover:text-primary-500 transition">
-                        <i class="fas fa-heart"></i>
-                        <span id="wishlistCount"
-                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
-                    </a>
-
-                    <a href="cart.html" class="relative hover:text-primary-500 transition">
-                        <i class="fas fa-shopping-bag"></i>
-                        <span id="cartCount"
-                            class="absolute -top-2 -right-2 bg-primary-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
-                    </a>
-
-                    <button id="mobileMenuBtn" class="lg:hidden hover:text-primary-500 transition">
+                    <!-- Mobile Menu Trigger -->
+                    <button id="mobileMenuBtn"
+                        class="lg:hidden p-2 text-gray-700 dark:text-gray-200 hover:text-pink-500 rounded-lg">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Mobile Menu -->
-            <div id="mobileMenu" class="hidden lg:hidden mt-4 pb-4 border-t dark:border-gray-700 pt-4">
-                <div class="flex flex-col space-y-3">
-                    <a href="index.html" class="hover:text-primary-500 transition">Home</a>
-                    <a href="products.html" class="hover:text-primary-500 transition">Shop</a>
-                    <a href="products.html" class="hover:text-primary-500 transition">Products</a>
-                    <a href="about.html" class="hover:text-primary-500 transition">About</a>
-                    <a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a>
+            <!-- Mobile Navigation Drawer -->
+            <div id="mobileMenu" class="hidden lg:hidden mt-4 pt-4 border-t border-pink-100 dark:border-slate-800 space-y-3 pb-2">
+                <a href="index.html" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_home">Home</a>
+                <a href="products.html" class="block py-2 text-pink-500 font-semibold" data-i18n="nav_shop_all_products">Shop All Products</a>
+                <a href="products.html?category=Serum" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_serums_elixirs">Serums & Elixirs</a>
+                <a href="products.html?category=Moisturizer" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_barrier_creams">Barrier Creams</a>
+                <a href="index.html#skin-quiz" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_diagnostic_quiz">Skin Diagnostic Quiz</a>
+                <a href="about.html" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_about_ethos">About Our Ethos</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Header & Search Hero -->
+    <header class="relative overflow-hidden bg-gradient-to-b from-pink-100/60 via-pink-50/40 to-transparent dark:from-slate-800/50 dark:via-slate-900/20 dark:to-transparent py-12 md:py-16">
+        <!-- Ambient radial glow -->
+        <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-tr from-pink-300/30 via-rose-200/20 to-pink-100/30 blur-3xl rounded-full -z-10 pointer-events-none"></div>
+
+        <div class="container mx-auto px-4 text-center max-w-4xl">
+            <span class="inline-flex items-center space-x-2 bg-pink-100 dark:bg-pink-950/60 text-pink-600 dark:text-pink-300 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-4">
+                <i class="fas fa-sparkles text-[11px] mr-1"></i>
+                Clinical Formulations & Botanical Actives
+            </span>
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-gray-900 dark:text-white mb-4 tracking-tight">
+                The Skincare <span class="font-display italic font-normal text-pink-500">Collection</span>
+            </h1>
+            <p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed mb-8">
+                Targeted, nutrient-dense rituals formulated with bio-compatible botanical actives to restore and illuminate your natural barrier.
+            </p>
+
+            <!-- Floating Search Input -->
+            <div class="max-w-xl mx-auto relative">
+                <div class="relative flex items-center bg-white dark:bg-slate-800 rounded-full shadow-lg shadow-pink-500/5 border border-pink-100 dark:border-slate-700 p-1.5 focus-within:ring-2 focus-within:ring-pink-400 focus-within:border-pink-300 transition-all duration-300">
+                    <span class="pl-4 pr-2 text-pink-400">
+                        <i class="fas fa-search text-sm"></i>
+                    </span>
+                    <input type="text" id="searchInput" placeholder="Search rituals, serums, ceramides..."
+                        class="w-full bg-transparent text-gray-800 dark:text-gray-200 placeholder-gray-400 text-sm py-2 px-2 outline-none">
+                    <button id="clearSearchBtn" onclick="clearSearch()" class="hidden pr-3 text-gray-400 hover:text-pink-500 text-xs transition" title="Clear">
+                        <i class="fas fa-circle-xmark"></i>
+                    </button>
                 </div>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <!-- Page Header -->
-    <section class="bg-gradient-to-r from-primary-500 to-pink-600 text-white py-16">
-        <div class="container mx-auto px-4 text-center">
-            <h1 class="text-5xl font-display font-bold mb-4">Our Products</h1>
-            <p class="text-xl opacity-90 max-w-2xl mx-auto">Discover our complete collection of premium skincare and
-                beauty products</p>
-            <div class="mt-8 flex items-center justify-center">
-                <div
-                    class="bg-white/20 backdrop-blur-md rounded-full px-6 py-3 flex items-center space-x-3 max-w-md w-full">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search products..."
-                        class="bg-transparent outline-none w-full placeholder-white/70">
-                </div>
-            </div>
+    <!-- Quick Category Ritual Pills -->
+    <section class="container mx-auto px-4 mb-8">
+        <div class="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none justify-start lg:justify-center" id="quickCategoryPills">
+            <button onclick="setCategoryPill('all')" data-pill="all" class="category-pill whitespace-nowrap px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 bg-pink-500 text-white shadow-sm shadow-pink-500/30">
+                All Rituals
+            </button>
+            <button onclick="setCategoryPill('Serum')" data-pill="Serum" class="category-pill whitespace-nowrap px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 border border-pink-100 dark:border-slate-700 hover:border-pink-300">
+                Serums
+            </button>
+            <button onclick="setCategoryPill('Moisturizer')" data-pill="Moisturizer" class="category-pill whitespace-nowrap px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 border border-pink-100 dark:border-slate-700 hover:border-pink-300">
+                Moisturizers
+            </button>
+            <button onclick="setCategoryPill('Cleanser')" data-pill="Cleanser" class="category-pill whitespace-nowrap px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 border border-pink-100 dark:border-slate-700 hover:border-pink-300">
+                Cleansers
+            </button>
+            <button onclick="setCategoryPill('Sunscreen')" data-pill="Sunscreen" class="category-pill whitespace-nowrap px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 border border-pink-100 dark:border-slate-700 hover:border-pink-300">
+                Sunscreens
+            </button>
+            <button onclick="setCategoryPill('Mask')" data-pill="Mask" class="category-pill whitespace-nowrap px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 border border-pink-100 dark:border-slate-700 hover:border-pink-300">
+                Masks
+            </button>
+            <button onclick="setCategoryPill('Toner')" data-pill="Toner" class="category-pill whitespace-nowrap px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 border border-pink-100 dark:border-slate-700 hover:border-pink-300">
+                Toners
+            </button>
         </div>
     </section>
 
-    <!-- Products Section -->
-    <section class="py-12">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col lg:flex-row gap-8">
-                <!-- Sidebar Filters -->
-                <aside class="lg:w-1/4">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg sticky top-24">
-                        <div class="flex items-center justify-between mb-6">
-                            <h2 class="text-2xl font-display font-bold">Filters</h2>
-                            <button onclick="resetFilters()"
-                                class="text-primary-500 text-sm hover:underline">Reset</button>
+    <!-- Products & Filters Section -->
+    <section class="container mx-auto px-4 pb-20 flex-1">
+        <div class="flex flex-col lg:flex-row gap-8 items-start">
+            
+            <!-- Sidebar Filters -->
+            <aside class="w-full lg:w-1/4">
+                <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-pink-100/80 dark:border-slate-700/80 shadow-sm sticky top-24">
+                    <div class="flex items-center justify-between pb-4 border-b border-pink-50 dark:border-slate-700 mb-6">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-sliders text-pink-500 text-sm"></i>
+                            <h2 class="font-display font-bold text-gray-900 dark:text-white text-lg">Filters</h2>
                         </div>
+                        <button onclick="resetFilters()" class="text-xs font-semibold uppercase tracking-wider text-pink-500 hover:text-pink-600 transition">
+                            Reset All
+                        </button>
+                    </div>
 
-                        <!-- Category Filter -->
-                        <div class="mb-6">
-                            <h3 class="font-semibold mb-3 flex items-center">
-                                <i class="fas fa-tag text-primary-500 mr-2"></i>
-                                Category
-                            </h3>
-                            <div id="categoryFiltersContainer" class="space-y-2"></div>
-                        </div>
+                    <!-- Category Filter -->
+                    <div class="mb-6">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3 flex items-center">
+                            <i class="fas fa-tag text-pink-400 mr-2 text-[11px]"></i>
+                            Category
+                        </h3>
+                        <div id="categoryFiltersContainer" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+                    </div>
 
-                        <!-- Price Range -->
-                        <div class="mb-6">
-                            <h3 class="font-semibold mb-3 flex items-center">
-                                <i class="fas fa-dollar-sign text-primary-500 mr-2"></i>
+                    <!-- Price Range -->
+                    <div class="mb-6 pt-4 border-t border-pink-50 dark:border-slate-700/60">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3 flex items-center justify-between">
+                            <span class="flex items-center">
+                                <i class="fas fa-coins text-pink-400 mr-2 text-[11px]"></i>
                                 Price Range
-                            </h3>
-                            <input type="range" id="priceRange" min="0" max="1000" value="1000"
-                                class="price-range-slider w-full">
-                            <div class="flex justify-between text-sm mt-2">
-                                <span>EGP 0</span>
-                                <span id="priceValue" class="font-semibold text-primary-500">EGP 1000</span>
-                            </div>
-                        </div>
-
-                        <!-- Rating Filter -->
-                        <div class="mb-6">
-                            <h3 class="font-semibold mb-3 flex items-center">
-                                <i class="fas fa-star text-primary-500 mr-2"></i>
-                                Rating
-                            </h3>
-                            <div class="space-y-2">
-                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
-                                    <input type="radio" name="rating" class="rating-filter mr-2" value="0" checked>
-                                    <span>All Ratings</span>
-                                </label>
-                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
-                                    <input type="radio" name="rating" class="rating-filter mr-2" value="5">
-                                    <span class="flex items-center">
-                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
-                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
-                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
-                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
-                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
-                                        <span class="ml-2">5 Stars</span>
-                                    </span>
-                                </label>
-                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
-                                    <input type="radio" name="rating" class="rating-filter mr-2" value="4">
-                                    <span class="flex items-center">
-                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
-                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
-                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
-                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
-                                        <span class="ml-2">4+ Stars</span>
-                                    </span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Skin Type -->
-                        <div class="mb-6">
-                            <h3 class="font-semibold mb-3 flex items-center">
-                                <i class="fas fa-spa text-primary-500 mr-2"></i>
-                                Skin Type
-                            </h3>
-                            <div class="space-y-2">
-                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
-                                    <input type="checkbox" class="skin-filter mr-2 rounded text-primary-500"
-                                        value="Dry">
-                                    <span>Dry Skin</span>
-                                </label>
-                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
-                                    <input type="checkbox" class="skin-filter mr-2 rounded text-primary-500"
-                                        value="Oily">
-                                    <span>Oily Skin</span>
-                                </label>
-                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
-                                    <input type="checkbox" class="skin-filter mr-2 rounded text-primary-500"
-                                        value="Sensitive">
-                                    <span>Sensitive Skin</span>
-                                </label>
-                                <label class="flex items-center cursor-pointer hover:text-primary-500 transition">
-                                    <input type="checkbox" class="skin-filter mr-2 rounded text-primary-500"
-                                        value="All">
-                                    <span>All Skin Types</span>
-                                </label>
-                            </div>
+                            </span>
+                            <span id="priceValue" class="text-xs font-bold text-pink-600 dark:text-pink-400">EGP 1000</span>
+                        </h3>
+                        <input type="range" id="priceRange" min="0" max="1000" value="1000"
+                            class="price-range-slider w-full accent-pink-500 cursor-pointer">
+                        <div class="flex justify-between text-[11px] text-gray-400 mt-2 font-medium">
+                            <span>EGP 0</span>
+                            <span>EGP 1000</span>
                         </div>
                     </div>
-                </aside>
+
+                    <!-- Rating Filter -->
+                    <div class="mb-6 pt-4 border-t border-pink-50 dark:border-slate-700/60">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3 flex items-center">
+                            <i class="fas fa-star text-pink-400 mr-2 text-[11px]"></i>
+                            Customer Rating
+                        </h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center justify-between cursor-pointer hover:text-pink-600 transition text-xs text-gray-700 dark:text-gray-300 p-1.5 rounded-lg hover:bg-pink-50/50 dark:hover:bg-slate-700/50">
+                                <span class="flex items-center">
+                                    <input type="radio" name="rating" class="rating-filter mr-2.5 accent-pink-500" value="0" checked>
+                                    <span>All Ratings</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer hover:text-pink-600 transition text-xs text-gray-700 dark:text-gray-300 p-1.5 rounded-lg hover:bg-pink-50/50 dark:hover:bg-slate-700/50">
+                                <span class="flex items-center">
+                                    <input type="radio" name="rating" class="rating-filter mr-2.5 accent-pink-500" value="5">
+                                    <span class="text-amber-400 text-xs mr-2">★★★★★</span>
+                                    <span>5 Stars Only</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer hover:text-pink-600 transition text-xs text-gray-700 dark:text-gray-300 p-1.5 rounded-lg hover:bg-pink-50/50 dark:hover:bg-slate-700/50">
+                                <span class="flex items-center">
+                                    <input type="radio" name="rating" class="rating-filter mr-2.5 accent-pink-500" value="4">
+                                    <span class="text-amber-400 text-xs mr-2">★★★★☆</span>
+                                    <span>4+ Stars</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Skin Type -->
+                    <div class="pt-4 border-t border-pink-50 dark:border-slate-700/60">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3 flex items-center">
+                            <i class="fas fa-droplet text-pink-400 mr-2 text-[11px]"></i>
+                            Skin Barrier Target
+                        </h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center cursor-pointer hover:text-pink-600 transition text-xs text-gray-700 dark:text-gray-300 p-1.5 rounded-lg hover:bg-pink-50/50 dark:hover:bg-slate-700/50">
+                                <input type="checkbox" class="skin-filter mr-2.5 rounded accent-pink-500" value="Dry">
+                                <span>Dry / Dehydrated</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer hover:text-pink-600 transition text-xs text-gray-700 dark:text-gray-300 p-1.5 rounded-lg hover:bg-pink-50/50 dark:hover:bg-slate-700/50">
+                                <input type="checkbox" class="skin-filter mr-2.5 rounded accent-pink-500" value="Oily">
+                                <span>Oily / Blemish-Prone</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer hover:text-pink-600 transition text-xs text-gray-700 dark:text-gray-300 p-1.5 rounded-lg hover:bg-pink-50/50 dark:hover:bg-slate-700/50">
+                                <input type="checkbox" class="skin-filter mr-2.5 rounded accent-pink-500" value="Sensitive">
+                                <span>Sensitive / Reactive</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer hover:text-pink-600 transition text-xs text-gray-700 dark:text-gray-300 p-1.5 rounded-lg hover:bg-pink-50/50 dark:hover:bg-slate-700/50">
+                                <input type="checkbox" class="skin-filter mr-2.5 rounded accent-pink-500" value="All">
+                                <span>All Complexions</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Products Grid Area -->
+            <main class="w-full lg:w-3/4">
+                <!-- Sort & Results Header Bar -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-pink-100/80 dark:border-slate-700/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                    <div class="flex items-center space-x-2">
+                        <span id="productCount" class="text-xs font-semibold text-gray-600 dark:text-gray-300 bg-pink-50 dark:bg-slate-700/60 px-3 py-1.5 rounded-full border border-pink-100 dark:border-slate-600">
+                            Loading rituals...
+                        </span>
+                    </div>
+
+                    <div class="flex items-center space-x-3 w-full sm:w-auto justify-end">
+                        <label for="sortSelect" class="text-xs text-gray-500 dark:text-gray-400 font-medium whitespace-nowrap">Sort by:</label>
+                        <select id="sortSelect" class="bg-pink-50/50 dark:bg-slate-700/60 border border-pink-100 dark:border-slate-600 rounded-full px-4 py-2 text-xs font-medium text-gray-700 dark:text-gray-200 outline-none focus:ring-2 focus:ring-pink-400 transition cursor-pointer">
+                            <option value="featured">Curated & Featured</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="name">Ritual Name: A to Z</option>
+                            <option value="rating">Highest Rated</option>
+                        </select>
+                    </div>
+                </div>
 
                 <!-- Products Grid -->
-                <main class="lg:w-3/4">
-                    <!-- Sort & View Options -->
-                    <div class="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
-                        <div class="flex items-center space-x-2">
-                            <span class="text-gray-600 dark:text-gray-400">Sort by:</span>
-                            <select id="sortSelect"
-                                class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-primary-500">
-                                <option value="featured">Featured</option>
-                                <option value="price-low">Price: Low to High</option>
-                                <option value="price-high">Price: High to Low</option>
-                                <option value="name">Name: A to Z</option>
-                                <option value="rating">Highest Rated</option>
-                            </select>
-                        </div>
+                <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Products will be dynamically rendered via Modern ES6 function -->
+                </div>
 
-                        <div class="flex items-center space-x-2">
-                            <span id="productCount" class="text-gray-600 dark:text-gray-400">Showing 20 products</span>
-                        </div>
+                <!-- No Results State -->
+                <div id="noResults" class="hidden text-center py-16 bg-white dark:bg-slate-800 rounded-3xl border border-pink-100 dark:border-slate-700 p-8 shadow-sm">
+                    <div class="w-16 h-16 rounded-full bg-pink-50 dark:bg-slate-700 text-pink-400 flex items-center justify-center mx-auto mb-4 text-2xl">
+                        <i class="fas fa-magnifying-glass"></i>
                     </div>
-
-                    <!-- Products Grid -->
-                    <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Products will be loaded here -->
-                    </div>
-
-                    <!-- No Results -->
-                    <div id="noResults" class="hidden text-center py-16">
-                        <i class="fas fa-search text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
-                        <h3 class="text-2xl font-semibold mb-2">No Products Found</h3>
-                        <p class="text-gray-600 dark:text-gray-400 mb-6">Try adjusting your filters or search terms</p>
-                        <button onclick="resetFilters()"
-                            class="bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-full font-semibold transition">Reset
-                            Filters</button>
-                    </div>
-                </main>
-            </div>
+                    <h3 class="text-xl font-display font-bold text-gray-900 dark:text-white mb-2">No Matching Rituals Found</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm mb-6 max-w-md mx-auto">
+                        We couldn't find any products matching your selected combination. Try clearing filters or searching for alternative ingredients.
+                    </p>
+                    <button onclick="resetFilters()" class="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2.5 rounded-full text-xs font-semibold transition-all duration-300 shadow-sm shadow-pink-500/25">
+                        Reset All Filters
+                    </button>
+                </div>
+            </main>
         </div>
     </section>
 
     <!-- Product Detail Modal -->
     <div id="productModal"
-        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4"
+        class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4"
         style="display: none;">
-        <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative border border-pink-100 dark:border-slate-700 shadow-2xl">
             <button onclick="closeProductModal()"
-                class="absolute top-4 right-4 z-10 bg-white dark:bg-gray-700 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-                <i class="fas fa-times"></i>
+                class="absolute top-4 right-4 z-10 bg-white/80 dark:bg-slate-700/80 backdrop-blur-md rounded-full w-9 h-9 flex items-center justify-center hover:bg-pink-50 dark:hover:bg-slate-600 text-gray-500 dark:text-gray-300 hover:text-pink-600 transition"
+                aria-label="Close modal">
+                <i class="fas fa-times text-sm"></i>
             </button>
-            <div id="productModalContent" class="p-8"></div>
+            <div id="productModalContent" class="p-6 sm:p-8"></div>
         </div>
     </div>
 
-    <!-- Toast -->
+    <!-- Toast Notification -->
     <div id="toast"
-        class="fixed bottom-8 right-8 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg transform translate-y-32 transition-transform duration-300 z-50">
-        <div class="flex items-center space-x-3">
-            <i class="fas fa-check-circle text-2xl"></i>
-            <span id="toastMessage">Success!</span>
-        </div>
+        class="fixed bottom-8 right-8 bg-white dark:bg-slate-800 border border-pink-200 dark:border-slate-700 text-gray-800 dark:text-white px-5 py-3.5 rounded-2xl shadow-xl transform translate-y-32 transition-transform duration-300 z-50 flex items-center space-x-3">
+        <i class="fas fa-check-circle text-pink-500 text-lg"></i>
+        <span id="toastMessage" class="text-xs font-semibold">Action completed</span>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-gray-300 py-12 mt-16">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                <div>
-                    <div class="flex items-center space-x-2 mb-4">
-                        <i class="fas fa-gem text-primary-500 text-2xl"></i>
-                        <span class="text-2xl font-display font-bold text-white">Luxe Beauty</span>
+    <!-- Luxury Dark Footer -->
+    <footer class="bg-slate-900 text-gray-300 pt-16 pb-12 mt-auto border-t border-pink-900/20">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+                <!-- Brand Info -->
+                <div class="md:col-span-1">
+                    <div class="flex items-center space-x-2.5 mb-4">
+                        <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white">
+                            <i class="fa-brands fa-shopify text-base"></i>
+                        </div>
+                        <span class="text-2xl font-display font-bold text-white tracking-tight">Koko Shop</span>
                     </div>
-                    <p class="mb-4">Your trusted destination for premium beauty products.</p>
+                    <p class="text-xs text-gray-400 leading-relaxed mb-6">
+                        Clean botanical clinical formulations crafted for discerning skincare rituals. Certified non-comedogenic and cruelty-free.
+                    </p>
+                    <div class="flex space-x-3 text-sm text-gray-400">
+                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-pink-400 hover:bg-slate-700 transition"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-pink-400 hover:bg-slate-700 transition"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-pink-400 hover:bg-slate-700 transition"><i class="fab fa-tiktok"></i></a>
+                    </div>
                 </div>
 
+                <!-- Ritual Protocols -->
                 <div>
-                    <h3 class="text-white font-semibold text-lg mb-4">Quick Links</h3>
-                    <ul class="space-y-2">
-                        <li><a href="index.html" class="hover:text-primary-500 transition">Home</a></li>
-                        <li><a href="products.html" class="hover:text-primary-500 transition">Products</a></li>
-                        <li><a href="about.html" class="hover:text-primary-500 transition">About</a></li>
-                        <li><a href="index.html#contact" class="hover:text-primary-500 transition">Contact</a></li>
+                    <h3 class="text-white font-display font-semibold text-sm mb-4 tracking-wider uppercase text-pink-400">Shop by Ritual</h3>
+                    <ul class="space-y-2.5 text-xs text-gray-400">
+                        <li><a href="products.html" class="hover:text-pink-400 transition">Brightening & Vitamin C</a></li>
+                        <li><a href="products.html" class="hover:text-pink-400 transition">Barrier Ceramides & Dew</a></li>
+                        <li><a href="products.html" class="hover:text-pink-400 transition">Deep Cleansing Balms</a></li>
+                        <li><a href="products.html" class="hover:text-pink-400 transition">Mineral Veil Sunscreens</a></li>
                     </ul>
                 </div>
 
+                <!-- Client Concierge -->
                 <div>
-                    <h3 class="text-white font-semibold text-lg mb-4">Customer Service</h3>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="hover:text-primary-500 transition">Shipping Info</a></li>
-                        <li><a href="#" class="hover:text-primary-500 transition">Returns</a></li>
-                        <li><a href="#" class="hover:text-primary-500 transition">FAQ</a></li>
+                    <h3 class="text-white font-display font-semibold text-sm mb-4 tracking-wider uppercase text-pink-400">Concierge</h3>
+                    <ul class="space-y-2.5 text-xs text-gray-400">
+                        <li><a href="index.html#skin-quiz" class="hover:text-pink-400 transition">Diagnostic Skin Quiz</a></li>
+                        <li><a href="about.html" class="hover:text-pink-400 transition">Clinical Philosophy</a></li>
+                        <li><a href="profile.html" class="hover:text-pink-400 transition">Order Tracking & Rituals</a></li>
+                        <li><a href="wishlist.html" class="hover:text-pink-400 transition">Saved Formulations</a></li>
                     </ul>
                 </div>
 
+                <!-- Guarantee & Contact -->
                 <div>
-                    <h3 class="text-white font-semibold text-lg mb-4">Contact</h3>
-                    <ul class="space-y-2">
-                        <li><i class="fas fa-phone text-primary-500 mr-2"></i>+1 (555) 123-4567</li>
-                        <li><i class="fas fa-envelope text-primary-500 mr-2"></i>support@luxebeauty.com</li>
+                    <h3 class="text-white font-display font-semibold text-sm mb-4 tracking-wider uppercase text-pink-400">Clinical Assurance</h3>
+                    <ul class="space-y-2.5 text-xs text-gray-400">
+                        <li class="flex items-center"><i class="fas fa-check text-pink-500 mr-2"></i> 30-Day Money-Back Guarantee</li>
+                        <li class="flex items-center"><i class="fas fa-check text-pink-500 mr-2"></i> Free Carbon-Neutral Delivery</li>
+                        <li class="flex items-center"><i class="fas fa-envelope text-pink-500 mr-2"></i> concierge@kokoshop.com</li>
                     </ul>
                 </div>
             </div>
 
-            <div class="border-t border-gray-800 pt-8 text-center text-sm">
-                <p>&copy; 2026 Luxe Beauty. All rights reserved.</p>
+            <div class="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+                <p>&copy; 2026 Koko Shop. All botanical clinical formulations preserved.</p>
+                <div class="flex items-center space-x-4 text-gray-400">
+                    <span class="flex items-center"><i class="fab fa-cc-visa text-lg mr-2"></i> Visa</span>
+                    <span class="flex items-center"><i class="fab fa-cc-mastercard text-lg mr-2"></i> Mastercard</span>
+                    <span class="flex items-center"><i class="fas fa-money-bill-wave text-sm mr-2 text-pink-400"></i> Cash on Delivery</span>
+                </div>
             </div>
         </div>
     </footer>
 
+    <!-- Modern JavaScript ES6+ Clean Code -->
     <script>
-        function getNormalizedProducts() {
-            var source = JSON.parse(localStorage.getItem('luxe_products')) || [];
-            return source.map(function (product) {
-                var original = Number(product.originalPrice || product.price || 0);
-                var sale = Number(product.salePrice || product.price || original);
-                if (sale > original && original > 0) {
-                    sale = original;
+        // State variables (const / let only, zero var)
+        let allProducts = [];
+        let filteredProducts = [];
+        let activePillCategory = 'all';
+
+        // Star Rating Generator
+        const generateStars = (rating = 5) => {
+            return Array.from({ length: 5 }, (_, i) => 
+                `<i class="fas fa-star ${i < rating ? 'text-amber-400' : 'text-gray-300 dark:text-slate-600'}"></i>`
+            ).join('');
+        };
+
+        // Normalize Product Data from LocalStorage / Firestore
+        const getNormalizedProducts = () => {
+            let stored = [];
+            try {
+                stored = JSON.parse(localStorage.getItem('luxe_products')) || [];
+            } catch (e) {
+                console.warn('Error reading products from storage:', e);
+                stored = [];
+            }
+
+            return stored.map((product) => {
+                const originalPrice = Number(product.originalPrice || product.price || 0);
+                let salePrice = Number(product.salePrice || product.price || originalPrice);
+                if (salePrice > originalPrice && originalPrice > 0) {
+                    salePrice = originalPrice;
                 }
-                var savings = original > 0 ? Math.max(original - sale, 0) : 0;
-                var discountPercent = original > 0 ? Math.round((savings / original) * 100) : 0;
+                const savings = originalPrice > 0 ? Math.max(originalPrice - salePrice, 0) : 0;
+                const discountPercent = originalPrice > 0 ? Math.round((savings / originalPrice) * 100) : 0;
 
-                return Object.assign({}, product, {
-                    originalPrice: original,
-                    salePrice: sale,
-                    price: sale,
-                    savings: savings,
-                    discountPercent: discountPercent,
-                    hasDiscount: original > sale && sale > 0
-                });
+                return {
+                    ...product,
+                    originalPrice,
+                    salePrice,
+                    price: salePrice,
+                    savings,
+                    discountPercent,
+                    hasDiscount: originalPrice > salePrice && salePrice > 0
+                };
             });
-        }
+        };
 
-        function getCategories() {
-            var stored = JSON.parse(localStorage.getItem('luxe_categories')) || [];
+        // Retrieve Category Definitions
+        const getCategories = () => {
+            let stored = [];
+            try {
+                stored = JSON.parse(localStorage.getItem('luxe_categories')) || [];
+            } catch (e) {
+                stored = [];
+            }
+
             return stored.length ? stored : [
                 { name: 'Serum' },
                 { name: 'Moisturizer' },
@@ -376,113 +523,230 @@
                 { name: 'Mask' },
                 { name: 'Toner' }
             ];
-        }
+        };
 
-        function renderCategoryFilters() {
-            var container = document.getElementById('categoryFiltersContainer');
+        // Render Category Checkbox in Sidebar
+        const createCategoryFilterItem = ({ name }) => {
+            const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+            const catMap = {
+                'Serum': 'سيروم',
+                'Moisturizer': 'مرطب',
+                'Cleanser': 'غسول',
+                'Night Cream': 'كريم ليلي',
+                'Toner': 'تونر',
+                'Sunscreen': 'واقي شمس',
+                'Mask': 'قناع'
+            };
+            const displayName = isAr ? (catMap[name] || name) : name;
+            return `
+                <label class="flex items-center justify-between cursor-pointer hover:text-pink-600 transition text-xs text-gray-700 dark:text-gray-300 p-1.5 rounded-lg hover:bg-pink-50/50 dark:hover:bg-slate-700/50">
+                    <span class="flex items-center">
+                        <input type="checkbox" class="category-filter mr-2.5 rounded accent-pink-500" value="${name}">
+                        <span>${displayName}</span>
+                    </span>
+                </label>
+            `;
+        };
+
+        const renderCategoryFilters = () => {
+            const container = document.getElementById('categoryFiltersContainer');
             if (!container) return;
 
-            var categories = getCategories();
-            var html = '<label class="flex items-center cursor-pointer hover:text-primary-500 transition"><input type="checkbox" class="category-filter mr-2 rounded text-primary-500" value="all" checked><span>All Products</span></label>';
+            const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+            const allLabel = isAr ? 'كافة التصنيفات' : 'All Categories';
+            const categories = getCategories();
+            const allOption = `
+                <label class="flex items-center justify-between cursor-pointer hover:text-pink-600 transition text-xs text-gray-700 dark:text-gray-300 p-1.5 rounded-lg hover:bg-pink-50/50 dark:hover:bg-slate-700/50">
+                    <span class="flex items-center">
+                        <input type="checkbox" class="category-filter mr-2.5 rounded accent-pink-500" value="all" checked>
+                        <span class="font-semibold">${allLabel}</span>
+                    </span>
+                </label>
+            `;
 
-            categories.forEach(function (category) {
-                html += '<label class="flex items-center cursor-pointer hover:text-primary-500 transition"><input type="checkbox" class="category-filter mr-2 rounded text-primary-500" value="' + category.name + '"><span>' + category.name + '</span></label>';
+            container.innerHTML = allOption + categories.map(createCategoryFilterItem).join('');
+
+            document.querySelectorAll('.category-filter').forEach((el) => {
+                el.addEventListener('change', (e) => {
+                    if (e.target.value === 'all' && e.target.checked) {
+                        document.querySelectorAll('.category-filter:not([value="all"])').forEach((cb) => {
+                            cb.checked = false;
+                        });
+                    } else if (e.target.value !== 'all' && e.target.checked) {
+                        const allCb = document.querySelector('.category-filter[value="all"]');
+                        if (allCb) allCb.checked = false;
+                    }
+                    filterProducts();
+                });
             });
+        };
 
-            container.innerHTML = html;
-            document.querySelectorAll('.category-filter').forEach(function (el) {
-                el.addEventListener('change', filterProducts);
-            });
-        }
+        // Product Card Generator (Modular ES6 Function matching index.html)
+        const createProductCard = (product) => {
+            const {
+                id,
+                name = 'Botanical Ritual',
+                category = 'Skincare',
+                image = './images/slider 1.jpeg',
+                price = 0,
+                originalPrice = 0,
+                rating = 5,
+                reviews = 0,
+                description = '',
+                hasDiscount = false,
+                discountPercent = 0
+            } = product;
 
-        var allProducts = getNormalizedProducts();
-        var filteredProducts = allProducts.slice();
+            const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+            const catMap = {
+                'Serum': 'سيروم',
+                'Moisturizer': 'مرطب',
+                'Cleanser': 'غسول',
+                'Night Cream': 'كريم ليلي',
+                'Toner': 'تونر',
+                'Sunscreen': 'واقي شمس',
+                'Mask': 'قناع'
+            };
+            const displayCategory = isAr ? (catMap[category] || category) : category;
+            const priceFormatted = isAr ? `${Number(price).toFixed(2)} ج.م` : `EGP ${Number(price).toFixed(2)}`;
+            const oldPriceFormatted = isAr ? `${Number(originalPrice).toFixed(2)} ج.م` : `EGP ${Number(originalPrice).toFixed(2)}`;
+            const addToBagText = isAr ? 'أضف للحقيبة' : 'Add to Bag';
+            const wishlistTitle = isAr ? 'أضف إلى قائمة الرغبات' : 'Add to Wishlist';
+            const badgeText = hasDiscount ? (isAr ? `خصم ${discountPercent}%` : `-${discountPercent}%`) : '';
 
-        function generateStars(rating) {
-            var stars = '';
-            for (var i = 0; i < 5; i++) {
-                stars += '<i class="fas fa-star ' + (i < rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600') + '"></i>';
-            }
-            return stars;
-        }
+            return `
+                <div class="product-card group relative bg-white dark:bg-slate-800 rounded-2xl border border-pink-100/80 dark:border-slate-700/80 p-4 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between cursor-pointer" onclick="showProductDetail(${id})">
+                    <!-- Image Container -->
+                    <div class="relative aspect-square rounded-xl overflow-hidden bg-pink-50/50 dark:bg-slate-900/50 mb-3.5">
+                        <img src="${image}" alt="${name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        
+                        <!-- Floating Wishlist Button -->
+                        <button onclick="event.stopPropagation(); toggleWishlistFromProducts(${id})" 
+                            class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 dark:bg-slate-800/90 backdrop-blur-md flex items-center justify-center text-gray-500 dark:text-gray-300 hover:text-pink-500 hover:bg-white shadow-sm transition-all"
+                            title="${wishlistTitle}" aria-label="${wishlistTitle}">
+                            <i class="far fa-heart text-xs" data-wishlist-id="${id}"></i>
+                        </button>
 
-        function renderProducts() {
-            var grid = document.getElementById('productsGrid');
-            var noResults = document.getElementById('noResults');
+                        <!-- Discount Bubble -->
+                        ${hasDiscount ? `
+                            <span class="absolute top-2.5 left-2.5 bg-pink-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-sm">
+                                ${badgeText}
+                            </span>
+                        ` : ''}
+                    </div>
+
+                    <!-- Content -->
+                    <div class="flex flex-col flex-1 justify-between text-left">
+                        <div>
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-pink-600 dark:text-pink-400 block mb-1">${displayCategory}</span>
+                            <h3 class="font-display font-semibold text-gray-900 dark:text-white text-base leading-snug line-clamp-1 group-hover:text-pink-500 transition mb-1.5">${name}</h3>
+                            
+                            <div class="flex items-center space-x-1 text-amber-400 text-xs mb-2">
+                                ${generateStars(rating)}
+                                <span class="text-[11px] text-gray-400 ml-1.5">(${reviews})</span>
+                            </div>
+
+                            <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed mb-3">${description || 'Pure bio-compatible botanical formulation.'}</p>
+                        </div>
+
+                        <!-- Price & Action -->
+                        <div class="pt-2 border-t border-pink-50 dark:border-slate-700/60">
+                            <div class="flex items-baseline space-x-2 mb-3">
+                                ${hasDiscount && originalPrice > price ? `
+                                    <span class="text-xs text-gray-400 line-through">${oldPriceFormatted}</span>
+                                ` : ''}
+                                <span class="text-lg font-bold font-display text-pink-600">${priceFormatted}</span>
+                            </div>
+
+                            <button onclick="event.stopPropagation(); addToCartFromProducts(${id})" 
+                                class="w-full bg-pink-500 hover:bg-pink-600 text-white py-2.5 px-4 rounded-full text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all duration-300 shadow-sm hover:shadow-md">
+                                <i class="fas fa-bag-shopping text-xs"></i>
+                                <span>${addToBagText}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+
+        // Render Products Grid
+        const renderProducts = () => {
+            const grid = document.getElementById('productsGrid');
+            const noResults = document.getElementById('noResults');
+            const countLabel = document.getElementById('productCount');
+            if (!grid) return;
+
+            const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
 
             if (filteredProducts.length === 0) {
                 grid.innerHTML = '';
-                noResults.classList.remove('hidden');
-                document.getElementById('productCount').textContent = 'No products found';
+                if (noResults) noResults.classList.remove('hidden');
+                if (countLabel) countLabel.textContent = isAr ? 'لم يتم العثور على أي منتجات' : '0 rituals found';
                 return;
             }
 
-            noResults.classList.add('hidden');
-            document.getElementById('productCount').textContent = 'Showing ' + filteredProducts.length + ' products';
+            if (noResults) noResults.classList.add('hidden');
+            if (countLabel) countLabel.textContent = isAr ? `عرض ${filteredProducts.length} منتج` : `Showing ${filteredProducts.length} rituals`;
 
-            var html = '';
-            filteredProducts.forEach(function (product) {
-                var originalPrice = Number(product.originalPrice || product.price || 0);
-                var displayPrice = Number(product.price || 0);
-                var savings = Number(product.savings || 0);
-                var badge = product.hasDiscount ? 'وفرت ' + Math.round(savings) + ' جنيه' : 'خصم ' + (product.discountPercent || 0) + '%';
+            grid.innerHTML = filteredProducts.map(createProductCard).join('');
 
-                html += '<div class="product-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg cursor-pointer" onclick="showProductDetail(' + product.id + ')">';
-                html += '<div class="relative aspect-square overflow-hidden">';
-                html += '<img src="' + product.image + '" alt="' + product.name + '" class="w-full h-full object-cover" loading="lazy">';
-                html += '<button onclick="event.stopPropagation(); toggleWishlistFromProducts(' + product.id + ')" class="absolute top-4 right-4 bg-white dark:bg-gray-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary-500 hover:text-white transition">';
-                html += '<i class="far fa-heart" data-wishlist-id="' + product.id + '"></i>';
-                html += '</button>';
-                html += '<span class="absolute top-4 left-4 bg-primary-500 text-white px-3 py-1 rounded-full text-xs font-semibold">' + product.category + '</span>';
-                if (product.hasDiscount) {
-                    html += '<span class="absolute bottom-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">' + badge + '</span>';
-                }
-                html += '</div>';
-                html += '<div class="p-6">';
-                html += '<h3 class="font-semibold text-lg mb-2">' + product.name + '</h3>';
-                html += '<div class="flex items-center mb-3">';
-                html += generateStars(product.rating);
-                html += '<span class="text-sm text-gray-500 ml-2">(' + (product.reviews || 0) + ')</span>';
-                html += '</div>';
-                html += '<p class="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">' + product.description + '</p>';
-                html += '<div class="flex items-center justify-between">';
-                html += '<div class="flex flex-col">';
-                html += '<span class="text-sm text-gray-400 line-through">EGP ' + originalPrice.toFixed(2) + '</span>';
-                html += '<span class="text-2xl font-bold text-primary-500">EGP ' + displayPrice.toFixed(2) + '</span>';
-                html += '</div>';
-                html += '<button onclick="event.stopPropagation(); addToCartFromProducts(' + product.id + ')" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-full transition"><i class="fas fa-shopping-cart"></i></button>';
-                html += '</div>';
-                html += '</div>';
-                html += '</div>';
-            });
+            if (window.LuxeBeauty && typeof window.LuxeBeauty.updateAllWishlistIcons === 'function') {
+                window.LuxeBeauty.updateAllWishlistIcons();
+            }
+        };
 
-            grid.innerHTML = html;
-        }
+        // Expose renderers globally for i18n auto re-rendering
+        window.renderProducts = renderProducts;
+        window.renderCategoryFilters = renderCategoryFilters;
 
-        function filterProducts() {
-            var searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            var maxPrice = parseFloat(document.getElementById('priceRange').value);
-            var selectedRating = parseInt(document.querySelector('input[name="rating"]:checked').value);
+            grid.innerHTML = filteredProducts.map(createProductCard).join('');
 
-            var selectedCategories = [];
-            document.querySelectorAll('.category-filter:checked').forEach(function (cb) {
+            // Synchronize Wishlist Heart Icons
+            if (window.LuxeBeauty && typeof window.LuxeBeauty.updateAllWishlistIcons === 'function') {
+                window.LuxeBeauty.updateAllWishlistIcons();
+            }
+        };
+
+        // Filtering Logic
+        const filterProducts = () => {
+            const searchInput = document.getElementById('searchInput');
+            const searchTerm = (searchInput?.value || '').toLowerCase().trim();
+            const priceRange = document.getElementById('priceRange');
+            const maxPrice = parseFloat(priceRange?.value || 1000);
+            const ratingInput = document.querySelector('input[name="rating"]:checked');
+            const selectedRating = parseInt(ratingInput?.value || 0, 10);
+
+            // Selected Categories from Sidebar Checkboxes
+            const selectedCategories = [];
+            document.querySelectorAll('.category-filter:checked').forEach((cb) => {
                 selectedCategories.push(cb.value);
             });
 
-            var selectedSkinTypes = [];
-            document.querySelectorAll('.skin-filter:checked').forEach(function (cb) {
+            // Selected Skin Types
+            const selectedSkinTypes = [];
+            document.querySelectorAll('.skin-filter:checked').forEach((cb) => {
                 selectedSkinTypes.push(cb.value);
             });
 
-            filteredProducts = allProducts.filter(function (product) {
-                var matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
-                    (product.description || '').toLowerCase().includes(searchTerm);
-                var matchesPrice = Number(product.price || 0) <= maxPrice;
-                var matchesRating = selectedRating === 0 || product.rating >= selectedRating;
-                var matchesCategory = selectedCategories.length === 0 ||
-                    selectedCategories.includes('all') ||
-                    selectedCategories.includes(product.category);
-                var matchesSkinType = selectedSkinTypes.length === 0 ||
+            filteredProducts = allProducts.filter((product) => {
+                const matchesSearch = !searchTerm ||
+                    (product.name || '').toLowerCase().includes(searchTerm) ||
+                    (product.description || '').toLowerCase().includes(searchTerm) ||
+                    (product.category || '').toLowerCase().includes(searchTerm);
+
+                const matchesPrice = Number(product.price || 0) <= maxPrice;
+                const matchesRating = selectedRating === 0 || product.rating >= selectedRating;
+
+                // Category match: Either sidebar categories or active pill category
+                let matchesCategory = true;
+                if (activePillCategory !== 'all') {
+                    matchesCategory = (product.category === activePillCategory);
+                } else if (selectedCategories.length > 0 && !selectedCategories.includes('all')) {
+                    matchesCategory = selectedCategories.includes(product.category);
+                }
+
+                // Skin type match
+                const matchesSkinType = selectedSkinTypes.length === 0 ||
                     selectedSkinTypes.includes(product.skinType) ||
                     product.skinType === 'All';
 
@@ -491,136 +755,312 @@
 
             sortProducts();
             renderProducts();
-        }
+        };
 
-        function sortProducts() {
-            var sortBy = document.getElementById('sortSelect').value;
+        // Sorting Logic
+        const sortProducts = () => {
+            const sortBy = document.getElementById('sortSelect')?.value || 'featured';
 
             switch (sortBy) {
                 case 'price-low':
-                    filteredProducts.sort(function (a, b) { return a.price - b.price; });
+                    filteredProducts.sort((a, b) => Number(a.price) - Number(b.price));
                     break;
                 case 'price-high':
-                    filteredProducts.sort(function (a, b) { return b.price - a.price; });
+                    filteredProducts.sort((a, b) => Number(b.price) - Number(a.price));
                     break;
                 case 'name':
-                    filteredProducts.sort(function (a, b) { return a.name.localeCompare(b.name); });
+                    filteredProducts.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
                     break;
                 case 'rating':
-                    filteredProducts.sort(function (a, b) { return b.rating - a.rating; });
+                    filteredProducts.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
+                    break;
+                case 'featured':
+                default:
+                    // Keep natural order or ID
+                    filteredProducts.sort((a, b) => a.id - b.id);
                     break;
             }
-        }
+        };
 
-        function resetFilters() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('priceRange').value = 1000;
-            document.getElementById('priceValue').textContent = 'EGP 1000';
-            document.querySelectorAll('.category-filter').forEach(function (cb) {
-                cb.checked = cb.value === 'all';
+        // Category Pills Handler (Quick Filters)
+        const setCategoryPill = (category) => {
+            activePillCategory = category;
+
+            // Update UI styles of pills
+            document.querySelectorAll('.category-pill').forEach((btn) => {
+                const pillType = btn.getAttribute('data-pill');
+                if (pillType === category) {
+                    btn.className = 'category-pill whitespace-nowrap px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 bg-pink-500 text-white shadow-sm shadow-pink-500/30';
+                } else {
+                    btn.className = 'category-pill whitespace-nowrap px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 border border-pink-100 dark:border-slate-700 hover:border-pink-300';
+                }
             });
-            document.querySelectorAll('.skin-filter').forEach(function (cb) {
+
+            // Also synchronize sidebar checkboxes
+            const allCb = document.querySelector('.category-filter[value="all"]');
+            if (category === 'all') {
+                if (allCb) allCb.checked = true;
+                document.querySelectorAll('.category-filter:not([value="all"])').forEach((cb) => {
+                    cb.checked = false;
+                });
+            } else {
+                if (allCb) allCb.checked = false;
+                document.querySelectorAll('.category-filter:not([value="all"])').forEach((cb) => {
+                    cb.checked = (cb.value === category);
+                });
+            }
+
+            filterProducts();
+        };
+
+        // Reset All Filters
+        const resetFilters = () => {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.value = '';
+
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (clearBtn) clearBtn.classList.add('hidden');
+
+            const priceRange = document.getElementById('priceRange');
+            if (priceRange) priceRange.value = 1000;
+
+            const priceValue = document.getElementById('priceValue');
+            if (priceValue) priceValue.textContent = 'EGP 1000';
+
+            document.querySelectorAll('.category-filter').forEach((cb) => {
+                cb.checked = (cb.value === 'all');
+            });
+
+            document.querySelectorAll('.skin-filter').forEach((cb) => {
                 cb.checked = false;
             });
-            document.querySelector('input[name="rating"][value="0"]').checked = true;
-            document.getElementById('sortSelect').value = 'featured';
-            filterProducts();
-        }
 
-        document.getElementById('searchInput').addEventListener('input', filterProducts);
-        document.getElementById('priceRange').addEventListener('input', function () {
-            document.getElementById('priceValue').textContent = 'EGP ' + this.value;
-            filterProducts();
-        });
-        document.getElementById('sortSelect').addEventListener('change', function () {
-            sortProducts();
-            renderProducts();
-        });
-        document.querySelectorAll('.skin-filter, .rating-filter').forEach(function (el) {
-            el.addEventListener('change', filterProducts);
-        });
+            const allRatingRadio = document.querySelector('input[name="rating"][value="0"]');
+            if (allRatingRadio) allRatingRadio.checked = true;
 
-        function addToCartFromProducts(productId) {
-            var product = allProducts.find(function (p) { return p.id === productId; });
+            const sortSelect = document.getElementById('sortSelect');
+            if (sortSelect) sortSelect.value = 'featured';
+
+            setCategoryPill('all');
+        };
+
+        // Clear Search Function
+        const clearSearch = () => {
+            const input = document.getElementById('searchInput');
+            if (input) {
+                input.value = '';
+                document.getElementById('clearSearchBtn')?.classList.add('hidden');
+                filterProducts();
+            }
+        };
+
+        // Cart & Wishlist Actions
+        const addToCartFromProducts = (productId) => {
+            if (!window.LuxeBeauty?.isLoggedIn?.()) {
+                showToast('Please login to add items to cart');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1400);
+                return;
+            }
+
+            const product = allProducts.find((p) => p.id === productId);
             if (product) {
-                addToCart(productId, {
+                window.LuxeBeauty.addToCart(productId, {
                     name: product.name,
                     price: product.price,
                     image: product.image
                 });
             }
-        }
+        };
 
-        function toggleWishlistFromProducts(productId) {
-            var product = allProducts.find(function (p) { return p.id === productId; });
+        const toggleWishlistFromProducts = (productId) => {
+            if (!window.LuxeBeauty?.isLoggedIn?.()) {
+                showToast('Please login to add items to wishlist');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1400);
+                return;
+            }
+
+            const product = allProducts.find((p) => p.id === productId);
             if (product) {
-                toggleWishlist(productId, {
+                window.LuxeBeauty.toggleWishlist(productId, {
                     name: product.name,
                     price: product.price,
                     image: product.image
                 });
+                window.LuxeBeauty.updateAllWishlistIcons?.();
             }
-        }
+        };
 
-        function showProductDetail(productId) {
-            var product = allProducts.find(function (p) { return p.id === productId; });
+        // Product Detail Modal
+        const showProductDetail = (productId) => {
+            const product = allProducts.find((p) => p.id === productId);
             if (!product) return;
 
-            var modal = document.getElementById('productModal');
-            var content = document.getElementById('productModalContent');
-            var badgeText = product.hasDiscount ? 'وفرت ' + Math.round(product.savings || 0) + ' جنيه' : 'خصم ' + (product.discountPercent || 0) + '%';
+            const modal = document.getElementById('productModal');
+            const content = document.getElementById('productModalContent');
+            if (!modal || !content) return;
 
-            var html = '<div class="grid md:grid-cols-2 gap-8">';
-            html += '<div><img src="' + product.image + '" alt="' + product.name + '" class="w-full rounded-2xl"></div>';
-            html += '<div>';
-            html += '<div class="flex items-center gap-3 mb-3"><span class="text-sm text-primary-500 font-semibold">' + product.category + '</span>';
-            if (product.hasDiscount) {
-                html += '<span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">' + badgeText + '</span>';
-            }
-            html += '</div>';
-            html += '<h2 class="text-3xl font-display font-bold mt-2 mb-4">' + product.name + '</h2>';
-            html += '<div class="flex items-center mb-4">';
-            html += generateStars(product.rating);
-            html += '<span class="text-sm text-gray-500 ml-2">(' + (product.reviews || 0) + ' reviews)</span>';
-            html += '</div>';
-            html += '<p class="text-gray-600 dark:text-gray-400 mb-4">' + product.description + '</p>';
-            html += '<div class="flex items-center gap-3 mb-6">';
-            html += '<span class="text-sm text-gray-400 line-through">EGP ' + Number(product.originalPrice || product.price || 0).toFixed(2) + '</span>';
-            html += '<span class="text-4xl font-bold text-primary-500">EGP ' + Number(product.price || 0).toFixed(2) + '</span>';
-            html += '</div>';
-            html += '<div class="space-y-4">';
-            html += '<button onclick="addToCartFromProducts(' + product.id + '); closeProductModal();" class="w-full bg-primary-500 hover:bg-primary-600 text-white py-4 rounded-full font-semibold transition"><i class="fas fa-shopping-cart mr-2"></i>Add to Cart</button>';
-            html += '<button onclick="toggleWishlistFromProducts(' + product.id + ')" class="w-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 py-4 rounded-full font-semibold transition"><i class="far fa-heart mr-2"></i>Add to Wishlist</button>';
-            html += '</div>';
-            html += '</div>';
-            html += '</div>';
+            const {
+                id,
+                name = '',
+                category = 'Skincare',
+                image = './images/slider 1.jpeg',
+                description = 'Clinical botanical formula designed to restore skin barrier health, hydration, and natural radiance.',
+                price = 0,
+                originalPrice = 0,
+                rating = 5,
+                reviews = 0,
+                hasDiscount = false,
+                discountPercent = 0
+            } = product;
 
-            content.innerHTML = html;
+            content.innerHTML = `
+                <div class="grid md:grid-cols-2 gap-8 items-center text-left">
+                    <div class="relative aspect-square rounded-2xl overflow-hidden bg-pink-50 dark:bg-slate-800">
+                        <img src="${image}" alt="${name}" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-xs text-pink-600 dark:text-pink-400 font-bold uppercase tracking-wider">${category}</span>
+                            ${hasDiscount ? `
+                                <span class="bg-pink-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                                    -${discountPercent}% OFF
+                                </span>
+                            ` : ''}
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white mb-3">${name}</h2>
+                        <div class="flex items-center mb-4">
+                            <div class="flex text-amber-400 text-xs space-x-1">${generateStars(rating)}</div>
+                            <span class="text-xs text-gray-400 ml-2">(${reviews} reviews)</span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-6">${description}</p>
+                        <div class="flex items-baseline space-x-3 mb-6">
+                            ${hasDiscount && originalPrice > price ? `
+                                <span class="text-sm text-gray-400 line-through">EGP ${Number(originalPrice).toFixed(2)}</span>
+                            ` : ''}
+                            <span class="text-3xl font-bold font-display text-pink-600">EGP ${Number(price).toFixed(2)}</span>
+                        </div>
+                        <div class="space-y-3">
+                            <button onclick="addToCartFromProducts(${id}); closeProductModal();" 
+                                class="w-full bg-pink-500 hover:bg-pink-600 text-white py-3.5 rounded-full font-semibold transition-all duration-300 shadow-md flex items-center justify-center space-x-2">
+                                <i class="fas fa-bag-shopping text-sm"></i>
+                                <span>Add to Bag</span>
+                            </button>
+                            <button onclick="toggleWishlistFromProducts(${id})" 
+                                class="w-full bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 text-gray-800 dark:text-gray-200 py-3.5 rounded-full font-semibold transition flex items-center justify-center space-x-2">
+                                <i class="far fa-heart text-sm"></i>
+                                <span>Add to Wishlist</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             modal.style.display = 'flex';
-        }
+        };
 
-        function closeProductModal() {
-            var modal = document.getElementById('productModal');
+        const closeProductModal = () => {
+            const modal = document.getElementById('productModal');
+            if (!modal) return;
             modal.classList.add('hidden');
             modal.classList.remove('flex');
             modal.style.display = 'none';
-        }
+        };
 
-        function showToast(message) {
-            var toast = document.getElementById('toast');
-            var toastMessage = document.getElementById('toastMessage');
+        // Toast Helper
+        const showToast = (message) => {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            if (!toast || !toastMessage) return;
+
             toastMessage.textContent = message;
             toast.style.transform = 'translateY(0)';
 
-            setTimeout(function () {
+            setTimeout(() => {
                 toast.style.transform = 'translateY(8rem)';
             }, 3000);
-        }
+        };
 
-        renderCategoryFilters();
-        renderProducts();
+        // Initialize Page on DOM Loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                allProducts = getNormalizedProducts();
+                filteredProducts = [...allProducts];
+
+                renderCategoryFilters();
+                renderProducts();
+
+                // Check Admin Access
+                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                const adminIcon = document.getElementById('adminPanelIcon');
+                if (adminIcon && (currentUser.email === 'aemade2016@gmail.com' || currentUser.isAdmin)) {
+                    adminIcon.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Initialization error in products.html:', error);
+            }
+
+            // Event Listeners for Search & Filters
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const clearBtn = document.getElementById('clearSearchBtn');
+                    if (clearBtn) {
+                        if (e.target.value.length > 0) {
+                            clearBtn.classList.remove('hidden');
+                        } else {
+                            clearBtn.classList.add('hidden');
+                        }
+                    }
+                    filterProducts();
+                });
+            }
+
+            const priceRange = document.getElementById('priceRange');
+            if (priceRange) {
+                priceRange.addEventListener('input', function () {
+                    const priceValue = document.getElementById('priceValue');
+                    if (priceValue) priceValue.textContent = `EGP ${this.value}`;
+                    filterProducts();
+                });
+            }
+
+            const sortSelect = document.getElementById('sortSelect');
+            if (sortSelect) {
+                sortSelect.addEventListener('change', () => {
+                    sortProducts();
+                    renderProducts();
+                });
+            }
+
+            document.querySelectorAll('.skin-filter, .rating-filter').forEach((el) => {
+                el.addEventListener('change', filterProducts);
+            });
+
+            // Mobile Menu Toggle
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+
+            // Close modal on click outside
+            const productModal = document.getElementById('productModal');
+            if (productModal) {
+                productModal.addEventListener('click', (e) => {
+                    if (e.target === productModal) {
+                        closeProductModal();
+                    }
+                });
+            }
+        });
     </script>
 </body>
 

@@ -1,426 +1,470 @@
 // ============================================
-// CHECKOUT SYSTEM - LUXE BEAUTY
+// CHECKOUT SYSTEM - KOKO SHOP (MODERN ES6+)
 // ============================================
 
-var selectedPaymentMethod = null;
+let selectedPaymentMethod = null;
 
 // ============================================
-// INITIALIZE CHECKOUT
+// MODULAR ORDER SUMMARY RENDERER
 // ============================================
 
-document.addEventListener('DOMContentLoaded', function () {
-    loadOrderSummary();
-    setupEventListeners();
-});
+const createOrderItemRow = ({ name = 'Ritual Item', price = 0, quantity = 1, image = './images/slider 1.jpeg' }) => {
+    const itemPrice = parseFloat(price) || 0;
+    const itemQty = parseInt(quantity, 10) || 1;
+    const itemTotal = itemPrice * itemQty;
+    const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+    const qtyLabel = isAr ? 'الكمية:' : 'Quantity:';
+    const totalFormatted = isAr ? `${itemTotal.toFixed(2)} ج.م` : `EGP ${itemTotal.toFixed(2)}`;
+
+    return `
+        <div class="flex items-center space-x-3 pt-3.5 first:pt-0">
+            <div class="w-14 h-14 rounded-xl overflow-hidden bg-pink-50 dark:bg-slate-900 border border-pink-100 dark:border-slate-700 flex-shrink-0">
+                <img src="${image}" alt="${name}" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-1 min-w-0">
+                <h4 class="font-display font-semibold text-xs text-gray-900 dark:text-white truncate">${name}</h4>
+                <p class="text-[11px] text-gray-400 mt-0.5">${qtyLabel} <span class="font-medium text-gray-600 dark:text-gray-300">${itemQty}</span></p>
+            </div>
+            <span class="font-display font-bold text-xs text-pink-600 flex-shrink-0">
+                ${totalFormatted}
+            </span>
+        </div>
+    `;
+};
+
+const loadOrderSummary = () => {
+    try {
+        const cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
+        const orderItemsContainer = document.getElementById('orderItems');
+
+        if (!orderItemsContainer) return;
+
+        const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+
+        if (!cart || cart.length === 0) {
+            orderItemsContainer.innerHTML = `
+                <div class="text-center py-8 text-gray-400 text-xs">
+                    <i class="fas fa-bag-shopping text-2xl mb-2 text-pink-300 block"></i>
+                    ${isAr ? 'حقيبة التسوق فارغة حالياً.' : 'Your shopping bag is empty.'}
+                </div>
+            `;
+            setTimeout(() => {
+                window.location.href = 'cart.html';
+            }, 1000);
+            return;
+        }
+
+        orderItemsContainer.innerHTML = cart.map(createOrderItemRow).join('');
+        calculateTotals();
+    } catch (error) {
+        console.error('Error loading order summary:', error);
+    }
+};
+
+const calculateTotals = () => {
+    try {
+        const cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
+        let subtotal = 0;
+
+        cart.forEach((item) => {
+            const price = parseFloat(item.price) || 0;
+            const quantity = parseInt(item.quantity, 10) || 1;
+            subtotal += price * quantity;
+        });
+
+        // Free shipping over EGP 500
+        const shipping = (subtotal > 500 || subtotal === 0) ? 0 : 49.00;
+        const tax = subtotal * 0.10; // 10% Clinical VAT
+        const total = subtotal + shipping + tax;
+
+        const subtotalEl = document.getElementById('subtotal');
+        const shippingEl = document.getElementById('shipping');
+        const taxEl = document.getElementById('tax');
+        const totalEl = document.getElementById('total');
+
+        const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+        const formatLocal = (amount) => isAr ? `${amount.toFixed(2)} ج.م` : `EGP ${amount.toFixed(2)}`;
+
+        if (subtotalEl) subtotalEl.textContent = formatLocal(subtotal);
+        if (shippingEl) shippingEl.textContent = shipping > 0 ? formatLocal(shipping) : (isAr ? 'مجاناً' : 'FREE');
+        if (taxEl) taxEl.textContent = formatLocal(tax);
+        if (totalEl) totalEl.textContent = formatLocal(total);
+    } catch (error) {
+        console.error('Error calculating checkout totals:', error);
+    }
+};
+
+// Expose loadOrderSummary globally so i18n triggers re-rendering
+window.loadOrderSummary = loadOrderSummary;
 
 // ============================================
-// LOAD ORDER SUMMARY
+// PAYMENT SELECTION & ACCORDION
 // ============================================
 
-function loadOrderSummary() {
-    var cart = getCart();
-    var orderItemsContainer = document.getElementById('orderItems');
+const selectPayment = (method) => {
+    selectedPaymentMethod = method;
 
-    if (cart.length === 0) {
-        orderItemsContainer.innerHTML = '<p class="text-gray-500 text-center py-8">Your cart is empty</p>';
-        window.location.href = 'cart.html';
-        return;
+    // Remove selected style from all
+    document.querySelectorAll('.payment-option').forEach((option) => {
+        option.classList.remove('selected');
+    });
+
+    // Mark current selected
+    const activeOption = document.querySelector(`.payment-option[onclick*="'${method}'"]`);
+    if (activeOption) {
+        activeOption.classList.add('selected');
     }
 
-    // Render cart items
-    var html = '';
-    cart.forEach(function (item) {
-        // Parse price and quantity to ensure they're numbers
-        var price = parseFloat(item.price) || 0;
-        var quantity = parseInt(item.quantity) || 1;
-        var itemTotal = price * quantity;
+    // Check radio
+    const radio = document.querySelector(`input[name="payment"][value="${method}"]`);
+    if (radio) radio.checked = true;
 
-        html += '<div class="flex items-center space-x-3 pb-4 border-b border-gray-200 dark:border-gray-700">';
-        html += '<img src="' + item.image + '" alt="' + item.name + '" class="w-16 h-16 object-cover rounded-lg">';
-        html += '<div class="flex-1">';
-        html += '<h4 class="font-semibold text-sm">' + item.name + '</h4>';
-        html += '<p class="text-xs text-gray-500">Qty: ' + quantity + '</p>';
-        html += '</div>';
-        html += '<span class="font-bold text-primary-500">EGP ' + itemTotal.toFixed(2) + '</span>';
-        html += '</div>';
+    // Toggle accordions
+    const cardDetails = document.getElementById('cardDetails');
+    const walletDetails = document.getElementById('walletDetails');
+    const codDetails = document.getElementById('codDetails');
+
+    if (cardDetails) cardDetails.classList.toggle('hidden', method !== 'card');
+    if (walletDetails) walletDetails.classList.toggle('hidden', method !== 'wallet');
+    if (codDetails) codDetails.classList.toggle('hidden', method !== 'cod');
+
+    // Toggle requirements for card fields
+    const isCard = (method === 'card');
+    ['cardNumber', 'cardName', 'cardExpiry', 'cardCVV'].forEach((fieldId) => {
+        const field = document.getElementById(fieldId);
+        if (field) field.required = isCard;
     });
-
-    orderItemsContainer.innerHTML = html;
-
-    // Calculate totals
-    calculateTotals();
-}
-
-
-function calculateTotals() {
-    var cart = getCart();
-    var subtotal = 0;
-
-    cart.forEach(function (item) {
-        // Ensure price is a number
-        var price = parseFloat(item.price) || 0;
-        var quantity = parseInt(item.quantity) || 1;
-        subtotal += price * quantity;
-    });
-
-    var shipping = subtotal > 50 ? 0 : 5.99;
-    var tax = subtotal * 0.1; // 10% tax
-    var total = subtotal + shipping + tax;
-
-    document.getElementById('subtotal').textContent = 'EGP ' + subtotal.toFixed(2);
-    document.getElementById('shipping').textContent = shipping > 0 ? 'EGP ' + shipping.toFixed(2) : 'FREE';
-    document.getElementById('tax').textContent = 'EGP ' + tax.toFixed(2);
-    document.getElementById('total').textContent = 'EGP ' + total.toFixed(2);
-}
-
-// ============================================
-// EVENT LISTENERS
-// ============================================
-
-function setupEventListeners() {
-    // Create account checkbox
-    document.getElementById('createAccount').addEventListener('change', function () {
-        var passwordField = document.getElementById('passwordField');
-        if (this.checked) {
-            passwordField.classList.remove('hidden');
-            document.getElementById('password').required = true;
-        } else {
-            passwordField.classList.add('hidden');
-            document.getElementById('password').required = false;
-        }
-    });
-
-    // Card number formatting
-    document.getElementById('cardNumber').addEventListener('input', function (e) {
-        var value = e.target.value.replace(/\s/g, '');
-        var formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
-        e.target.value = formattedValue;
-    });
-
-    // Expiry date formatting
-    document.getElementById('cardExpiry').addEventListener('input', function (e) {
-        var value = e.target.value.replace(/\D/g, '');
-        if (value.length >= 2) {
-            value = value.slice(0, 2) + '/' + value.slice(2, 4);
-        }
-        e.target.value = value;
-    });
-
-    // CVV - numbers only
-    document.getElementById('cardCVV').addEventListener('input', function (e) {
-        e.target.value = e.target.value.replace(/\D/g, '');
-    });
-
-    // Form submission
-    document.getElementById('checkoutForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        processCheckout();
-    });
-}
+};
 
 // ============================================
 // PASSWORD VISIBILITY TOGGLE
 // ============================================
 
-function togglePasswordVisibility() {
-    var passwordInput = document.getElementById('password');
-    var passwordIcon = document.getElementById('passwordIcon');
+const togglePasswordVisibility = () => {
+    const passwordInput = document.getElementById('password');
+    const passwordIcon = document.getElementById('passwordIcon');
+
+    if (!passwordInput || !passwordIcon) return;
 
     if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
-        passwordIcon.classList.remove('fa-eye');
-        passwordIcon.classList.add('fa-eye-slash');
+        passwordIcon.classList.replace('fa-eye', 'fa-eye-slash');
     } else {
         passwordInput.type = 'password';
-        passwordIcon.classList.remove('fa-eye-slash');
-        passwordIcon.classList.add('fa-eye');
+        passwordIcon.classList.replace('fa-eye-slash', 'fa-eye');
     }
-}
+};
 
 // ============================================
-// PAYMENT METHOD SELECTION
+// CREATE & SAVE ORDER (MODERN ES6+)
 // ============================================
 
-function selectPayment(method) {
-    selectedPaymentMethod = method;
+const createOrderObject = (formData) => {
+    const cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
+    let subtotal = 0;
 
-    // Remove selected class from all options
-    document.querySelectorAll('.payment-option').forEach(function (option) {
-        option.classList.remove('selected');
-    });
-
-    // Add selected class to clicked option
-    event.currentTarget.classList.add('selected');
-
-    // Check the radio button
-    document.querySelector('input[name="payment"][value="' + method + '"]').checked = true;
-
-    // Hide all payment details
-    document.getElementById('cardDetails').classList.add('hidden');
-    document.getElementById('walletDetails').classList.add('hidden');
-    document.getElementById('codDetails').classList.add('hidden');
-
-    // Show relevant payment details
-    if (method === 'card') {
-        document.getElementById('cardDetails').classList.remove('hidden');
-        // Make card fields required
-        document.getElementById('cardNumber').required = true;
-        document.getElementById('cardName').required = true;
-        document.getElementById('cardExpiry').required = true;
-        document.getElementById('cardCVV').required = true;
-    } else {
-        // Remove required from card fields
-        document.getElementById('cardNumber').required = false;
-        document.getElementById('cardName').required = false;
-        document.getElementById('cardExpiry').required = false;
-        document.getElementById('cardCVV').required = false;
-    }
-
-    if (method === 'wallet') {
-        document.getElementById('walletDetails').classList.remove('hidden');
-    }
-
-    if (method === 'cod') {
-        document.getElementById('codDetails').classList.remove('hidden');
-    }
-}
-
-// ============================================
-// PROCESS CHECKOUT
-// ============================================
-
-function processCheckout() {
-    // Validate payment method selected
-    if (!selectedPaymentMethod) {
-        showToast('Please select a payment method', 'error');
-        return;
-    }
-
-    var formData = {
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
-        fullName: document.getElementById('fullName').value,
-        address: {
-            street: document.getElementById('street').value,
-            apartment: document.getElementById('apartment').value,
-            city: document.getElementById('city').value,
-            state: document.getElementById('state').value,
-            zip: document.getElementById('zip').value,
-            country: document.getElementById('country').value
-        }
-    };
-
-    var users = JSON.parse(localStorage.getItem('luxe_users')) || [];
-    var blockedUser = users.find(function (user) {
-        return String(user.email || '').toLowerCase() === String(formData.email || '').trim().toLowerCase() && (user.isBlocked || user.status === 'Blocked');
-    });
-
-    if (blockedUser) {
-        showToast('This customer account is blocked and cannot place orders.', 'error');
-        return;
-    }
-
-    // Validate card details if card payment selected
-    if (selectedPaymentMethod === 'card') {
-        var cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
-        var cardExpiry = document.getElementById('cardExpiry').value;
-        var cardCVV = document.getElementById('cardCVV').value;
-
-        if (cardNumber.length < 13 || cardNumber.length > 19) {
-            showToast('Invalid card number', 'error');
-            return;
-        }
-
-        if (!/^\d{2}\/\d{2}$/.test(cardExpiry)) {
-            showToast('Invalid expiry date (MM/YY)', 'error');
-            return;
-        }
-
-        if (cardCVV.length < 3 || cardCVV.length > 4) {
-            showToast('Invalid CVV', 'error');
-            return;
-        }
-    }
-
-    // Create account if checkbox is checked
-    if (document.getElementById('createAccount').checked) {
-        var password = document.getElementById('password').value;
-
-        if (password.length < 8) {
-            showToast('Password must be at least 8 characters', 'error');
-            return;
-        }
-
-        createUserAccount(formData.fullName, formData.email, password);
-    }
-
-    // Create order
-    var order = createOrder(formData);
-
-    // Save order
-    saveOrder(order);
-
-    // Clear cart
-    localStorage.removeItem('luxe_cart');
-
-    // Redirect to success page
-    window.location.href = 'order-success.html?orderId=' + order.orderId;
-}
-
-// ============================================
-// CREATE ORDER
-// ============================================
-
-function createOrder(formData) {
-    var cart = getCart();
-    var subtotal = 0;
-
-    cart.forEach(function (item) {
-        // Ensure price is a number
-        var price = parseFloat(item.price) || 0;
-        var quantity = parseInt(item.quantity) || 1;
+    cart.forEach((item) => {
+        const price = parseFloat(item.price) || 0;
+        const quantity = parseInt(item.quantity, 10) || 1;
         subtotal += price * quantity;
     });
 
-    var shipping = subtotal > 50 ? 0 : 5.99;
-    var tax = subtotal * 0.1;
-    var total = subtotal + shipping + tax;
+    const shipping = (subtotal > 500 || subtotal === 0) ? 0 : 49.00;
+    const tax = subtotal * 0.10;
+    const total = subtotal + shipping + tax;
 
-    var currentUser = getCurrentUser();
-    var userId = currentUser ? currentUser.email : formData.email;
+    const currentUser = typeof getCurrentUser === 'function' ? getCurrentUser() : JSON.parse(localStorage.getItem('currentUser') || 'null');
+    const userId = currentUser?.email || formData.email;
 
-    var order = {
-        orderId: 'ORD-' + Date.now(),
-        userId: userId,
+    return {
+        orderId: `ORD-${Date.now()}`,
+        userId,
         customerInfo: {
             name: formData.fullName,
             email: formData.email,
             phone: formData.phone,
             address: formData.address
         },
-        items: cart.map(function (item) {
-            return {
-                productId: item.id,
-                name: item.name,
-                price: parseFloat(item.price) || 0,
-                quantity: parseInt(item.quantity) || 1,
-                image: item.image
-            };
-        }),
+        items: cart.map((item) => ({
+            productId: item.id,
+            name: item.name,
+            price: parseFloat(item.price) || 0,
+            quantity: parseInt(item.quantity, 10) || 1,
+            image: item.image
+        })),
         payment: {
             method: selectedPaymentMethod,
             status: selectedPaymentMethod === 'cod' ? 'pending' : 'completed',
-            transactionId: 'TXN-' + Date.now()
+            transactionId: `TXN-${Date.now()}`
         },
         pricing: {
-            subtotal: subtotal,
-            shipping: shipping,
-            tax: tax,
-            total: total
+            subtotal,
+            shipping,
+            tax,
+            total
         },
         status: 'pending',
         statusHistory: [
             {
                 status: 'pending',
                 timestamp: new Date().toISOString(),
-                note: 'Order placed'
+                note: 'Ritual order placed successfully'
             }
         ],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
     };
+};
 
-    return order;
-}
+const saveOrder = (order) => {
+    try {
+        const orders = JSON.parse(localStorage.getItem('luxe_orders')) || [];
+        orders.push(order);
+        localStorage.setItem('luxe_orders', JSON.stringify(orders));
 
-// ============================================
-// SAVE ORDER
-// ============================================
+        // Update User History if logged in
+        const currentUser = typeof getCurrentUser === 'function' ? getCurrentUser() : JSON.parse(localStorage.getItem('currentUser') || 'null');
+        if (currentUser) {
+            const users = JSON.parse(localStorage.getItem('luxe_users')) || [];
+            const userIndex = users.findIndex((u) => u.email === currentUser.email);
 
-function saveOrder(order) {
-    // Save to luxe_orders (single source of truth)
-    var orders = JSON.parse(localStorage.getItem('luxe_orders')) || [];
-    orders.push(order);
-    localStorage.setItem('luxe_orders', JSON.stringify(orders));
+            if (userIndex > -1) {
+                users[userIndex].orders = users[userIndex].orders || [];
+                users[userIndex].orders.push(order.orderId);
+                users[userIndex].totalSpent = (users[userIndex].totalSpent || 0) + order.pricing.total;
 
-    // Update user's order history if logged in
-    var currentUser = getCurrentUser();
-    if (currentUser) {
-        var users = JSON.parse(localStorage.getItem('luxe_users')) || [];
-        var userIndex = users.findIndex(function (u) { return u.email === currentUser.email; });
+                localStorage.setItem('luxe_users', JSON.stringify(users));
 
-        if (userIndex > -1) {
-            if (!users[userIndex].orders) {
-                users[userIndex].orders = [];
+                currentUser.orders = users[userIndex].orders;
+                currentUser.totalSpent = users[userIndex].totalSpent;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                localStorage.setItem('luxe_currentUser', JSON.stringify(currentUser));
             }
-            users[userIndex].orders.push(order.orderId);
-
-            if (!users[userIndex].totalSpent) {
-                users[userIndex].totalSpent = 0;
-            }
-            users[userIndex].totalSpent += order.pricing.total;
-
-            localStorage.setItem('luxe_users', JSON.stringify(users));
-
-            // Update current user
-            currentUser.orders = users[userIndex].orders;
-            currentUser.totalSpent = users[userIndex].totalSpent;
-            localStorage.setItem('luxe_currentUser', JSON.stringify(currentUser));
         }
+    } catch (error) {
+        console.error('Error saving order:', error);
     }
-}
+};
 
-// ============================================
-// CREATE USER ACCOUNT
-// ============================================
+const createUserAccount = (name, email, password) => {
+    try {
+        const users = JSON.parse(localStorage.getItem('luxe_users')) || [];
+        const exists = users.some((u) => u.email?.toLowerCase() === email?.toLowerCase());
+        if (exists) return;
 
-function createUserAccount(name, email, password) {
-    var users = JSON.parse(localStorage.getItem('luxe_users')) || [];
+        const newUser = {
+            id: Date.now(),
+            name,
+            email,
+            password,
+            createdAt: new Date().toISOString(),
+            orders: [],
+            totalSpent: 0
+        };
 
-    // Check if user already exists
-    var existingUser = users.find(function (u) { return u.email === email; });
-    if (existingUser) {
-        return; // User already exists
+        users.push(newUser);
+        localStorage.setItem('luxe_users', JSON.stringify(users));
+        localStorage.setItem('currentUser', JSON.stringify(newUser));
+        localStorage.setItem('luxe_currentUser', JSON.stringify(newUser));
+    } catch (error) {
+        console.error('Error creating user account:', error);
     }
-
-    var newUser = {
-        id: Date.now(),
-        name: name,
-        email: email,
-        password: password, // In production, hash this!
-        createdAt: new Date().toISOString(),
-        orders: [],
-        totalSpent: 0
-    };
-
-    users.push(newUser);
-    localStorage.setItem('luxe_users', JSON.stringify(users));
-
-    // Set as current user
-    localStorage.setItem('luxe_currentUser', JSON.stringify(newUser));
-}
+};
 
 // ============================================
-// TOAST NOTIFICATION
+// PROCESS CHECKOUT FORM SUBMISSION
 // ============================================
 
-function showToast(message, type) {
-    var toast = document.getElementById('toast');
-    var toastMessage = document.getElementById('toastMessage');
+const processCheckout = async () => {
+    try {
+        if (!selectedPaymentMethod) {
+            showToast('Please select a payment method', 'error');
+            return;
+        }
+
+        const formData = {
+            email: document.getElementById('email')?.value.trim(),
+            phone: document.getElementById('phone')?.value.trim(),
+            fullName: document.getElementById('fullName')?.value.trim(),
+            address: {
+                street: document.getElementById('street')?.value.trim(),
+                apartment: document.getElementById('apartment')?.value.trim(),
+                city: document.getElementById('city')?.value.trim(),
+                state: document.getElementById('state')?.value.trim(),
+                zip: document.getElementById('zip')?.value.trim(),
+                country: document.getElementById('country')?.value
+            }
+        };
+
+        // Check if customer is blocked
+        const users = JSON.parse(localStorage.getItem('luxe_users')) || [];
+        const blockedUser = users.find((user) => 
+            String(user.email || '').toLowerCase() === String(formData.email || '').toLowerCase() &&
+            (user.isBlocked || user.status === 'Blocked')
+        );
+
+        if (blockedUser) {
+            showToast('This customer account is blocked and cannot place orders.', 'error');
+            return;
+        }
+
+        // Validate Card Details
+        if (selectedPaymentMethod === 'card') {
+            const cardNumber = (document.getElementById('cardNumber')?.value || '').replace(/\s/g, '');
+            const cardExpiry = document.getElementById('cardExpiry')?.value || '';
+            const cardCVV = document.getElementById('cardCVV')?.value || '';
+
+            if (cardNumber.length < 13 || cardNumber.length > 19) {
+                showToast('Invalid card number', 'error');
+                return;
+            }
+
+            if (!/^\d{2}\/\d{2}$/.test(cardExpiry)) {
+                showToast('Invalid expiry date (MM/YY)', 'error');
+                return;
+            }
+
+            if (cardCVV.length < 3 || cardCVV.length > 4) {
+                showToast('Invalid CVV', 'error');
+                return;
+            }
+        }
+
+        // Account Creation
+        const createAccountCheckbox = document.getElementById('createAccount');
+        if (createAccountCheckbox?.checked) {
+            const password = document.getElementById('password')?.value;
+            if (password && password.length < 8) {
+                showToast('Password must be at least 8 characters', 'error');
+                return;
+            }
+            if (password) {
+                createUserAccount(formData.fullName, formData.email, password);
+            }
+        }
+
+        // Generate and Save Order
+        const order = createOrderObject(formData);
+        saveOrder(order);
+
+        // Clear cart
+        localStorage.removeItem('luxe_cart');
+        if (typeof updateCartCount === 'function') updateCartCount();
+
+        showToast('Ritual order confirmed! Redirecting...', 'success');
+
+        // Redirect to order success
+        setTimeout(() => {
+            window.location.href = `order-success.html?orderId=${order.orderId}`;
+        }, 1200);
+
+    } catch (error) {
+        console.error('Checkout processing error:', error);
+        showToast('An unexpected error occurred during checkout. Please try again.', 'error');
+    }
+};
+
+// ============================================
+// TOAST NOTIFICATIONS
+// ============================================
+
+const showToast = (message, type = 'success') => {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+    const toastIcon = document.getElementById('toastIcon');
+
+    if (!toast || !toastMessage) return;
 
     toastMessage.textContent = message;
 
     if (type === 'error') {
-        toast.classList.remove('bg-green-500');
-        toast.classList.add('bg-red-500');
+        toast.className = 'fixed bottom-8 right-8 bg-rose-500 text-white px-5 py-3.5 rounded-2xl shadow-xl transform translate-y-0 transition-transform duration-300 z-50 flex items-center space-x-3';
+        if (toastIcon) toastIcon.className = 'fas fa-circle-exclamation text-lg text-white';
     } else {
-        toast.classList.remove('bg-red-500');
-        toast.classList.add('bg-green-500');
+        toast.className = 'fixed bottom-8 right-8 bg-white dark:bg-slate-800 border border-pink-200 dark:border-slate-700 text-gray-800 dark:text-white px-5 py-3.5 rounded-2xl shadow-xl transform translate-y-0 transition-transform duration-300 z-50 flex items-center space-x-3';
+        if (toastIcon) toastIcon.className = 'fas fa-check-circle text-pink-500 text-lg';
     }
 
-    toast.style.transform = 'translateY(0)';
-
-    setTimeout(function () {
+    setTimeout(() => {
         toast.style.transform = 'translateY(8rem)';
-    }, 3000);
-}
+    }, 3200);
+};
+
+// ============================================
+// EVENT LISTENERS & INITIALIZATION
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadOrderSummary();
+
+    // Default select Cash on Delivery or Card
+    selectPayment('cod');
+
+    // Account Creation Field Toggle
+    const createAccountCb = document.getElementById('createAccount');
+    const passwordField = document.getElementById('passwordField');
+    const passwordInput = document.getElementById('password');
+
+    if (createAccountCb && passwordField) {
+        createAccountCb.addEventListener('change', (e) => {
+            passwordField.classList.toggle('hidden', !e.target.checked);
+            if (passwordInput) passwordInput.required = e.target.checked;
+        });
+    }
+
+    // Card Input Formatters
+    const cardNumber = document.getElementById('cardNumber');
+    if (cardNumber) {
+        cardNumber.addEventListener('input', (e) => {
+            const val = e.target.value.replace(/\s/g, '');
+            e.target.value = val.match(/.{1,4}/g)?.join(' ') || val;
+        });
+    }
+
+    const cardExpiry = document.getElementById('cardExpiry');
+    if (cardExpiry) {
+        cardExpiry.addEventListener('input', (e) => {
+            let val = e.target.value.replace(/\D/g, '');
+            if (val.length >= 2) {
+                val = val.slice(0, 2) + '/' + val.slice(2, 4);
+            }
+            e.target.value = val;
+        });
+    }
+
+    const cardCVV = document.getElementById('cardCVV');
+    if (cardCVV) {
+        cardCVV.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+    }
+
+    // Form Submit
+    const checkoutForm = document.getElementById('checkoutForm');
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            processCheckout();
+        });
+    }
+
+    // Admin Crown Icon Check
+    try {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const adminIcon = document.getElementById('adminPanelIcon');
+        if (adminIcon && (currentUser.email === 'aemade2016@gmail.com' || currentUser.isAdmin)) {
+            adminIcon.classList.remove('hidden');
+        }
+    } catch (e) {
+        console.warn('Admin check notice:', e);
+    }
+
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    }
+});

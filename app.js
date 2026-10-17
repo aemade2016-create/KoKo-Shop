@@ -145,7 +145,8 @@ function addToCart(productId, productData) {
     }
 
     saveCart(cart);
-    showToast(productData.name + ' added to cart!');
+    const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+    showToast(isAr ? `تمت إضافة ${productData.name} إلى حقيبة التسوق ✨` : `${productData.name} added to cart!`);
 }
 
 function removeFromCart(productId) {
@@ -154,7 +155,8 @@ function removeFromCart(productId) {
         return item.id !== productId;
     });
     saveCart(cart);
-    showToast('Item removed from cart');
+    const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+    showToast(isAr ? 'تم حذف المنتج من حقيبة التسوق' : 'Item removed from cart');
 }
 
 function clearCart() {
@@ -195,10 +197,11 @@ function toggleWishlist(productId, productData) {
         return item.id === productId;
     });
 
+    const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
     if (index > -1) {
         // Remove from wishlist
         wishlist.splice(index, 1);
-        showToast('Removed from wishlist');
+        showToast(isAr ? 'تم الحذف من قائمة الرغبات' : 'Removed from wishlist');
     } else {
         // Add to wishlist
         wishlist.push({
@@ -208,7 +211,7 @@ function toggleWishlist(productId, productData) {
             image: productData.image,
             addedAt: new Date().toISOString()
         });
-        showToast('Added to wishlist!');
+        showToast(isAr ? 'تمت الإضافة إلى قائمة الرغبات ✨' : 'Added to wishlist!');
     }
 
     saveWishlist(wishlist);
@@ -352,7 +355,9 @@ function isAdmin() {
 }
 
 function logout() {
-    if (confirm('Are you sure you want to logout?')) {
+    const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+    const confirmMsg = isAr ? 'هل أنتِ متأكدة من رغبتكِ في تسجيل الخروج؟' : 'Are you sure you want to logout?';
+    if (confirm(confirmMsg)) {
         // Sign out from Firebase first, then clear localStorage
         import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js')
             .then(function (firebaseAuth) {
@@ -363,7 +368,7 @@ function logout() {
             .catch(function () { /* ignore if firebase not available */ })
             .finally(function () {
                 localStorage.removeItem('luxe_currentUser');
-                showToast('Logged out successfully');
+                showToast(isAr ? 'تم تسجيل الخروج بنجاح' : 'Logged out successfully');
                 setTimeout(function () {
                     window.location.href = 'index.html';
                 }, 1000);
@@ -490,7 +495,11 @@ document.addEventListener('DOMContentLoaded', function () {
 // 9. UTILITY FUNCTIONS
 // ============================================
 function formatPrice(price) {
-    return 'EGP ' + parseFloat(price).toFixed(2);
+    if (typeof window.formatLocalizedPrice === 'function') {
+        return window.formatLocalizedPrice(price);
+    }
+    const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+    return isAr ? `${parseFloat(price).toFixed(2)} ج.م` : `EGP ${parseFloat(price).toFixed(2)}`;
 }
 
 // ============================================
