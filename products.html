@@ -1090,22 +1090,6 @@
                 console.error('Initialization error in products.html:', error);
             }
 
-            // Attempt Firestore synchronization asynchronously
-            loadFirestoreProducts();
-        };
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initProductsPage);
-        } else {
-            initProductsPage();
-        }
-
-        window.addEventListener('popstate', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const cat = urlParams.get('category') || 'all';
-            setCategoryPill(cat);
-        });
-
             // Event Listeners for Search & Filters
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
@@ -1161,7 +1145,22 @@
                     }
                 });
             }
+
+            // Attempt Firestore synchronization asynchronously
+            loadFirestoreProducts();
+        };
+
+        window.addEventListener('popstate', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const cat = urlParams.get('category') || 'all';
+            setCategoryPill(cat);
         });
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initProductsPage);
+        } else {
+            initProductsPage();
+        }
     </script>
 </body>
 
