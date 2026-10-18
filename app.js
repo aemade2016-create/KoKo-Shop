@@ -416,7 +416,7 @@ function checkAdminCredentials(email) {
 // ============================================
 // 6. TOAST NOTIFICATIONS
 // ============================================
-function showToast(message, type) {
+window.showToast = function (message, type) {
     var toast = document.getElementById('toast');
     var toastMessage = document.getElementById('toastMessage');
 
@@ -546,13 +546,13 @@ function formatDate(dateString) {
     });
 }
 
-function generateStars(rating) {
+window.generateStars = function (rating) {
     var stars = '';
     for (var i = 0; i < 5; i++) {
         stars += '<i class="fas fa-star ' + (i < rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600') + '"></i>';
     }
     return stars;
-}
+};
 
 // ============================================
 // 10. EXPORT FOR GLOBAL USE

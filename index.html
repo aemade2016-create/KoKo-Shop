@@ -1058,6 +1058,7 @@
 
     <!-- Modern ES6+ Clean JavaScript -->
     <script>
+        (() => {
         // State variables (let / const only)
         let currentSlide = 0;
         let slides = [];
@@ -1854,7 +1855,7 @@
             }
         };
 
-        // Expose Quiz and Modals to Window
+        // Expose Functions to Window
         window.startSkinQuiz = startSkinQuiz;
         window.closeSkinQuiz = closeSkinQuiz;
         window.retakeQuiz = retakeQuiz;
@@ -1863,6 +1864,8 @@
         window.showQuizQuestion = showQuizQuestion;
         window.showProductDetail = showProductDetail;
         window.closeProductModal = closeProductModal;
+        window.addToCartFromIndex = addToCartFromIndex;
+        window.toggleWishlistFromIndex = toggleWishlistFromIndex;
 
         // Auto-launch quiz if URL hash is #skin-quiz
         if (window.location.hash === '#skin-quiz') {
@@ -1958,6 +1961,13 @@
                 }
             });
         });
+
+        // Initialize immediately as DOM is ready
+        loadHeroBanners();
+        loadReviews();
+        renderProducts();
+        showQuizQuestion();
+        })();
     </script>
 </body>
 

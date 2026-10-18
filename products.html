@@ -17,8 +17,6 @@
     <script src="i18n.js"></script>
 
     <!-- Firebase Configuration -->
-    <script type="module" src="firebase-config.js"></script>
-
     <script src="init-products.js"></script>
     <script src="app.js"></script>
     <script>
@@ -470,6 +468,7 @@
 
     <!-- Modern JavaScript ES6+ Clean Code -->
     <script>
+        (() => {
         // State variables (const / let only, zero var)
         let allProducts = [];
         let filteredProducts = [];
@@ -1156,11 +1155,9 @@
             setCategoryPill(cat);
         });
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initProductsPage);
-        } else {
-            initProductsPage();
-        }
+        // Run immediately since DOM elements are already available above this script
+        initProductsPage();
+        })();
     </script>
 </body>
 
