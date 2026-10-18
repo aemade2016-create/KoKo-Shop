@@ -81,7 +81,13 @@ const normalizeProduct = (product) => {
 // Retrieve Collections from LocalStorage
 const getProducts = () => {
     try {
-        const products = JSON.parse(localStorage.getItem('luxe_products')) || [];
+        let products = JSON.parse(localStorage.getItem('luxe_products')) || [];
+        if (!products.length && window.defaultLuxeProducts && window.defaultLuxeProducts.length) {
+            products = window.defaultLuxeProducts;
+            try {
+                localStorage.setItem('luxe_products', JSON.stringify(products));
+            } catch (err) {}
+        }
         return products.map(normalizeProduct).filter(Boolean);
     } catch (e) {
         console.error('Error fetching products:', e);

@@ -903,7 +903,297 @@
         'Fast Cairo & Alex Dispatch': 'شحن سريع للقاهرة والإسكندرية والمحافظات',
         'Crafted with': 'صُنع بكل',
         'for pure, radiant skin.': 'من أجل بشرة نقية ومشرقة.',
-        'Pure botanical intelligence for transcendent skin. Formulated with biocompatible actives and certified clean standards.': 'ذكاء نباتي نقي لبشرة متألقة وفائقة النضارة. صُممت بمركبات متوافقة حيوياً مع أعلى معايير النقاء العالمية.'
+        'Pure botanical intelligence for transcendent skin. Formulated with biocompatible actives and certified clean standards.': 'ذكاء نباتي نقي لبشرة متألقة وفائقة النضارة. صُممت بمركبات متوافقة حيوياً مع أعلى معايير النقاء العالمية.',
+
+        // 10 Catalog Products & Clinical Formulations
+        'Radiant Glow Serum': 'سيروم التوهج والإشراق الفائق',
+        'Brightening serum with Vitamin C and hyaluronic acid for radiant, youthful skin.': 'سيروم تفتيح ونضارة بفيتامين C وحمض الهيالورونيك لبشرة شابة ومشرقة ومتألقة.',
+        'Hydra Boost Moisturizer': 'مرطب هيدرا بوست فائق الترطيب',
+        '24-hour hydration with ceramides and peptides for smooth, supple skin.': 'ترطيب عميق يدوم 24 ساعة بالسيراميد والببتيدات لبشرة ناعمة ومرنة ومحمية.',
+        'Gentle Cleansing Foam': 'رغوة التنظيف النباتية اللطيفة',
+        'pH-balanced cleanser that removes impurities without stripping natural oils.': 'غسول رغوي متوازن الحموضة ينقي البشرة ويزيل الشوائب دون تجريدها من زيوتها الطبيعية.',
+        'Age-Defying Night Cream': 'كريم العناية الليلية لمقاومة التجاعيد',
+        'Rich night cream with retinol and peptides to reduce fine lines and wrinkles.': 'كريم ليلي غني بالريتينول والببتيدات لتجديد خلايا البشرة وتقليل الخطوط الدقيقة والتجاعيد.',
+        'Vitamin C Eye Cream': 'كريم فيتامين C لمحيط العينين',
+        'Brightens dark circles and reduces puffiness for refreshed, youthful eyes.': 'يفتح الهالات السوداء ويقلل من الانتفاخات لمنح محيط العينين مظهراً منتعشاً وشاباً.',
+        'Exfoliating Toner': 'تونر التقشير والتجديد اليومي',
+        'Gentle AHA/BHA toner that refines pores and improves skin texture.': 'تونر لطيف بأحماض AHA وBHA لتضييق المسام وتنعيم ملمس البشرة وتوحيد لونها.',
+        'Nourishing Face Oil': 'زيت الوجه النباتي المغذي الفاخر',
+        'Luxurious blend of botanical oils for deep nourishment and radiance.': 'مزيج فاخر من الزيوت النباتية المعصورة على البارد لتغذية عميقة وتوهج صحي آسر.',
+        'SPF 50 Sunscreen': 'واقي الشمس المعدني المتطور SPF 50',
+        'Broad-spectrum protection with a lightweight, non-greasy formula.': 'حماية واسعة النطاق بتركيبة شفافة خفيفة غير دهنية تحمي حاجز البشرة بأمان.',
+        'Hydrating Sheet Mask': 'قناع الترطيب الفائق والإنعاش',
+        'Intensive hydration mask with hyaluronic acid and aloe vera.': 'قناع علاجي مكثف بحمض الهيالورونيك والصبار لترطيب فوري وتهدئة عميقة.',
+        'Lip Treatment Balm': 'بلسم علاج وترطيب الشفاه',
+        'Nourishing lip balm with shea butter and vitamin E for soft, smooth lips.': 'بلسم مغذٍ ومطري بزبدة الشيا وفيتامين E لشفاه ناعمة، ممتلئة وصحية.',
+        'Gentle Botanical Foaming Cleanser': 'غسول رغوي نباتي نقي ومتوازن',
+        'Radiant Renewal Elixir': 'إكسير التجديد والإشراق',
+        'ATTRACTIVE Fragrance Collection': 'تشكيلة عطور ATTRACTIVE الفاخرة',
+        'Essence of Elegance': 'جوهر الأناقة والجاذبية',
+        'Because your scent is your invisible signature, we present the new ATTRACTIVE collection.': 'لأن عطركِ هو توقيعكِ غير المرئي، نقدم لكِ تشكيلة ATTRACTIVE الجديدة والمميزة.',
+
+        // Diagnostic Skin Quiz & Analysis
+        'Step 1 of 3': 'الخطوة 1 من 3',
+        'Step 2 of 3': 'الخطوة 2 من 3',
+        'Step 3 of 3': 'الخطوة 3 من 3',
+        'What is your primary skin type?': 'ما هو نوع بشرتكِ الأساسي؟',
+        'Dry / Dehydrated': 'جافة / فاقدة للترطيب',
+        'Oily / Blemish-Prone': 'دهنية / معرضة للشوائب والحبوب',
+        'Sensitive / Reactive': 'حساسة / سريعة التأثر والاحمرار',
+        'Normal / Balanced': 'عادية / متوازنة وصحية',
+        'Select the option that best describes your daily skin condition': 'اختاري الخيار الذي يصف حالة بشرتكِ اليومية بدقة',
+        'What is your top skin barrier goal?': 'ما هو هدفكِ الأهم لصحة حاجز بشرتكِ؟',
+        'Intense Hydration & Plumpness': 'ترطيب فائق ونضارة ممتلئة',
+        'Radiance & Hyperpigmentation': 'إشراقة وتوحيد لون البشرة والتصبغات',
+        'Calming Redness & Sensitivity': 'تهدئة الاحمرار وتلطيف الحساسية',
+        'Pore Refining & Oil Balance': 'تضييق المسام وموازنة الإفرازات الدهنية',
+        'Firming & Fine Lines': 'شد البشرة ومقاومة الخطوط الرفيعة',
+        'What texture do you prefer for daily rituals?': 'ما هو القوام المفضل لديكِ لطقوسكِ اليومية؟',
+        'Weightless Gel-Serum': 'سيروم جل خفيف الوزن سريع الامتصاص',
+        'Silky Dew Cream': 'كريم ندي حريري الملمس',
+        'Rich Ceramide Balm': 'بلسم غني بالسيراميد المغذي',
+        'Active Botanical Oil': 'زيت نباتي نشط وفاخر',
+        'Previous': 'السابق',
+        'Diagnosis Complete': 'اكتمل التشخيص بنجاح ✨',
+        'Your Personalized Radiance Protocol': 'بروتوكول الإشراقة المخصص لبشرتكِ',
+        'Based on your answers, our clinical dermatologists recommend this synergistic botanical routine:': 'بناءً على إجاباتكِ، يوصي أطباؤنا بهذا الروتين النباتي المتكامل سريرياً:',
+        'Morning Cleanse': 'تنقية صباحية لطيفة',
+        'Active Treatment': 'علاج مركز ونشط',
+        'Vitamin C Radiance Elixir (15% THD)': 'إكسير فيتامين C للإشراق والنضارة (15% THD)',
+        'Barrier Lock': 'حماية وترميم حاجز البشرة',
+        'Hydra-Barrier Dew Cream + SPF 50 Shield': 'كريم ديو المرطب + درع واقي الشمس المعدني SPF 50',
+        'Shop Recommended Ritual': 'تسوق الروتين الموصى به الآن',
+
+        // Hero, Offer & Section Highlights
+        'Botanical Clinical Formulation \'26': 'تركيبة نباتية سريرية متطورة 2026',
+        'Reveal Your Skin\'s': 'أعيدي لبشرتكِ',
+        'Natural Radiance': 'إشراقتها الطبيعية',
+        'Shop Clean Collection': 'تسوق التشكيلة النظيفة',
+        'Take Skin Quiz': 'ابدأ اختبار البشرة',
+        'Over EGP 500 across Egypt': 'للطلبات أكثر من 500 ج.م لكافة محافظات مصر',
+        'Visible within 14 days': 'نتائج مثبتة خلال 14 يوماً',
+        'Hypoallergenic formulas': 'تركيبات خالية من مسببات الحساسية',
+        'Spring Radiance Offer': 'عرض إشراقة الربيع',
+        'Use code RADIANT30': 'استخدمي الرمز RADIANT30',
+        'Signature Formulas': 'تركيباتنا الأيقونية الحصرية',
+        'Featured': 'إبداعاتنا',
+        'Creations': 'المختارة',
+        'Handcrafted with clinical botanical potency for real, visible transformation': 'صُممت بفعالية نباتية سريرية لإحداث تحول حقيقي وملموس في صحة ونضارة بشرتكِ',
+        'Explore All Formulations': 'استكشف كافة التركيبات العلاجية',
+        'Clinical Satisfaction': 'نسبة رضا سريرية معتمدة',
+        'Independent Laboratory Study': 'دراسة سريرية معملية مستقلة',
+        'Participants reported visibly enhanced barrier resilience, reduced redness, and instant luminosity within 7 days.': 'أكد المشاركون تقوية ملحوظة لحاجز البشرة مع انخفاض الاحمرار وإشراقة فورية خلال 7 أيام فقط.',
+        '2-Minute Personalized Skincare Concierge': 'استشارة وتشخيص مخصص للعناية بالبشرة في دقيقتين',
+        'Unlock Your Custom': 'اكتشفي بروتوكولكِ',
+        'Radiance Protocol': 'المخصص للإشراق والنضارة',
+        'Every skin barrier is unique. Answer 3 diagnostic questions to receive targeted botanical actives, customized daily routines, and dermatologist recommendations.': 'كل بشرة لها احتياجاتها الفريدة. أجيبي عن 3 أسئلة سريعة للحصول على بروتوكول نباتي موجه وتوصيات أطباء الجلد المخصصة لكِ.',
+        'Begin Diagnostic Quiz': 'ابدأ اختبار التشخيص الآن',
+        'Read Routine Guides': 'قراءة أدلة العناية والروتين',
+        'Join The Luxe Circle &': 'انضمي إلى مجتمع الجمال الخاص و',
+        'Receive 15% Off Your First Order': 'احصلي على خصم 15% على طلبكِ الأول',
+        'Subscribe for exclusive botanical harvest launches, private flash events, and personalized skincare protocols delivered to your inbox.': 'اشتركي للحصول على إطلاقاتنا الحصرية، عروض الأعضاء الخاصة، وبروتوكولات العناية الموجهة مباشرة إلى بريدكِ.',
+        'Join The Circle': 'انضمي للمجتمع الآن',
+        'Zero spam. Pure skincare elegance. Unsubscribe anytime.': 'لا رسائل مزعجة على الإطلاق. أناقة ونقاء تام. يمكنكِ إلغاء الاشتراك في أي وقت.',
+
+        // Products Catalog & Filter Elements
+        'All Rituals': 'كافة الطقوس',
+        'Filters': 'تصفية المنتجات',
+        'Reset All': 'إعادة ضبط الكل',
+        'Category': 'التصنيف',
+        'Customer Rating': 'تقييم العملاء',
+        'All Ratings': 'كافة التقييمات',
+        '5 Stars Only': '5 نجوم فقط',
+        '4+ Stars': '4 نجوم فأكثر',
+        'Skin Barrier Target': 'الهدف ونوع البشرة',
+        'All Complexions': 'كافة أنواع البشرة',
+        'Sort by:': 'ترتيب حسب:',
+        'Curated & Featured': 'المختارة والمميزة',
+        'Price: Low to High': 'السعر: من الأقل إلى الأعلى',
+        'Price: High to Low': 'السعر: من الأعلى إلى الأقل',
+        'Ritual Name: A to Z': 'اسم المستحضر: أ إلى ي',
+        'Highest Rated': 'الأعلى تقييماً',
+        'Loading rituals...': 'جاري تحميل المستحضرات...',
+        'No Matching Rituals Found': 'لم يتم العثور على تركيبات مطابقة',
+        'We couldn\'t find any products matching your selected combination. Try clearing filters or searching for alternative ingredients.': 'لم نتمكن من العثور على تركيبات تطابق اختياراتك الحالية. جربي مسح الفلاتر أو استخدام كلمات بحث بديلة.',
+        'Reset All Filters': 'إعادة ضبط جميع الفلاتر',
+        '0 rituals found': 'لم يتم العثور على أي منتج',
+        'Showing 0 rituals': 'عرض 0 منتج',
+        'Showing': 'عرض',
+        'rituals found': 'منتج',
+        'Sunscreens': 'واقيات الشمس',
+        'Masks': 'الأقنعة العلاجية',
+        'Toners': 'أنواع التونر',
+        'Serums': 'السيروم',
+        'Moisturizers': 'المرطبات',
+        'Cleansers': 'الغسول والمنظفات',
+        'Clear search': 'مسح البحث',
+        'Search Formulations': 'البحث في التركيبات',
+        'Search formulas, actives, concerns...': 'ابحثي عن التركيبات، المكونات، أو نوع البشرة...',
+
+        // Cart, Checkout & Wishlist
+        'Review Your Ritual Selection': 'راجعي اختياراتكِ من المستحضرات',
+        'Selected Formulations': 'المستحضرات المختارة',
+        'Add More Rituals': 'إضافة المزيد من الطقوس',
+        'Carbon-Neutral Delivery': 'توصيل صديق للبيئة وسريع',
+        'Clinical Tax (10%)': 'ضريبة القيمة المضافة (10%)',
+        'Estimated Total': 'الإجمالي التقديري',
+        'Includes applicable taxes and formulation duties': 'شامل كافة الضرائب ورسوم التجهيز',
+        'Continue Exploring Products': 'مواصلة استكشاف المنتجات',
+        'Promo or Concierge Code': 'رمز الكوبون أو الرمز الترويجي',
+        'Try LUXE10 or WELCOME20': 'جربي كود LUXE10 أو WELCOME20',
+        '256-Bit Bank Grade SSL Encrypted Checkout': 'دفع آمن ومحمي بأعلى تشفير بنكي 256-بت SSL',
+        '30-Day Ritual Satisfaction Guarantee': 'ضمان رضا تام عن النتائج لمدة 30 يوماً',
+        'Checkout & Delivery': 'الشحن وبيانات التوصيل',
+        'Confirmation': 'تأكيد الطلب',
+        'Contact Details': 'بيانات التواصل',
+        'Email Address *': 'البريد الإلكتروني *',
+        'Mobile Phone Number *': 'رقم الهاتف المحمول *',
+        'Delivery Ritual Destination': 'عنوان وجهة التوصيل',
+        'Full Name *': 'الاسم بالكامل *',
+        'Street Address & Building *': 'اسم الشارع، رقم العقار والمبنى *',
+        'Apartment, Suite, Unit (Optional)': 'رقم الشقة / الدور / الملاحظات (اختياري)',
+        'City / Governorate *': 'المدينة / المحافظة *',
+        'District / Area *': 'الحي / المنطقة *',
+        'Postal Code *': 'الرمز البريدي *',
+        'Country *': 'الدولة *',
+        'Create an account to track delivery rituals and receive VIP concierge access': 'إنشاء حساب لتتبع حالة الشحنات والاستفادة من خدمات الدعم المتميزة',
+        'Create Password *': 'تعيين كلمة المرور *',
+        'Payment Selection': 'اختيار وسيلة الدفع',
+        'Select your preferred secure payment method': 'اختاري وسيلة الدفع الآمنة والمفضلة لديكِ',
+        'Cash on Delivery': 'الدفع نقداً عند الاستلام (COD)',
+        'Pay with cash upon ritual arrival at your doorstep': 'ادفعي نقداً عند وصول مندوب التوصيل حتى باب منزلكِ',
+        'Credit / Debit Card': 'بطاقة بنكية / فيزا وماستركارد',
+        'Visa, Mastercard with 256-bit bank grade encryption': 'بطاقات فيزا وماستركارد المشفرة بأعلى معايير الحماية',
+        'Mobile Wallet / InstaPay': 'المحافظ الذكية / انستاباي',
+        'Instant zero-fee transfer via Vodafone Cash or InstaPay': 'تحويل فوري بدون أي رسوم إضافية عبر انستاباي أو فودافون كاش',
+        'Order Review': 'مراجعة تفاصيل الطلب',
+        'Place Order Now': 'تأكيد وشراء الطلب الآن',
+        'Clear All': 'مسح الكل',
+        'Saved Formulations': 'المستحضرات المحفوظة',
+        'Save your favorite botanical formulas while exploring to curate your custom daily routine.': 'احفظي تركيباتكِ المفضلة أثناء التصفح لإنشاء روتينكِ اليومي المخصص.',
+        'Explore Products': 'استكشفي المنتجات الآن',
+        'Your Wishlist is Empty': 'قائمة الرغبات فارغة حالياً',
+
+        // About & Clinical Story
+        'Our Clinical Philosophy': 'فلسفتنا السريرية والطبية',
+        'Where Botanical Wisdom Meets': 'حيث تلتقي حكمة الطبيعة النباتية',
+        'Clinical Formulation': 'بالتركيبات السريرية المعتمدة',
+        'Founded on the belief that healthy skin radiance is cultivated through bio-compatible nourishment rather than harsh interventions.': 'تأسسنا على إيمان بأن نضارة وصحة البشرة تُبنى من خلال التغذية الحيوية المتوافقة، بعيداً عن التدخلات الكيميائية القاسية.',
+        'Bio-Identical Actives': 'مكونات متطابقة حيوياً',
+        'Formulas designed to mirror the natural lipids and moisture barriers of healthy skin.': 'تركيبات صُممت لمحاكاة الدهون الطبيعية وحواجز الترطيب في البشرة الصحية.',
+        'Dermatologist Verified': 'معتمد ومثبت سريرياً',
+        'Each formula undergoes multi-tier patch testing to guarantee non-comedogenic results.': 'تخضع كل تركيبة لاختبارات دقيقة متعددة المراحل لضمان عدم انسداد المسام وأقصى درجات الأمان.',
+        'Cruelty-Free & Vegan': 'نباتي 100% وخالٍ من القسوة',
+        '100% ethical botanical ingredients, free from parabens, synthetic fragrances, and sulfates.': 'مكونات نباتية أخلاقية نقية، خالية تماماً من البارابين والعطور المصنعة والكبريتات.',
+        'Carbon-Neutral Delivery': 'شحن مستدام ومحايد للكربون',
+        'Sustainable glass packaging and offset courier transit across all delivery destinations.': 'عبوات زجاجية صديقة للبيئة قابلة لإعادة التدوير وشحن سريع ومستدام.',
+        'Our Origin Story': 'قصة بدايتنا',
+        'Crafting Formulations That Work With Your Skin,': 'نبتكر تركيبات متناغمة مع بشرتكِ،',
+        'Not Against It': 'لا تعمل ضدها أبداً',
+        'Koko Shop was conceived out of a passion to bridge the gap between clinical potency and gentle botanical harmony. Conventional skincare frequently relies on harsh peeling agents that temporarily mask issues while compromising long-term lipid integrity.': 'انطلق كوكو شوب من شغف عميق لدمج الفعالية السريرية العالية مع الرقة النباتية الطبيعية. غالباً ما تعتمد مستحضرات التجميل التقليدية على مقشرات قاسية تعالج المظهر الخارجي مؤقتاً بينما تضر بصحة الحاجز الجلدي.',
+        'Our laboratory isolates potent plant actives, cold-pressed seed oils, and skin-identical ceramides to create rituals that fortify your skin\'s moisture mantle while promoting natural, luminous vitality.': 'يقوم مختبرنا باستخلاص خلاصات نباتية قوية وزيوت بذور معصورة على البارد وسيراميدات مطابقة للبشرة لتقوية حاجز الترطيب ومنحكِ إشراقة حيوية دائمة.',
+        'Discover Our Catalog': 'استكشفي كتالوج منتجاتنا',
+        'Clinical Results & Satisfaction': 'النتائج السريرية ونسبة الرضا',
+        'Reported Barrier Hydration': 'أكدوا ترطيباً عميقاً للحاجز',
+        'Average Client Rating': 'متوسط تقييمات العملاء',
+        'Rituals Preserved': 'طقوس عناية موثقة',
+        'Cruelty-Free & Ethical': 'خالٍ من القسوة وأخلاقي 100%',
+
+        // Profile & Account Tabs
+        'VIP Client Rituals': 'طقوس العضوية الخاصة VIP',
+        'Member since 2026': 'عضو منذ عام 2026',
+        'Orders Completed': 'طلبات مكتملة',
+        'Account Rituals': 'طقوس الحساب',
+        'Overview': 'نظرة عامة',
+        'My Orders': 'طلباتي السابقة',
+        'Notifications': 'الإشعارات والتنبيهات',
+        'Saved Wishlist': 'قائمة الرغبات المحفوظة',
+        'Account Settings': 'إعدادات الحساب',
+        'Sign Out': 'تسجيل الخروج',
+        'Sign In to Ritual': 'تسجيل الدخول إلى حسابي',
+        'Access your personalized skincare rituals and orders': 'ادخلي لحسابكِ للوصول إلى طقوسكِ المخصصة وسجل طلباتكِ',
+        'Create VIP Account': 'إنشاء حساب عضوية VIP',
+        'Join our botanical skincare circle for VIP protocols': 'انضمي لعائلة الجمال النظيف للاستمتاع ببروتوكولات وخصومات حصرية',
+        'I accept the': 'أوافق على',
+        'Terms & Conditions': 'الشروط والأحكام',
+        'and': 'و',
+        'Privacy Policy': 'سياسة الخصوصية',
+        'Password (Min 6 Characters)': 'كلمة المرور (6 أحرف على الأقل)',
+        'Repeat password': 'أعيدي إدخال كلمة المرور',
+        'Enter password': 'أدخلي كلمة المرور',
+        'Create password': 'أنشئي كلمة المرور',
+        'Forgot password?': 'هل نسيتِ كلمة المرور؟',
+        'Live Storefront': 'المتجر المباشر',
+        'Management Studio': 'استوديو الإدارة',
+
+        // Comprehensive Coverage for Catalog, Filters, Cart & About
+        'The Skincare Collection': 'مجموعة العناية بالبشرة',
+        'The Skincare': 'مجموعة العناية',
+        'Collection': 'بالبشرة',
+        'Targeted, nutrient-dense rituals formulated with bio-compatible botanical actives to restore and illuminate your natural barrier.': 'طقوس موجهة وغنية بالمغذيات الحيوية صُممت بمركبات نباتية متوافقة لترميم حاجز البشرة وإعادة إشراقتها الطبيعية.',
+        'Search rituals, serums, ceramides...': 'ابحثي عن المنتجات، السيروم، السيراميد...',
+        'Clinical Formulations & Botanical Actives': 'تركيبات علاجية وخلاصات نباتية نشطة',
+        'Price Range': 'نطاق السعر',
+        'Customer Rating': 'تقييم العملاء',
+        'Skin Barrier Target': 'الهدف ونوع البشرة',
+        'Dry / Dehydrated': 'جافة / فاقدة للترطيب',
+        'Oily / Blemish-Prone': 'دهنية / معرضة للشوائب',
+        'Sensitive / Reactive': 'حساسة / سريعة التأثر والاحمرار',
+        'All Complexions': 'كافة أنواع البشرة',
+        'All Ratings': 'كافة التقييمات',
+        '5 Stars Only': '5 نجوم فقط',
+        '4+ Stars': '4 نجوم فأكثر',
+        'Clear Wishlist': 'تفريغ المفضلة',
+        'Move All to Bag': 'نقل الكل إلى الحقيبة',
+        'Your Curated Wishlist': 'قائمة الرغبات والمفضلة',
+        'Your personal sanctuary of selected botanical treatments to revisit whenever your skin seeks renewal.': 'ملاذكِ الشخصي من المستحضرات النباتية المختارة للعودة إليها متى ما تاقت بشرتكِ للتجدد.',
+        'Save your favorite botanical rituals to monitor availability or prepare your next skincare regimen.': 'احفظي تركيباتكِ المفضلة لمتابعة توفرها وتجهيز روتينكِ القادم بكل راحة.',
+        'Review Your Ritual Selection': 'مراجعة خيارات العناية الخاصة بكِ',
+        'Your Shopping Bag': 'حقيبة التسوق الخاصة بكِ',
+        'Your Shopping': 'حقيبة',
+        'Bag': 'التسوق',
+        'Carefully formulated botanicals ready for your daily skin ritual.': 'مستحضرات نباتية نقية جاهزة لروتينكِ اليومي للعناية بالبشرة.',
+        'Clean botanical clinical formulations crafted for discerning skincare rituals. Certified non-comedogenic and cruelty-free.': 'تركيبات نباتية سريرية فاخرة صُممت لعشاق العناية الراقية. معتمدة لا تسد المسام وخالية من القسوة.',
+        'Quick Links': 'روابط سريعة',
+        'Client Service': 'خدمة العملاء',
+        'Clinical Assurance': 'ضماناتنا السريرية',
+        'About Our Philosophy': 'عن فلسفتنا',
+        'Contact Concierge': 'تواصل مع خدمة العملاء',
+        'Order History & Tracking': 'سجل الطلبات وتتبع الشحنات',
+        'Saved Formulations': 'المستحضرات المحفوظة',
+        'Skin Quiz Concierge': 'استشارة اختبار البشرة',
+        'Shipping & Return Policy': 'سياسة الشحن والإرجاع',
+        '30-Day Money-Back Guarantee': 'ضمان استرداد الأموال لمدة 30 يوماً',
+        'Free Carbon-Neutral Delivery': 'توصيل مجاني صديق للبيئة',
+        'All botanical clinical formulations preserved.': 'جميع التركيبات النباتية السريرية محفوظة ومحمية.',
+        'Your Shopping Bag is Empty': 'حقيبة التسوق فارغة حالياً',
+        'Discover our curated collection of clean botanical treatments to begin your radiance journey.': 'استكشفي مجموعتنا المميزة من التركيبات النباتية النقية لبدء رحلة النقاء والإشراق.',
+        'Explore The Collection': 'استكشاف التشكيلة',
+        'Discover The Catalog': 'تصفح قائمة المستحضرات',
+        'per unit': 'لكل عبوة',
+        '/ unit': 'لكل عبوة',
+        'Remove item': 'حذف المنتج من الحقيبة',
+        'Remove from wishlist': 'حذف من المفضلة',
+        'saved ritual': 'منتج محفوظ',
+        'saved rituals': 'منتجات محفوظة',
+        'Where Botanical Wisdom Meets Clinical Formulation': 'حيث تلتقي حكمة الطبيعة النباتية بالتركيبات السريرية المعتمدة',
+        'Where Botanical Wisdom Meets': 'حيث تلتقي حكمة الطبيعة النباتية بـ',
+        'Pure bio-compatible botanical formulation.': 'تركيبة نباتية نقية متوافقة حيوياً مع البشرة.',
+        'Clinical botanical formula designed to restore skin barrier health, hydration, and natural radiance.': 'تركيبة نباتية سريرية صُممت لاستعادة صحة حاجز البشرة، وترطيبها، وإشراقتها الطبيعية.',
+        'All Categories': 'كافة التصنيفات',
+        'Showing': 'عرض',
+        'rituals found': 'مستحضر',
+        '0 rituals found': 'لم يتم العثور على أي منتج',
+        'Reset All Filters': 'إعادة ضبط جميع الفلاتر',
+        'No Matching Rituals Found': 'لم يتم العثور على أي تركيبات مطابقة',
+        'We couldn\'t find any products matching your selected combination. Try clearing filters or searching for alternative ingredients.': 'لم نعثر على منتجات تطابق مجموعة الفلاتر المحددة. جربي مسح الفلاتر أو استخدام كلمات بحث بديلة.',
+        'Proceed to Secure Checkout': 'متابعة الدفع وإتمام الطلب الآمن',
+        'Promo / Gift Card': 'كوبون الخصم / قسيمة الهدية',
+        'Enter code (e.g. LUXE20)': 'أدخلي الكود (مثل LUXE20)',
+        'Apply': 'تطبيق',
+        'Estimated Total': 'الإجمالي التقديري',
+        '30-Day Ritual Satisfaction Guarantee': 'ضمان الرضا التام لمدة 30 يوماً',
+        'Complimentary Express': 'شحن سريع ومجاني'
     };
 
     // Inverse Map for Arabic to English
@@ -932,6 +1222,30 @@
             return translations[lang][key];
         }
         return fallback || key;
+    };
+
+    // Direct String Translator Helper
+    const translateText = (text) => {
+        if (!text || typeof text !== 'string') return text;
+        const trimmed = text.trim();
+        return directTextMap[trimmed] || text;
+    };
+
+    const reverseTranslateText = (text) => {
+        if (!text || typeof text !== 'string') return text;
+        const trimmed = text.trim();
+        return reverseTextMap[trimmed] || text;
+    };
+
+    const translateProduct = (product, lang = getCurrentLanguage()) => {
+        if (!product) return product;
+        if (lang !== 'ar') return product;
+        return {
+            ...product,
+            name: translateText(product.name),
+            description: translateText(product.description),
+            category: translateText(product.category)
+        };
     };
 
     // 5. Price Formatter (Localized currency)
@@ -1056,7 +1370,7 @@
             }
         });
 
-        // Deep Text Node Replacement for seamless conversion
+        // First pass: Deep Text Node Replacement for static DOM elements
         if (document.body) {
             translateTextNodes(document.body, lang);
         }
@@ -1071,8 +1385,14 @@
             if (typeof window.renderCategoryFilters === 'function') window.renderCategoryFilters();
             if (typeof window.updateCartCount === 'function') window.updateCartCount();
             if (typeof window.updateWishlistCount === 'function') window.updateWishlistCount();
+            if (typeof window.showQuizQuestion === 'function') window.showQuizQuestion();
         } catch (e) {
-            console.debug('Re-render hook completed with note:', e);
+            console.debug('Re-render hook note:', e);
+        }
+
+        // Second pass: Re-translate newly generated dynamic nodes (e.g., product cards, cart rows, etc.)
+        if (document.body) {
+            translateTextNodes(document.body, lang);
         }
 
         // Dispatch a global event so any custom component can react
@@ -1114,16 +1434,23 @@
     // 11. Expose to Global Scope
     window.i18n = {
         translations,
+        directTextMap,
+        reverseTextMap,
         getCurrentLanguage,
         setLanguage: (lang) => applyLanguage(lang, true),
         toggleLanguage,
         t,
-        formatPrice: formatLocalizedPrice
+        formatPrice: formatLocalizedPrice,
+        translateText,
+        reverseTranslateText,
+        translateProduct
     };
 
-    // Expose directly as window.toggleLanguage for inline onclick handlers
+    // Expose directly on window for inline handlers and modules
     window.toggleLanguage = toggleLanguage;
     window.t = t;
     window.formatLocalizedPrice = formatLocalizedPrice;
+    window.translateText = translateText;
+    window.reverseTranslateText = reverseTranslateText;
 
 })();

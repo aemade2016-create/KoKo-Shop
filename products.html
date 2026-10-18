@@ -94,15 +94,22 @@
                 <!-- Centered Navigation Links -->
                 <nav class="hidden lg:flex items-center space-x-8 text-sm font-medium text-gray-700 dark:text-gray-200">
                     <a href="index.html" class="hover:text-pink-500 transition" data-i18n="nav_home">Home</a>
-                    <a href="products.html" class="text-pink-500 font-semibold border-b-2 border-pink-500 pb-0.5 transition" data-i18n="nav_shop_all">Shop All</a>
-                    <a href="products.html?category=Serum" class="hover:text-pink-500 transition" data-i18n="nav_serums">Serums</a>
-                    <a href="products.html?category=Moisturizer" class="hover:text-pink-500 transition" data-i18n="nav_moisturizers">Moisturizers</a>
+                    <a href="products.html" onclick="if(typeof setCategoryPill==='function'){setCategoryPill('all');history.pushState({},'','products.html');if(window.LuxeBeauty?.highlightActivePage)window.LuxeBeauty.highlightActivePage();return false;}" class="text-pink-500 font-semibold border-b-2 border-pink-500 pb-0.5 transition" data-i18n="nav_shop_all">Shop All</a>
+                    <a href="products.html?category=Serum" onclick="if(typeof setCategoryPill==='function'){setCategoryPill('Serum');history.pushState({},'','products.html?category=Serum');if(window.LuxeBeauty?.highlightActivePage)window.LuxeBeauty.highlightActivePage();return false;}" class="hover:text-pink-500 transition" data-i18n="nav_serums">Serums</a>
+                    <a href="products.html?category=Moisturizer" onclick="if(typeof setCategoryPill==='function'){setCategoryPill('Moisturizer');history.pushState({},'','products.html?category=Moisturizer');if(window.LuxeBeauty?.highlightActivePage)window.LuxeBeauty.highlightActivePage();return false;}" class="hover:text-pink-500 transition" data-i18n="nav_moisturizers">Moisturizers</a>
                     <a href="index.html#skin-quiz" class="hover:text-pink-500 transition" data-i18n="nav_skin_diagnostic">Skin Diagnostic</a>
                     <a href="about.html" class="hover:text-pink-500 transition" data-i18n="nav_our_ethos">Our Ethos</a>
                 </nav>
 
                 <!-- Action Utilities (Search, User, Wishlist, Cart, Theme, Lang) -->
                 <div class="flex items-center space-x-2 sm:space-x-3">
+                    <!-- Search Link / Focus -->
+                    <button onclick="document.getElementById('searchInput')?.focus();window.scrollTo({top: 180, behavior: 'smooth'});"
+                        class="p-2 text-gray-600 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-800 rounded-full transition"
+                        title="Search Formulations">
+                        <i class="fas fa-search text-base"></i>
+                    </button>
+
                     <!-- Admin Panel Link (Protected for Admin) -->
                     <a href="admin-dashboard.html" id="adminPanelIcon"
                         class="hidden p-2 rounded-full text-pink-600 bg-pink-50 hover:bg-pink-100 dark:bg-pink-950/50 dark:hover:bg-pink-900/50 transition"
@@ -160,9 +167,9 @@
             <!-- Mobile Navigation Drawer -->
             <div id="mobileMenu" class="hidden lg:hidden mt-4 pt-4 border-t border-pink-100 dark:border-slate-800 space-y-3 pb-2">
                 <a href="index.html" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_home">Home</a>
-                <a href="products.html" class="block py-2 text-pink-500 font-semibold" data-i18n="nav_shop_all_products">Shop All Products</a>
-                <a href="products.html?category=Serum" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_serums_elixirs">Serums & Elixirs</a>
-                <a href="products.html?category=Moisturizer" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_barrier_creams">Barrier Creams</a>
+                <a href="products.html" onclick="if(typeof setCategoryPill==='function'){setCategoryPill('all');history.pushState({},'','products.html');if(window.LuxeBeauty?.highlightActivePage)window.LuxeBeauty.highlightActivePage();document.getElementById('mobileMenu')?.classList.add('hidden');return false;}" class="block py-2 text-pink-500 font-semibold" data-i18n="nav_shop_all_products">Shop All Products</a>
+                <a href="products.html?category=Serum" onclick="if(typeof setCategoryPill==='function'){setCategoryPill('Serum');history.pushState({},'','products.html?category=Serum');if(window.LuxeBeauty?.highlightActivePage)window.LuxeBeauty.highlightActivePage();document.getElementById('mobileMenu')?.classList.add('hidden');return false;}" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_serums_elixirs">Serums & Elixirs</a>
+                <a href="products.html?category=Moisturizer" onclick="if(typeof setCategoryPill==='function'){setCategoryPill('Moisturizer');history.pushState({},'','products.html?category=Moisturizer');if(window.LuxeBeauty?.highlightActivePage)window.LuxeBeauty.highlightActivePage();document.getElementById('mobileMenu')?.classList.add('hidden');return false;}" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_barrier_creams">Barrier Creams</a>
                 <a href="index.html#skin-quiz" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_diagnostic_quiz">Skin Diagnostic Quiz</a>
                 <a href="about.html" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_about_ethos">About Our Ethos</a>
             </div>
@@ -485,6 +492,15 @@
                 stored = [];
             }
 
+            if (!stored || !Array.isArray(stored) || stored.length === 0) {
+                if (window.defaultLuxeProducts && window.defaultLuxeProducts.length) {
+                    stored = window.defaultLuxeProducts;
+                    try {
+                        localStorage.setItem('luxe_products', JSON.stringify(stored));
+                    } catch (e) {}
+                }
+            }
+
             return stored.map((product) => {
                 const originalPrice = Number(product.originalPrice || product.price || 0);
                 let salePrice = Number(product.salePrice || product.price || originalPrice);
@@ -598,6 +614,8 @@
             } = product;
 
             const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+            const displayName = window.i18n ? window.i18n.translateText(name) : name;
+            const displayDesc = window.i18n ? window.i18n.translateText(description) : (description || 'Pure bio-compatible botanical formulation.');
             const catMap = {
                 'Serum': 'سيروم',
                 'Moisturizer': 'مرطب',
@@ -607,7 +625,7 @@
                 'Sunscreen': 'واقي شمس',
                 'Mask': 'قناع'
             };
-            const displayCategory = isAr ? (catMap[category] || category) : category;
+            const displayCategory = isAr ? (catMap[category] || (window.i18n ? window.i18n.translateText(category) : category)) : category;
             const priceFormatted = isAr ? `${Number(price).toFixed(2)} ج.م` : `EGP ${Number(price).toFixed(2)}`;
             const oldPriceFormatted = isAr ? `${Number(originalPrice).toFixed(2)} ج.م` : `EGP ${Number(originalPrice).toFixed(2)}`;
             const addToBagText = isAr ? 'أضف للحقيبة' : 'Add to Bag';
@@ -618,7 +636,7 @@
                 <div class="product-card group relative bg-white dark:bg-slate-800 rounded-2xl border border-pink-100/80 dark:border-slate-700/80 p-4 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between cursor-pointer" onclick="showProductDetail(${id})">
                     <!-- Image Container -->
                     <div class="relative aspect-square rounded-xl overflow-hidden bg-pink-50/50 dark:bg-slate-900/50 mb-3.5">
-                        <img src="${image}" alt="${name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        <img src="${image}" alt="${displayName}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
                         
                         <!-- Floating Wishlist Button -->
                         <button onclick="event.stopPropagation(); toggleWishlistFromProducts(${id})" 
@@ -639,14 +657,14 @@
                     <div class="flex flex-col flex-1 justify-between text-left">
                         <div>
                             <span class="text-[11px] font-bold uppercase tracking-wider text-pink-600 dark:text-pink-400 block mb-1">${displayCategory}</span>
-                            <h3 class="font-display font-semibold text-gray-900 dark:text-white text-base leading-snug line-clamp-1 group-hover:text-pink-500 transition mb-1.5">${name}</h3>
+                            <h3 class="font-display font-semibold text-gray-900 dark:text-white text-base leading-snug line-clamp-1 group-hover:text-pink-500 transition mb-1.5">${displayName}</h3>
                             
                             <div class="flex items-center space-x-1 text-amber-400 text-xs mb-2">
                                 ${generateStars(rating)}
                                 <span class="text-[11px] text-gray-400 ml-1.5">(${reviews})</span>
                             </div>
 
-                            <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed mb-3">${description || 'Pure bio-compatible botanical formulation.'}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed mb-3">${displayDesc}</p>
                         </div>
 
                         <!-- Price & Action -->
@@ -690,18 +708,6 @@
 
             grid.innerHTML = filteredProducts.map(createProductCard).join('');
 
-            if (window.LuxeBeauty && typeof window.LuxeBeauty.updateAllWishlistIcons === 'function') {
-                window.LuxeBeauty.updateAllWishlistIcons();
-            }
-        };
-
-        // Expose renderers globally for i18n auto re-rendering
-        window.renderProducts = renderProducts;
-        window.renderCategoryFilters = renderCategoryFilters;
-
-            grid.innerHTML = filteredProducts.map(createProductCard).join('');
-
-            // Synchronize Wishlist Heart Icons
             if (window.LuxeBeauty && typeof window.LuxeBeauty.updateAllWishlistIcons === 'function') {
                 window.LuxeBeauty.updateAllWishlistIcons();
             }
@@ -917,42 +923,53 @@
                 discountPercent = 0
             } = product;
 
+            const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+            const displayName = window.i18n ? window.i18n.translateText(name) : name;
+            const displayDesc = window.i18n ? window.i18n.translateText(description) : description;
+            const displayCategory = window.i18n ? window.i18n.translateText(category) : category;
+            const priceFormatted = isAr ? `${Number(price).toFixed(2)} ج.م` : `EGP ${Number(price).toFixed(2)}`;
+            const oldPriceFormatted = isAr ? `${Number(originalPrice).toFixed(2)} ج.م` : `EGP ${Number(originalPrice).toFixed(2)}`;
+            const addToBagText = isAr ? 'أضف للحقيبة' : 'Add to Bag';
+            const addToWishlistText = isAr ? 'أضف إلى قائمة الرغبات' : 'Add to Wishlist';
+            const reviewsText = isAr ? `(${reviews} تقييم)` : `(${reviews} reviews)`;
+            const offText = isAr ? `خصم ${discountPercent}%` : `-${discountPercent}% OFF`;
+
             content.innerHTML = `
                 <div class="grid md:grid-cols-2 gap-8 items-center text-left">
                     <div class="relative aspect-square rounded-2xl overflow-hidden bg-pink-50 dark:bg-slate-800">
-                        <img src="${image}" alt="${name}" class="w-full h-full object-cover">
+                        <img src="${image}" alt="${displayName}" class="w-full h-full object-cover">
                     </div>
                     <div>
                         <div class="flex items-center gap-2 mb-2">
-                            <span class="text-xs text-pink-600 dark:text-pink-400 font-bold uppercase tracking-wider">${category}</span>
+                            <span class="text-xs text-pink-600 dark:text-pink-400 font-bold uppercase tracking-wider">${displayCategory}</span>
                             ${hasDiscount ? `
                                 <span class="bg-pink-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
-                                    -${discountPercent}% OFF
+                                    ${offText}
                                 </span>
                             ` : ''}
                         </div>
-                        <h2 class="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white mb-3">${name}</h2>
+                        <h2 class="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white mb-3">${displayName}</h2>
                         <div class="flex items-center mb-4">
                             <div class="flex text-amber-400 text-xs space-x-1">${generateStars(rating)}</div>
-                            <span class="text-xs text-gray-400 ml-2">(${reviews} reviews)</span>
+                            <span class="text-xs text-gray-400 ml-2">${reviewsText}</span>
                         </div>
-                        <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-6">${description}</p>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-6">${displayDesc}</p>
                         <div class="flex items-baseline space-x-3 mb-6">
                             ${hasDiscount && originalPrice > price ? `
-                                <span class="text-sm text-gray-400 line-through">EGP ${Number(originalPrice).toFixed(2)}</span>
+                                <span class="text-sm text-gray-400 line-through">${oldPriceFormatted}</span>
                             ` : ''}
-                            <span class="text-3xl font-bold font-display text-pink-600">EGP ${Number(price).toFixed(2)}</span>
+                            <span class="text-3xl font-bold font-display text-pink-600">${priceFormatted}</span>
                         </div>
                         <div class="space-y-3">
                             <button onclick="addToCartFromProducts(${id}); closeProductModal();" 
                                 class="w-full bg-pink-500 hover:bg-pink-600 text-white py-3.5 rounded-full font-semibold transition-all duration-300 shadow-md flex items-center justify-center space-x-2">
                                 <i class="fas fa-bag-shopping text-sm"></i>
-                                <span>Add to Bag</span>
+                                <span>${addToBagText}</span>
                             </button>
                             <button onclick="toggleWishlistFromProducts(${id})" 
                                 class="w-full bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 text-gray-800 dark:text-gray-200 py-3.5 rounded-full font-semibold transition flex items-center justify-center space-x-2">
                                 <i class="far fa-heart text-sm"></i>
-                                <span>Add to Wishlist</span>
+                                <span>${addToWishlistText}</span>
                             </button>
                         </div>
                     </div>
@@ -977,7 +994,6 @@
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toastMessage');
             if (!toast || !toastMessage) return;
-
             toastMessage.textContent = message;
             toast.style.transform = 'translateY(0)';
 
@@ -986,14 +1002,83 @@
             }, 3000);
         };
 
-        // Initialize Page on DOM Loaded
-        document.addEventListener('DOMContentLoaded', () => {
+        // Expose functions globally for i18n auto re-rendering and external callers
+        window.renderProducts = renderProducts;
+        window.renderCategoryFilters = renderCategoryFilters;
+        window.setCategoryPill = setCategoryPill;
+        window.filterProducts = filterProducts;
+        window.resetFilters = resetFilters;
+        window.clearSearch = clearSearch;
+        window.addToCartFromProducts = addToCartFromProducts;
+        window.toggleWishlistFromProducts = toggleWishlistFromProducts;
+        window.showProductDetail = showProductDetail;
+        window.closeProductModal = closeProductModal;
+
+        // Load live products from Firebase Firestore (with fallback)
+        const loadFirestoreProducts = async () => {
+            try {
+                const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+                const configModule = await import('./firebase-config.js');
+                const { collection, getDocs } = firestoreModule;
+                const { db } = configModule;
+
+                const snapshot = await getDocs(collection(db, 'products'));
+                if (!snapshot.empty) {
+                    const firestoreProducts = snapshot.docs.map((docItem) => ({
+                        id: docItem.data().id || docItem.id,
+                        ...docItem.data()
+                    }));
+                    if (firestoreProducts.length > 0) {
+                        localStorage.setItem('luxe_products', JSON.stringify(firestoreProducts));
+                        allProducts = getNormalizedProducts();
+                        filterProducts();
+                        console.log('✅ Loaded', firestoreProducts.length, 'products from Firebase Firestore');
+                    }
+                }
+            } catch (err) {
+                console.warn('Firestore products fetch notice (using storage fallback):', err);
+            }
+        };
+
+        // Sync local products to Firestore
+        window.syncProductsToFirestore = async () => {
+            try {
+                showToast('جاري رفع المنتجات إلى Firebase Firestore...');
+                const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+                const configModule = await import('./firebase-config.js');
+                const { doc, setDoc } = firestoreModule;
+                const { db } = configModule;
+
+                const prods = getNormalizedProducts();
+                let count = 0;
+                for (const p of prods) {
+                    await setDoc(doc(db, 'products', String(p.id)), p, { merge: true });
+                    count++;
+                }
+                showToast(`تم رفع ${count} منتج إلى Firestore بنجاح! ✨`);
+                console.log(`Synced ${count} products to Firestore.`);
+            } catch (err) {
+                console.error('Error syncing products to Firestore:', err);
+                showToast('فشل المزامنة مع Firestore، تأكد من الـ Rules', 'error');
+            }
+        };
+
+        // Initialize Page
+        const initProductsPage = () => {
             try {
                 allProducts = getNormalizedProducts();
                 filteredProducts = [...allProducts];
 
                 renderCategoryFilters();
-                renderProducts();
+
+                // Check URL parameter for initial category filtering (e.g., ?category=Serum)
+                const urlParams = new URLSearchParams(window.location.search);
+                const initialCategory = urlParams.get('category');
+                if (initialCategory) {
+                    setCategoryPill(initialCategory);
+                } else {
+                    renderProducts();
+                }
 
                 // Check Admin Access
                 const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
@@ -1004,6 +1089,22 @@
             } catch (error) {
                 console.error('Initialization error in products.html:', error);
             }
+
+            // Attempt Firestore synchronization asynchronously
+            loadFirestoreProducts();
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initProductsPage);
+        } else {
+            initProductsPage();
+        }
+
+        window.addEventListener('popstate', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const cat = urlParams.get('category') || 'all';
+            setCategoryPill(cat);
+        });
 
             // Event Listeners for Search & Filters
             const searchInput = document.getElementById('searchInput');

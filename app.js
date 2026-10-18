@@ -440,27 +440,43 @@ function showToast(message, type) {
     }, 3000);
 }
 
-// ============================================
-// 7. ACTIVE PAGE HIGHLIGHTING
-// ============================================
 function highlightActivePage() {
-    var currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    var navLinks = document.querySelectorAll('nav a[href]');
+    var rawPage = window.location.pathname.split('/').pop() || 'index.html';
+    var currentPage = rawPage.split('?')[0].split('#')[0] || 'index.html';
+    var currentSearch = window.location.search || '';
+    var navLinks = document.querySelectorAll('header nav a[href], #mobileMenu a[href]');
 
     navLinks.forEach(function (link) {
         var href = link.getAttribute('href');
+        if (!href) return;
 
-        // Remove active classes
-        link.classList.remove('text-primary-500', 'font-semibold');
+        var isMobile = !!link.closest('#mobileMenu');
+        var linkPage = href.split('?')[0].split('#')[0];
+        var linkSearch = href.includes('?') ? '?' + href.split('?')[1].split('#')[0] : '';
 
-        // Add active class if matches current page
-        if (href === currentPage ||
-            (currentPage === 'index.html' && href === 'index.html') ||
-            (currentPage === 'products.html' && (href === 'products.html' || href.includes('products'))) ||
-            (currentPage === 'about.html' && href === 'about.html') ||
-            (currentPage === 'login.html' && href === 'login.html') ||
-            (currentPage === 'profile.html' && href === 'profile.html')) {
-            link.classList.add('text-primary-500', 'font-semibold');
+        var isActive = false;
+        if (linkSearch) {
+            isActive = (linkPage === currentPage && linkSearch === currentSearch);
+        } else {
+            isActive = (linkPage === currentPage && !currentSearch);
+        }
+
+        if (isActive) {
+            if (isMobile) {
+                link.classList.remove('text-gray-700', 'dark:text-gray-200');
+                link.classList.add('text-pink-500', 'font-semibold');
+            } else {
+                link.classList.remove('hover:text-pink-500');
+                link.classList.add('text-pink-500', 'font-semibold', 'border-b-2', 'border-pink-500', 'pb-0.5');
+            }
+        } else {
+            if (isMobile) {
+                link.classList.remove('text-pink-500', 'font-semibold');
+                link.classList.add('text-gray-700', 'dark:text-gray-200');
+            } else {
+                link.classList.remove('text-pink-500', 'font-semibold', 'border-b-2', 'border-pink-500', 'pb-0.5');
+                link.classList.add('hover:text-pink-500');
+            }
         }
     });
 }

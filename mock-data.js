@@ -499,14 +499,34 @@ const initMockData = async () => {
         // استيراد وحدات Firebase Firestore
         const firestore = await loadFirestoreServices();
 
+        // حقن المنتجات في Firestore
+        const seedProductsToFirestore = async () => {
+            const { doc, setDoc, db } = firestore;
+            const prods = window.defaultLuxeProducts || JSON.parse(localStorage.getItem('luxe_products') || '[]');
+            let pCount = 0;
+            for (const p of prods) {
+                try {
+                    await setDoc(doc(db, 'products', String(p.id)), {
+                        ...p,
+                        updatedAt: new Date().toISOString()
+                    }, { merge: true });
+                    pCount++;
+                } catch (e) {
+                    console.warn(`[MockData] Failed to seed product ${p.name}:`, e);
+                }
+            }
+            return pCount;
+        };
+
         // حقن البيانات في Firestore عبر async/await
-        const [customerCount, orderCount, reviewCount] = await Promise.all([
+        const [customerCount, orderCount, reviewCount, productCount] = await Promise.all([
             seedCustomers(customers, firestore),
             seedOrders(orders, firestore),
-            seedReviews(reviews, firestore)
+            seedReviews(reviews, firestore),
+            seedProductsToFirestore()
         ]);
 
-        console.log(`[MockData] اكتملت الإضافة: ${customerCount} عميل، ${orderCount} طلب، ${reviewCount} تقييم.`);
+        console.log(`[MockData] اكتملت الإضافة: ${customerCount} عميل، ${orderCount} طلب، ${reviewCount} تقييم، ${productCount} منتج.`);
 
         // تسجيل حالة الإتمام لمنع التكرار
         localStorage.setItem(STORAGE_KEY_SEEDED, 'true');

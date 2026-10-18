@@ -74,7 +74,7 @@
                     <span data-i18n="announcement_clean">100% Certified Clean Formulas</span>
                 </span>
                 <span class="text-pink-200">|</span>
-                <a href="#skin-quiz" class="hover:underline flex items-center">
+                <a href="#skin-quiz" onclick="if(typeof startSkinQuiz==='function'){startSkinQuiz();}" class="hover:underline flex items-center">
                     <span data-i18n="announcement_quiz">Free 2-Min Skin Quiz</span>
                     <i class="fas fa-chevron-right text-[9px] ml-1"></i>
                 </a>
@@ -105,12 +105,17 @@
                     <a href="products.html" class="hover:text-pink-500 transition" data-i18n="nav_shop_all">Shop All</a>
                     <a href="products.html?category=Serum" class="hover:text-pink-500 transition" data-i18n="nav_serums">Serums</a>
                     <a href="products.html?category=Moisturizer" class="hover:text-pink-500 transition" data-i18n="nav_moisturizers">Moisturizers</a>
-                    <a href="#skin-quiz" class="hover:text-pink-500 transition" data-i18n="nav_skin_diagnostic">Skin Diagnostic</a>
+                    <a href="#skin-quiz" onclick="if(typeof startSkinQuiz==='function'){startSkinQuiz();}" class="hover:text-pink-500 transition" data-i18n="nav_skin_diagnostic">Skin Diagnostic</a>
                     <a href="about.html" class="hover:text-pink-500 transition" data-i18n="nav_our_ethos">Our Ethos</a>
                 </nav>
 
                 <!-- Action Utilities (Search, User, Wishlist, Cart, Theme, Lang) -->
                 <div class="flex items-center space-x-2 sm:space-x-3">
+                    <!-- Search Link -->
+                    <a href="products.html" class="p-2 text-gray-600 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-800 rounded-full transition" title="Search Formulations">
+                        <i class="fas fa-search text-base"></i>
+                    </a>
+
                     <!-- Admin Panel Link (Protected for Admin) -->
                     <a href="admin-dashboard.html" id="adminPanelIcon"
                         class="hidden p-2 rounded-full text-pink-600 bg-pink-50 hover:bg-pink-100 dark:bg-pink-950/50 dark:hover:bg-pink-900/50 transition"
@@ -171,7 +176,7 @@
                 <a href="products.html" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_shop_all_products">Shop All Products</a>
                 <a href="products.html?category=Serum" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_serums_elixirs">Serums & Elixirs</a>
                 <a href="products.html?category=Moisturizer" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_barrier_creams">Barrier Creams</a>
-                <a href="#skin-quiz" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_diagnostic_quiz">Skin Diagnostic Quiz</a>
+                <a href="#skin-quiz" onclick="if(typeof startSkinQuiz==='function'){startSkinQuiz();const m=document.getElementById('mobileMenu');if(m)m.classList.add('hidden');}" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_diagnostic_quiz">Skin Diagnostic Quiz</a>
                 <a href="about.html" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_about_ethos">About Our Ethos</a>
             </div>
         </div>
@@ -763,34 +768,29 @@
     </section>
 
     <!-- Skin Quiz Diagnostic Concierge -->
-    <section id="skin-quiz" class="py-20 lg:py-24 relative overflow-hidden bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white">
+    <section id="skin-quiz" class="py-16 lg:py-24 relative overflow-hidden bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white scroll-mt-16">
         <div class="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none"></div>
         <div class="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-pink-400/20 blur-3xl pointer-events-none"></div>
 
         <div class="container mx-auto px-4 relative z-10">
-            <div class="max-w-3xl mx-auto text-center">
-                <div class="inline-flex items-center space-x-2 bg-white/20 text-white border border-white/30 px-4 py-1.5 rounded-full text-xs font-semibold mb-6">
+            <div class="max-w-3xl mx-auto text-center mb-8">
+                <div class="inline-flex items-center space-x-2 bg-white/20 text-white border border-white/30 px-4 py-1.5 rounded-full text-xs font-semibold mb-4">
                     <i class="fas fa-sparkles text-xs"></i>
                     <span>2-Minute Personalized Skincare Concierge</span>
                 </div>
-                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-bold mb-6 leading-tight text-white">
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-bold mb-4 leading-tight text-white">
                     Unlock Your Custom <br>
                     <span class="font-display italic font-normal text-pink-100">Radiance Protocol</span>
                 </h2>
-                <p class="text-base sm:text-lg text-pink-50 mb-10 max-w-2xl mx-auto leading-relaxed">
+                <p class="text-sm sm:text-base text-pink-50 max-w-2xl mx-auto leading-relaxed">
                     Every skin barrier is unique. Answer 3 diagnostic questions to receive targeted botanical actives, customized daily routines, and dermatologist recommendations.
                 </p>
+            </div>
 
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button onclick="startSkinQuiz()"
-                        class="inline-flex items-center justify-center space-x-2.5 bg-white text-pink-600 hover:bg-pink-50 px-8 py-4 rounded-full font-semibold transition-all duration-300 transform hover:scale-[1.02] shadow-xl">
-                        <i class="fas fa-wand-magic-sparkles text-sm"></i>
-                        <span>Begin Diagnostic Quiz</span>
-                    </button>
-                    <a href="about.html"
-                        class="inline-flex items-center justify-center space-x-2 bg-transparent hover:bg-white/10 text-white border-2 border-white px-8 py-4 rounded-full font-semibold transition">
-                        <span>Read Routine Guides</span>
-                    </a>
+            <!-- Interactive Live Questions Card (Questions Front & Center!) -->
+            <div class="max-w-2xl mx-auto bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-9 text-gray-900 dark:text-white shadow-2xl border border-white/50 dark:border-slate-800 text-left rtl:text-right relative transition-all duration-300" id="quizCardWrapper">
+                <div id="inlineQuizContent">
+                    <!-- Questions loaded dynamically and immediately -->
                 </div>
             </div>
         </div>
@@ -1320,6 +1320,15 @@
                 stored = [];
             }
 
+            if (!stored || !Array.isArray(stored) || stored.length === 0) {
+                if (window.defaultLuxeProducts && window.defaultLuxeProducts.length) {
+                    stored = window.defaultLuxeProducts;
+                    try {
+                        localStorage.setItem('luxe_products', JSON.stringify(stored));
+                    } catch (e) {}
+                }
+            }
+
             return stored.map((product) => {
                 const originalPrice = Number(product.originalPrice || product.price || 0);
                 let salePrice = Number(product.salePrice || product.price || originalPrice);
@@ -1368,7 +1377,8 @@
                 'Toner': 'تونر',
                 'Sunscreen': 'واقي شمس'
             };
-            const displayCategory = isAr ? (catMap[category] || category) : category;
+            const displayCategory = isAr ? (catMap[category] || (window.i18n?.translateText?.(category) || category)) : category;
+            const displayName = isAr ? (window.i18n?.translateText?.(name) || name) : (window.i18n?.reverseTranslateText?.(name) || name);
             const priceFormatted = isAr ? `${Number(price).toFixed(2)} ج.م` : `EGP ${Number(price).toFixed(2)}`;
             const oldPriceFormatted = isAr ? `${Number(originalPrice).toFixed(2)} ج.م` : `EGP ${Number(originalPrice).toFixed(2)}`;
             const addToBagText = isAr ? 'أضف للحقيبة' : 'Add to Bag';
@@ -1379,7 +1389,7 @@
                 <div class="product-card group relative bg-white dark:bg-slate-800 rounded-2xl border border-pink-100/80 dark:border-slate-700/80 p-4 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between cursor-pointer" onclick="showProductDetail(${id})">
                     <!-- Image Container -->
                     <div class="relative aspect-square rounded-xl overflow-hidden bg-pink-50/50 dark:bg-slate-900/50 mb-3.5">
-                        <img src="${image}" alt="${name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                        <img src="${image}" alt="${displayName}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
                         
                         <!-- Floating Wishlist Button -->
                         <button onclick="event.stopPropagation(); toggleWishlistFromIndex(${id})" 
@@ -1400,7 +1410,7 @@
                     <div class="flex flex-col flex-1 justify-between text-left">
                         <div>
                             <span class="text-[11px] font-bold uppercase tracking-wider text-pink-600 dark:text-pink-400 block mb-1">${displayCategory}</span>
-                            <h3 class="font-display font-semibold text-gray-900 dark:text-white text-base leading-snug line-clamp-1 group-hover:text-pink-500 transition mb-1.5">${name}</h3>
+                            <h3 class="font-display font-semibold text-gray-900 dark:text-white text-base leading-snug line-clamp-1 group-hover:text-pink-500 transition mb-1.5">${displayName}</h3>
                             
                             <div class="flex items-center space-x-1 text-amber-400 text-xs mb-3">
                                 ${generateStars(rating)}
@@ -1516,7 +1526,9 @@
                 'Toner': 'تونر',
                 'Sunscreen': 'واقي شمس'
             };
-            const displayCategory = isAr ? (catMap[category] || category) : category;
+            const displayCategory = isAr ? (catMap[category] || (window.i18n?.translateText?.(category) || category)) : category;
+            const displayName = isAr ? (window.i18n?.translateText?.(name) || name) : (window.i18n?.reverseTranslateText?.(name) || name);
+            const displayDesc = isAr ? (window.i18n?.translateText?.(description) || description) : (window.i18n?.reverseTranslateText?.(description) || description);
             const priceFormatted = isAr ? `${Number(price).toFixed(2)} ج.م` : `EGP ${Number(price).toFixed(2)}`;
             const oldPriceFormatted = isAr ? `${Number(originalPrice).toFixed(2)} ج.م` : `EGP ${Number(originalPrice).toFixed(2)}`;
             const addToBagText = isAr ? 'أضف للحقيبة' : 'Add to Bag';
@@ -1527,7 +1539,7 @@
             content.innerHTML = `
                 <div class="grid md:grid-cols-2 gap-8 items-center text-left">
                     <div class="relative aspect-square rounded-2xl overflow-hidden bg-pink-50 dark:bg-slate-800">
-                        <img src="${image}" alt="${name}" class="w-full h-full object-cover">
+                        <img src="${image}" alt="${displayName}" class="w-full h-full object-cover">
                     </div>
                     <div>
                         <div class="flex items-center gap-2 mb-2">
@@ -1538,12 +1550,12 @@
                                 </span>
                             ` : ''}
                         </div>
-                        <h2 class="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white mb-3">${name}</h2>
+                        <h2 class="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white mb-3">${displayName}</h2>
                         <div class="flex items-center mb-4">
                             <div class="flex text-amber-400 text-xs space-x-1">${generateStars(rating)}</div>
                             <span class="text-xs text-gray-400 ml-2">(${reviews} ${reviewsLabel})</span>
                         </div>
-                        <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-6">${description}</p>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-6">${displayDesc}</p>
                         <div class="flex items-baseline space-x-3 mb-6">
                             ${hasDiscount && originalPrice > price ? `
                                 <span class="text-sm text-gray-400 line-through">${oldPriceFormatted}</span>
@@ -1580,65 +1592,150 @@
             }
         };
 
-        // Skin Quiz Logic (Clean Modular ES6)
+        // Skin Quiz Logic (Clean Modular ES6 with Dual Inline & Modal Rendering)
         const quizQuestions = [
             {
                 question: "What is your primary skin type?",
-                options: ["Dry / Dehydrated", "Oily / Blemish-Prone", "Combination", "Sensitive / Reactive", "Normal / Balanced"]
+                questionAr: "ما هو نوع بشرتكِ الأساسي؟",
+                subLabel: "Select the option that best describes your daily skin condition",
+                subLabelAr: "اختاري الخيار الأقرب لوصف حالة بشرتكِ اليومية بدقة",
+                options: [
+                    { label: "Dry / Dehydrated", labelAr: "جافة / فاقدة للترطيب", desc: "Tight feeling, seeks deep moisture & lipids", descAr: "ملمس مشدود، بحاجة لترطيب عميق وسيراميد مغذٍ", icon: "fa-droplet" },
+                    { label: "Oily / Blemish-Prone", labelAr: "دهنية / معرضة للشوائب", desc: "Excess shine, visible pores, or breakout prone", descAr: "لمعان زائد، مسام واسعة، أو عرضة لظهور الحبوب", icon: "fa-wand-magic-sparkles" },
+                    { label: "Combination", labelAr: "مختلطة (T-Zone)", desc: "Oily forehead & nose, normal or dry cheeks", descAr: "منطقة الجبين والأنف دهنية والخدود عادية أو جافة", icon: "fa-scale-balanced" },
+                    { label: "Sensitive / Reactive", labelAr: "حساسة / سريعة التأثر والاحمرار", desc: "Easily reacts to climate, active ingredients or stress", descAr: "تتأثر بسرعة بالعوامل الخارجية وسريعة الاحمرار", icon: "fa-shield-heart" },
+                    { label: "Normal / Balanced", labelAr: "عادية / متوازنة وصحية", desc: "Even texture, balanced moisture and sebum", descAr: "بشرة متجانسة بدون جفاف شديد أو لمعان مفرط", icon: "fa-spa" }
+                ]
             },
             {
                 question: "What is your top skin barrier goal?",
-                options: ["Intense Hydration & Plumpness", "Radiance & Hyperpigmentation", "Calming Redness & Sensitivity", "Pore Refining & Oil Balance", "Firming & Fine Lines"]
+                questionAr: "ما هو هدفكِ الأهم لصحة وإشراقة بشرتكِ؟",
+                subLabel: "Select the primary therapeutic result you wish to achieve",
+                subLabelAr: "حددي النتيجة العلاجية الأولى التي ترغبين في تحقيقها",
+                options: [
+                    { label: "Intense Hydration & Plumpness", labelAr: "ترطيب فائق ونضارة ممتلئة", desc: "Restore dewiness, bounce and barrier hydration", descAr: "استعادة امتلاء البشرة ونضارتها المائية العميقة", icon: "fa-water" },
+                    { label: "Radiance & Hyperpigmentation", labelAr: "تفتيح التصبغات وتوحيد لون البشرة", desc: "Fade dark spots, post-acne marks and boost glow", descAr: "علاج البقع الداكنة والتصبغات وتوحيد اللون", icon: "fa-sun" },
+                    { label: "Calming Redness & Sensitivity", labelAr: "تهدئة الاحمرار وتلطيف الحساسية", desc: "Fortify lipid barrier and soothe reactive flare-ups", descAr: "تقوية حاجز البشرة وتخفيف التهيج والحرارة", icon: "fa-heart" },
+                    { label: "Pore Refining & Oil Balance", labelAr: "تضييق المسام وموازنة الإفرازات", desc: "Refine pore appearance and normalize sebum", descAr: "تنقية المسام ومظهر مات غير لامع وصحي", icon: "fa-sliders" },
+                    { label: "Firming & Fine Lines", labelAr: "مقاومة التجاعيد وشد البشرة", desc: "Boost collagen synthesis and skin elasticity", descAr: "دعم الكولاجين وتحسين مرونة الجلد وشبابه", icon: "fa-gem" }
+                ]
             },
             {
                 question: "What texture do you prefer for daily rituals?",
-                options: ["Weightless Gel-Serum", "Silky Dew Cream", "Rich Ceramide Balm", "Active Botanical Oil"]
+                questionAr: "ما هو القوام المفضل لديكِ لطقوسكِ اليومية؟",
+                subLabel: "Select the sensorial finish best suited for your routine",
+                subLabelAr: "اختاري ملمس المستحضر الأنسب لراحتكِ الشخصية",
+                options: [
+                    { label: "Weightless Gel-Serum", labelAr: "سيروم جل خفيف سريع الامتصاص", desc: "Fast absorbing, completely weightless finish", descAr: "امتصاص فوري ولمسة خفيفة كالماء دون أي ثقل", icon: "fa-feather" },
+                    { label: "Silky Dew Cream", labelAr: "كريم ندي حريري الملمس", desc: "Velvety balance between richness and absorption", descAr: "ترطيب متوازن بلمسة مخملية ناعمة ومنعشة", icon: "fa-cloud" },
+                    { label: "Rich Ceramide Balm", labelAr: "بلسم غني بالسيراميد المغذي", desc: "Deep barrier cushion for intensive lipid restoration", descAr: "تغذية مكثفة وحماية فائقة وملمس غني ومرن", icon: "fa-jar" },
+                    { label: "Active Botanical Oil", labelAr: "زيت نباتي نشط وفاخر", desc: "Cold-pressed pure botanicals for golden luminosity", descAr: "زيوت معصورة على البارد لتوهج ذهبي آسر", icon: "fa-bottle-droplet" }
+                ]
             }
         ];
 
         let currentQuestion = 0;
         let quizAnswers = [];
 
-        const startSkinQuiz = () => {
-            currentQuestion = 0;
-            quizAnswers = [];
-            const modal = document.getElementById('skinQuizModal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                modal.style.display = 'flex';
+        const updateAllQuizContainers = (html) => {
+            const inline = document.getElementById('inlineQuizContent');
+            const modalContent = document.getElementById('quizContent');
+            if (inline) inline.innerHTML = html;
+            if (modalContent) modalContent.innerHTML = html;
+        };
+
+        const startSkinQuiz = (openModal = false) => {
+            const section = document.getElementById('skin-quiz');
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
+
+            const wrapper = document.getElementById('quizCardWrapper');
+            if (wrapper) {
+                wrapper.classList.add('ring-4', 'ring-white/80', 'dark:ring-pink-500/80', 'scale-[1.01]');
+                setTimeout(() => {
+                    wrapper.classList.remove('ring-4', 'ring-white/80', 'dark:ring-pink-500/80', 'scale-[1.01]');
+                }, 1200);
+            }
+
+            if (openModal) {
+                const modal = document.getElementById('skinQuizModal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    modal.style.display = 'flex';
+                }
+            }
+
             showQuizQuestion();
         };
 
         const showQuizQuestion = () => {
-            const content = document.getElementById('quizContent');
-            if (!content) return;
+            const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+            const questionObj = quizQuestions[currentQuestion];
+            if (!questionObj) return;
 
-            const question = quizQuestions[currentQuestion];
+            const displayQ = isAr ? questionObj.questionAr : questionObj.question;
+            const displaySub = isAr ? questionObj.subLabelAr : questionObj.subLabel;
+            const stepLabel = isAr ? `الخطوة ${currentQuestion + 1} من ${quizQuestions.length}` : `Step ${currentQuestion + 1} of ${quizQuestions.length}`;
+            const prevLabel = isAr ? 'السابق' : 'Previous';
 
-            content.innerHTML = `
+            const html = `
                 <div class="text-center mb-6">
-                    <span class="text-xs uppercase font-bold tracking-widest text-pink-600 dark:text-pink-400 block mb-1">Step ${currentQuestion + 1} of ${quizQuestions.length}</span>
-                    <h3 class="text-2xl font-display font-bold text-gray-900 dark:text-white mb-2">${question.question}</h3>
-                    <p class="text-gray-500 dark:text-gray-400 text-sm">Select the option that best describes your daily skin condition</p>
+                    <span class="inline-flex items-center space-x-1.5 bg-pink-100 dark:bg-pink-950/70 text-pink-600 dark:text-pink-300 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2.5">
+                        <i class="fas fa-sparkles text-[10px]"></i>
+                        <span>${stepLabel}</span>
+                    </span>
+                    <h3 class="text-xl sm:text-2xl font-display font-bold text-gray-900 dark:text-white mb-2 leading-snug">${displayQ}</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-xs sm:text-sm max-w-lg mx-auto">${displaySub}</p>
                 </div>
-                <div class="space-y-3">
-                    ${question.options.map((option) => `
-                        <button onclick="selectAnswer('${option}')" 
-                            class="w-full text-left px-5 py-3.5 rounded-2xl border border-pink-100 dark:border-slate-800 bg-pink-50/40 dark:bg-slate-800/60 hover:border-pink-500 hover:bg-pink-100/50 dark:hover:bg-pink-950/30 text-gray-800 dark:text-gray-200 font-medium transition-all duration-200 flex items-center justify-between group">
-                            <span>${option}</span>
-                            <i class="fas fa-chevron-right text-xs text-gray-400 group-hover:text-pink-500 transition-transform group-hover:translate-x-1"></i>
+
+                <div class="space-y-3 mb-6">
+                    ${questionObj.options.map((opt) => {
+                        const optTitle = isAr ? opt.labelAr : opt.label;
+                        const optDesc = isAr ? opt.descAr : opt.desc;
+                        const isSelected = quizAnswers[currentQuestion] === opt.label;
+                        const activeClasses = isSelected
+                            ? 'border-pink-500 bg-pink-50/80 dark:bg-pink-950/40 ring-2 ring-pink-500/20'
+                            : 'border-pink-100 dark:border-slate-800 bg-pink-50/30 dark:bg-slate-800/60 hover:border-pink-400 hover:bg-pink-50/60 dark:hover:bg-slate-800';
+
+                        return `
+                        <button onclick="selectAnswer('${opt.label}')" 
+                            class="w-full text-left rtl:text-right p-4 rounded-2xl border ${activeClasses} text-gray-800 dark:text-gray-200 transition-all duration-200 flex items-center justify-between group cursor-pointer shadow-sm">
+                            <div class="flex items-center space-x-3.5 rtl:space-x-reverse">
+                                <div class="w-10 h-10 rounded-xl bg-pink-100 dark:bg-pink-950/60 text-pink-600 dark:text-pink-400 flex items-center justify-center text-sm flex-shrink-0 group-hover:scale-105 transition-transform">
+                                    <i class="fas ${opt.icon}"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-sm sm:text-base text-gray-900 dark:text-white leading-tight mb-0.5 group-hover:text-pink-600 transition">${optTitle}</h4>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">${optDesc}</p>
+                                </div>
+                            </div>
+                            <div class="w-6 h-6 rounded-full border border-pink-200 dark:border-slate-700 flex items-center justify-center text-pink-500 flex-shrink-0 ml-2 rtl:ml-0 rtl:mr-2 group-hover:border-pink-500 transition">
+                                <i class="fas fa-chevron-right rtl:rotate-180 text-[10px] group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform"></i>
+                            </div>
                         </button>
-                    `).join('')}
+                    `;}).join('')}
                 </div>
-                <div class="mt-8 flex justify-between items-center pt-4 border-t border-pink-100 dark:border-slate-800">
-                    <button onclick="previousQuestion()" class="text-gray-500 hover:text-pink-500 text-sm font-semibold flex items-center ${currentQuestion === 0 ? 'invisible' : ''}">
-                        <i class="fas fa-arrow-left mr-2 text-xs"></i>Previous
+
+                <div class="flex justify-between items-center pt-4 border-t border-pink-100 dark:border-slate-800 text-xs">
+                    <button onclick="previousQuestion()" 
+                        class="text-gray-500 hover:text-pink-600 font-semibold flex items-center space-x-1.5 rtl:space-x-reverse transition ${currentQuestion === 0 ? 'invisible pointer-events-none' : ''}">
+                        <i class="fas fa-arrow-left rtl:rotate-180 text-[11px]"></i>
+                        <span>${prevLabel}</span>
                     </button>
-                    <span class="text-xs text-gray-400 font-semibold">${currentQuestion + 1} / ${quizQuestions.length}</span>
+                    
+                    <div class="flex items-center space-x-1.5">
+                        ${quizQuestions.map((_, i) => `
+                            <span class="w-2.5 h-2.5 rounded-full transition-all ${i === currentQuestion ? 'bg-pink-500 w-6' : (i < currentQuestion ? 'bg-pink-300 dark:bg-pink-700' : 'bg-gray-200 dark:bg-slate-700')}"></span>
+                        `).join('')}
+                    </div>
+
+                    <span class="text-gray-400 font-semibold">${currentQuestion + 1} / ${quizQuestions.length}</span>
                 </div>
             `;
+
+            updateAllQuizContainers(html);
         };
 
         const selectAnswer = (answer) => {
@@ -1658,47 +1755,94 @@
             }
         };
 
-        const showQuizResults = () => {
-            const content = document.getElementById('quizContent');
-            if (!content) return;
+        const retakeQuiz = () => {
+            currentQuestion = 0;
+            quizAnswers = [];
+            showQuizQuestion();
+        };
 
-            content.innerHTML = `
-                <div class="text-center">
-                    <div class="w-14 h-14 rounded-full bg-pink-100 dark:bg-pink-950/60 text-pink-500 flex items-center justify-center text-xl mx-auto mb-3">
-                        <i class="fas fa-sparkles"></i>
+        const showQuizResults = () => {
+            const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+            const title = isAr ? 'بروتوكول الإشراقة المخصص لبشرتكِ' : 'Your Personalized Radiance Protocol';
+            const badge = isAr ? 'اكتمل التشخيص بنجاح ✨' : 'Diagnosis Complete';
+            const sub = isAr ? 'بناءً على إجاباتكِ، يوصي أطباؤنا بهذا الروتين النباتي المتكامل سريرياً:' : 'Based on your answers, our clinical dermatologists recommend this synergistic botanical routine:';
+            const s1Title = isAr ? '1. تنقية صباحية لطيفة' : '1. Morning Cleanse';
+            const s1Product = isAr ? 'غسول رغوي نباتي نقي ومتوازن' : 'Gentle Botanical Foaming Cleanser';
+            const s1Desc = isAr ? 'ينقي المسام دون تجريد الزيوت الطبيعية' : 'Refines pores without stripping lipids';
+
+            const s2Title = isAr ? '2. علاج مركز ونشط' : '2. Active Treatment';
+            const s2Product = isAr ? 'سيروم التوهج والإشراق الفائق' : 'Radiant Glow Serum';
+            const s2Desc = isAr ? 'فيتامين C وأسكوربات THD لإشراقة وحيوية فائقة' : 'Vitamin C & Hyaluronic for deep luminosity';
+
+            const s3Title = isAr ? '3. حماية وترميم حاجز البشرة' : '3. Barrier Lock';
+            const s3Product = isAr ? 'مرطب هيدرا بوست فائق الترطيب' : 'Hydra Boost Moisturizer';
+            const s3Desc = isAr ? 'سيراميدات نباتية وببتيدات لترطيب 24 ساعة' : 'Ceramides & peptides for 24H barrier resilience';
+
+            const shopBtnText = isAr ? 'تسوق الروتين الموصى به' : 'Shop Recommended Ritual';
+            const retakeBtnText = isAr ? 'إعادة الاختبار' : 'Retake Skin Quiz';
+
+            const html = `
+                <div class="text-center py-2">
+                    <div class="w-16 h-16 rounded-full bg-pink-100 dark:bg-pink-950/60 text-pink-500 flex items-center justify-center text-2xl mx-auto mb-3 shadow-inner shadow-pink-500/20">
+                        <i class="fas fa-sparkles animate-pulse"></i>
                     </div>
-                    <span class="text-xs uppercase font-bold tracking-widest text-pink-600 dark:text-pink-400 block mb-1">Diagnosis Complete</span>
-                    <h3 class="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white mb-2">Your Personalized Radiance Protocol</h3>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-6 max-w-md mx-auto">Based on your answers, our clinical dermatologists recommend this synergistic botanical routine:</p>
-                    <div class="space-y-3 mb-6 text-left max-w-md mx-auto">
-                        <div class="bg-pink-50/60 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-pink-100 dark:border-slate-700/60 flex items-center space-x-3">
-                            <div class="w-7 h-7 rounded-full bg-pink-100 dark:bg-pink-950/60 text-pink-500 flex items-center justify-center text-xs font-bold">1</div>
-                            <div>
-                                <div class="text-[11px] text-pink-600 font-bold uppercase tracking-wider">Morning Cleanse</div>
-                                <div class="text-sm font-semibold text-gray-900 dark:text-white">Gentle Botanical Foaming Cleanser</div>
+                    <span class="inline-flex items-center space-x-1 text-xs uppercase font-bold tracking-widest text-pink-600 dark:text-pink-400 mb-1">
+                        <span>${badge}</span>
+                    </span>
+                    <h3 class="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white mb-2">${title}</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-6 max-w-md mx-auto leading-relaxed">${sub}</p>
+                    
+                    <div class="space-y-3 mb-8 text-left rtl:text-right max-w-lg mx-auto">
+                        <div class="bg-pink-50/70 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-pink-100 dark:border-slate-700/60 flex items-center space-x-3.5 rtl:space-x-reverse">
+                            <div class="w-9 h-9 rounded-xl bg-pink-500 text-white flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-sm shadow-pink-500/30">
+                                1
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-[11px] text-pink-600 dark:text-pink-400 font-bold uppercase tracking-wider">${s1Title}</div>
+                                <div class="text-sm font-semibold text-gray-900 dark:text-white">${s1Product}</div>
+                                <div class="text-[11px] text-gray-500 dark:text-gray-400">${s1Desc}</div>
                             </div>
                         </div>
-                        <div class="bg-pink-50/60 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-pink-100 dark:border-slate-700/60 flex items-center space-x-3">
-                            <div class="w-7 h-7 rounded-full bg-pink-100 dark:bg-pink-950/60 text-pink-500 flex items-center justify-center text-xs font-bold">2</div>
-                            <div>
-                                <div class="text-[11px] text-pink-600 font-bold uppercase tracking-wider">Active Treatment</div>
-                                <div class="text-sm font-semibold text-gray-900 dark:text-white">Vitamin C Radiance Elixir (15% THD)</div>
+
+                        <div class="bg-pink-50/70 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-pink-100 dark:border-slate-700/60 flex items-center space-x-3.5 rtl:space-x-reverse">
+                            <div class="w-9 h-9 rounded-xl bg-pink-500 text-white flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-sm shadow-pink-500/30">
+                                2
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-[11px] text-pink-600 dark:text-pink-400 font-bold uppercase tracking-wider">${s2Title}</div>
+                                <div class="text-sm font-semibold text-gray-900 dark:text-white">${s2Product}</div>
+                                <div class="text-[11px] text-gray-500 dark:text-gray-400">${s2Desc}</div>
                             </div>
                         </div>
-                        <div class="bg-pink-50/60 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-pink-100 dark:border-slate-700/60 flex items-center space-x-3">
-                            <div class="w-7 h-7 rounded-full bg-pink-100 dark:bg-pink-950/60 text-pink-500 flex items-center justify-center text-xs font-bold">3</div>
-                            <div>
-                                <div class="text-[11px] text-pink-600 font-bold uppercase tracking-wider">Barrier Lock</div>
-                                <div class="text-sm font-semibold text-gray-900 dark:text-white">Hydra-Barrier Dew Cream + SPF 50 Shield</div>
+
+                        <div class="bg-pink-50/70 dark:bg-slate-800/80 p-3.5 rounded-2xl border border-pink-100 dark:border-slate-700/60 flex items-center space-x-3.5 rtl:space-x-reverse">
+                            <div class="w-9 h-9 rounded-xl bg-pink-500 text-white flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-sm shadow-pink-500/30">
+                                3
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-[11px] text-pink-600 dark:text-pink-400 font-bold uppercase tracking-wider">${s3Title}</div>
+                                <div class="text-sm font-semibold text-gray-900 dark:text-white">${s3Product}</div>
+                                <div class="text-[11px] text-gray-500 dark:text-gray-400">${s3Desc}</div>
                             </div>
                         </div>
                     </div>
-                    <a href="products.html" onclick="closeSkinQuiz()" class="inline-flex items-center space-x-2 bg-pink-500 hover:bg-pink-600 text-white px-8 py-3.5 rounded-full font-semibold transition-all duration-300 shadow-md">
-                        <span>Shop Recommended Ritual</span>
-                        <i class="fas fa-arrow-right text-xs ml-1"></i>
-                    </a>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                        <a href="products.html" onclick="closeSkinQuiz()" 
+                            class="w-full sm:w-auto inline-flex items-center justify-center space-x-2 rtl:space-x-reverse bg-pink-500 hover:bg-pink-600 text-white px-8 py-3.5 rounded-full font-semibold transition-all duration-300 shadow-md shadow-pink-500/25">
+                            <span>${shopBtnText}</span>
+                            <i class="fas fa-arrow-right rtl:rotate-180 text-xs ml-1 rtl:ml-0 rtl:mr-1"></i>
+                        </a>
+                        <button onclick="retakeQuiz()" 
+                            class="w-full sm:w-auto inline-flex items-center justify-center space-x-1.5 rtl:space-x-reverse bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200 px-6 py-3.5 rounded-full font-semibold transition text-xs">
+                            <i class="fas fa-rotate-right text-xs"></i>
+                            <span>${retakeBtnText}</span>
+                        </button>
+                    </div>
                 </div>
             `;
+
+            updateAllQuizContainers(html);
         };
 
         const closeSkinQuiz = () => {
@@ -1710,12 +1854,35 @@
             }
         };
 
+        // Expose Quiz and Modals to Window
+        window.startSkinQuiz = startSkinQuiz;
+        window.closeSkinQuiz = closeSkinQuiz;
+        window.retakeQuiz = retakeQuiz;
+        window.selectAnswer = selectAnswer;
+        window.previousQuestion = previousQuestion;
+        window.showQuizQuestion = showQuizQuestion;
+        window.showProductDetail = showProductDetail;
+        window.closeProductModal = closeProductModal;
+
+        // Auto-launch quiz if URL hash is #skin-quiz
+        if (window.location.hash === '#skin-quiz') {
+            setTimeout(() => {
+                startSkinQuiz();
+            }, 300);
+        }
+        window.addEventListener('hashchange', () => {
+            if (window.location.hash === '#skin-quiz') {
+                startSkinQuiz();
+            }
+        });
+
         // Newsletter Form
         const newsletterForm = document.getElementById('newsletterForm');
         if (newsletterForm) {
             newsletterForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                showToast('Thank you for joining The Luxe Circle! 15% discount code applied.');
+                const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+                showToast(isAr ? 'شكراً لانضمامكِ لمجتمعنا الخاص! تم تطبيق كود الخصم 15% ✨' : 'Thank you for joining The Luxe Circle! 15% discount code applied.');
                 newsletterForm.reset();
             });
         }
@@ -1751,6 +1918,7 @@
             loadHeroBanners();
             loadReviews();
             renderProducts();
+            showQuizQuestion();
 
             // Check if current user is admin to show admin panel icon
             try {

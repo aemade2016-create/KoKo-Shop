@@ -3,10 +3,7 @@
 // ============================================
 
 (function initializeProducts() {
-    var existingProducts = localStorage.getItem('luxe_products');
-
-    if (!existingProducts) {
-        var products = [
+    var defaultProducts = [
             {
                 id: 1,
                 name: 'Radiant Glow Serum',
@@ -169,7 +166,7 @@
             }
         ];
 
-        var categories = [
+        var defaultCategories = [
             { id: 1, name: 'Serum', image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop' },
             { id: 2, name: 'Moisturizer', image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=800&h=600&fit=crop' },
             { id: 3, name: 'Cleanser', image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&h=600&fit=crop' },
@@ -182,10 +179,44 @@
             { id: 10, name: 'Night Cream', image: 'https://images.unsplash.com/photo-1571875257727-256c39da42af?w=800&h=600&fit=crop' }
         ];
 
-        localStorage.setItem('luxe_products', JSON.stringify(products));
-        localStorage.setItem('luxe_categories', JSON.stringify(categories));
-        console.log('✅ Products and categories initialized in localStorage');
-    } else {
-        console.log('✅ Products already exist in localStorage');
-    }
+        // Expose default datasets globally
+        window.defaultLuxeProducts = defaultProducts;
+        window.defaultLuxeCategories = defaultCategories;
+
+        // Check if products exist and has items
+        var existingProducts = null;
+        try {
+            existingProducts = JSON.parse(localStorage.getItem('luxe_products'));
+        } catch (e) {
+            existingProducts = null;
+        }
+
+        if (!existingProducts || !Array.isArray(existingProducts) || existingProducts.length === 0) {
+            localStorage.setItem('luxe_products', JSON.stringify(defaultProducts));
+            console.log('✅ Products initialized in localStorage');
+        } else {
+            console.log('✅ Products already exist in localStorage (' + existingProducts.length + ' items)');
+        }
+
+        // Check if categories exist and has items
+        var existingCategories = null;
+        try {
+            existingCategories = JSON.parse(localStorage.getItem('luxe_categories'));
+        } catch (e) {
+            existingCategories = null;
+        }
+
+        if (!existingCategories || !Array.isArray(existingCategories) || existingCategories.length === 0) {
+            localStorage.setItem('luxe_categories', JSON.stringify(defaultCategories));
+            console.log('✅ Categories initialized in localStorage');
+        }
+
+        // Utility to restore default catalog if needed
+        window.resetCatalogToDefault = function () {
+            localStorage.setItem('luxe_products', JSON.stringify(defaultProducts));
+            localStorage.setItem('luxe_categories', JSON.stringify(defaultCategories));
+            if (typeof window.renderProducts === 'function') window.renderProducts();
+            if (typeof window.renderCategoryFilters === 'function') window.renderCategoryFilters();
+            console.log('🔄 Catalog reset to default');
+        };
 })();
