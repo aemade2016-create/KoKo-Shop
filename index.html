@@ -194,16 +194,16 @@
                             <!-- Eyebrow Badge -->
                             <div class="inline-flex items-center space-x-2 bg-pink-100 dark:bg-pink-950/60 text-pink-600 dark:text-pink-300 px-4 py-1.5 rounded-full text-xs font-semibold mb-6 tracking-wide uppercase shadow-sm">
                                 <span class="w-2 h-2 rounded-full bg-pink-500 animate-ping"></span>
-                                <span>Botanical Clinical Formulation '26</span>
+                                <span id="cmsHeroBadge">Botanical Clinical Formulation '26</span>
                             </div>
 
                             <!-- Editorial Serif Headline -->
-                            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-display font-bold leading-[1.08] mb-6 tracking-tight text-gray-900 dark:text-white">
+                            <h1 id="cmsHeroTitle" class="text-4xl sm:text-6xl lg:text-7xl font-display font-bold leading-[1.08] mb-6 tracking-tight text-gray-900 dark:text-white">
                                 Reveal Your Skin's <br>
                                 <span class="font-display italic font-normal text-pink-500">Natural Radiance</span>
                             </h1>
 
-                            <p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                            <p id="cmsHeroSubtitle" class="text-base sm:text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
                                 Formulated with cold-pressed antioxidants, skin-identical ceramides, and bio-compatible botanical actives for transcendent luminosity.
                             </p>
 
@@ -458,7 +458,7 @@
         <div class="container mx-auto px-4">
             <div class="text-center mb-14">
                 <span class="text-xs font-bold tracking-widest text-pink-600 dark:text-pink-400 uppercase block mb-2">Signature Formulas</span>
-                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-gray-900 dark:text-white mb-4">
+                <h2 id="cmsFeaturedTitle" class="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-gray-900 dark:text-white mb-4">
                     Featured <span class="font-display italic font-normal text-pink-500">Creations</span>
                 </h2>
                 <p class="text-gray-600 dark:text-gray-400 max-w-xl mx-auto text-base">Handcrafted with clinical botanical potency for real, visible transformation</p>
@@ -507,12 +507,12 @@
 
                 <!-- Right Content -->
                 <div class="lg:w-1/2 text-left">
-                    <span class="text-xs font-bold tracking-widest text-pink-600 dark:text-pink-400 uppercase block mb-3">The Clean Philosophy</span>
-                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+                    <span id="cmsPhilosophyBadge" class="text-xs font-bold tracking-widest text-pink-600 dark:text-pink-400 uppercase block mb-3">The Clean Philosophy</span>
+                    <h2 id="cmsPhilosophyTitle" class="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-gray-900 dark:text-white mb-6 leading-tight">
                         Nourish Your Skin With <br>
                         <span class="font-display italic font-normal text-pink-500">Pure Botanical Actives</span>
                     </h2>
-                    <p class="text-gray-600 dark:text-gray-300 mb-8 leading-relaxed text-base sm:text-lg">
+                    <p id="cmsPhilosophyDesc" class="text-gray-600 dark:text-gray-300 mb-8 leading-relaxed text-base sm:text-lg">
                         We believe transformative skincare should never compromise purity. Every formula is crafted with scientifically proven botanicals, cold-pressed antioxidants, and skin-identical bio-lipids to restore your natural glow.
                     </p>
 
@@ -922,11 +922,11 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
                 <!-- Brand -->
                 <div>
-                    <div class="flex items-center space-x-2.5 mb-4">
-                        <div class="w-9 h-9 rounded-full bg-pink-500/20 text-pink-400 flex items-center justify-center font-display font-bold text-lg">K</div>
+                    <a href="index.html" class="flex items-center space-x-2.5 mb-4 group" title="Return to Top">
+                        <div class="w-9 h-9 rounded-full bg-pink-500/20 text-pink-400 flex items-center justify-center font-display font-bold text-lg group-hover:scale-105 transition-transform">K</div>
                         <span class="text-2xl font-display font-bold text-white tracking-tight">KoKo <span class="italic font-normal text-pink-400">Shop</span></span>
-                    </div>
-                    <p class="text-gray-400 text-sm mb-6 leading-relaxed">
+                    </a>
+                    <p class="cms-footer-about text-gray-400 text-sm mb-6 leading-relaxed">
                         Pure botanical intelligence for transcendent skin. Formulated with biocompatible actives and certified clean standards.
                     </p>
                     <div class="flex space-x-3">
@@ -979,7 +979,7 @@
                         </li>
                         <li class="flex items-center text-gray-400">
                             <i class="fas fa-envelope text-pink-400 mr-3 shrink-0"></i>
-                            <span>concierge@kokoshop.com</span>
+                            <span class="cms-footer-email">concierge@kokoshop.com</span>
                         </li>
                         <li class="flex items-center text-gray-400">
                             <i class="fas fa-phone text-pink-400 mr-3 shrink-0"></i>
@@ -1012,7 +1012,7 @@
 
             <!-- Copyright -->
             <div class="border-t border-gray-800 pt-8 text-center text-xs text-gray-400">
-                <p>&copy; 2026 KoKo Shop. Crafted with <i class="fas fa-heart text-pink-500 mx-1"></i> for pure, radiant skin.</p>
+                <p class="cms-footer-copyright">&copy; 2026 KoKo Shop. Crafted with <i class="fas fa-heart text-pink-500 mx-1"></i> for pure, radiant skin.</p>
             </div>
         </div>
     </footer>
@@ -1169,19 +1169,25 @@
                 image = ''
             } = banner;
 
+            const localizedBadge = window.getLocalized ? window.getLocalized(badge, 'Featured Ritual') : (typeof badge === 'object' ? (badge.en || '') : badge);
+            const localizedTitle = window.getLocalized ? window.getLocalized(title, 'Pure Botanical Radiance') : (typeof title === 'object' ? (title.en || '') : title);
+            const localizedSubtitle = window.getLocalized ? window.getLocalized(subtitle, 'Glow Naturally') : (typeof subtitle === 'object' ? (subtitle.en || '') : subtitle);
+            const localizedDesc = window.getLocalized ? window.getLocalized(description, '') : (typeof description === 'object' ? (description.en || '') : description);
+            const localizedBtn = window.getLocalized ? window.getLocalized(buttonText, 'Shop Now') : (typeof buttonText === 'object' ? (buttonText.en || '') : buttonText);
+
             const finalImage = imageUrl || image || './images/slider 1.jpeg';
 
             return `
                 <div class="carousel-slide ${index === 0 ? 'active' : 'hidden'} flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8">
                     <div class="lg:w-1/2 text-center lg:text-left z-10">
-                        <span class="inline-block bg-pink-100 dark:bg-pink-950/60 text-pink-600 dark:text-pink-300 px-4 py-1.5 rounded-full text-xs font-semibold mb-6 tracking-wide uppercase">${badge}</span>
+                        <span class="inline-block bg-pink-100 dark:bg-pink-950/60 text-pink-600 dark:text-pink-300 px-4 py-1.5 rounded-full text-xs font-semibold mb-6 tracking-wide uppercase">${localizedBadge}</span>
                         <h1 class="text-4xl sm:text-6xl lg:text-7xl font-display font-bold leading-[1.08] mb-6 tracking-tight text-gray-900 dark:text-white">
-                            ${title} <br><span class="font-display italic font-normal text-pink-500">${subtitle}</span>
+                            ${localizedTitle} <br><span class="font-display italic font-normal text-pink-500">${localizedSubtitle}</span>
                         </h1>
-                        <p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">${description}</p>
+                        <p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">${localizedDesc}</p>
                         <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                             <a href="${targetUrl}" class="inline-flex items-center justify-center space-x-2 bg-pink-500 hover:bg-pink-600 text-white px-8 py-4 rounded-full font-semibold transition-all duration-300 transform hover:scale-[1.02] shadow-lg shadow-pink-500/25">
-                                <span>${buttonText}</span>
+                                <span>${localizedBtn}</span>
                                 <i class="fas fa-arrow-right text-xs ml-1"></i>
                             </a>
                         </div>
@@ -1189,7 +1195,7 @@
                     <div class="lg:w-1/2 flex justify-center relative">
                         <div class="absolute w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-gradient-to-tr from-pink-400/30 via-rose-300/25 to-pink-200/30 blur-3xl -z-10 animate-pulse"></div>
                         <div class="rounded-[2.5rem] p-3 bg-white/80 dark:bg-slate-800/80 shadow-2xl backdrop-blur-md border border-white dark:border-slate-700 max-w-md w-full">
-                            <img src="${finalImage}" alt="${title}" class="rounded-[2rem] w-full h-[430px] object-cover shadow-inner" loading="lazy">
+                            <img src="${finalImage}" alt="${localizedTitle}" class="rounded-[2rem] w-full h-[430px] object-cover shadow-inner" loading="lazy">
                         </div>
                     </div>
                 </div>
@@ -1222,6 +1228,8 @@
 
             initHeroCarouselControls();
         };
+
+        window.loadHeroBanners = loadHeroBanners;
 
         // Star Rating Generator
         const generateStars = (rating = 5) => {
@@ -1387,13 +1395,13 @@
             const badgeText = hasDiscount ? (isAr ? `خصم ${discountPercent}%` : `-${discountPercent}%`) : '';
 
             return `
-                <div class="product-card group relative bg-white dark:bg-slate-800 rounded-2xl border border-pink-100/80 dark:border-slate-700/80 p-4 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between cursor-pointer" onclick="showProductDetail(${id})">
+                <div class="product-card group relative bg-white dark:bg-slate-800 rounded-2xl border border-pink-100/80 dark:border-slate-700/80 p-4 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between cursor-pointer" data-product-id="${id}" onclick="showProductDetail('${id}')">
                     <!-- Image Container -->
                     <div class="relative aspect-square rounded-xl overflow-hidden bg-pink-50/50 dark:bg-slate-900/50 mb-3.5">
                         <img src="${image}" alt="${displayName}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
                         
                         <!-- Floating Wishlist Button -->
-                        <button onclick="event.stopPropagation(); toggleWishlistFromIndex(${id})" 
+                        <button data-action="toggle-wishlist" data-product-id="${id}" onclick="event.stopPropagation(); toggleWishlistFromIndex('${id}')" 
                             class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 dark:bg-slate-800/90 backdrop-blur-md flex items-center justify-center text-gray-500 dark:text-gray-300 hover:text-pink-500 hover:bg-white shadow-sm transition-all"
                             title="${wishlistTitle}" aria-label="${wishlistTitle}">
                             <i class="far fa-heart text-xs" data-wishlist-id="${id}"></i>
@@ -1428,7 +1436,7 @@
                                 <span class="text-lg font-bold font-display text-pink-600">${priceFormatted}</span>
                             </div>
 
-                            <button onclick="event.stopPropagation(); addToCartFromIndex(${id})" 
+                            <button data-action="add-to-cart" data-product-id="${id}" onclick="event.stopPropagation(); addToCartFromIndex('${id}')" 
                                 class="w-full bg-pink-500 hover:bg-pink-600 text-white py-2.5 px-4 rounded-full text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all duration-300 shadow-sm hover:shadow-md">
                                 <i class="fas fa-bag-shopping text-xs"></i>
                                 <span>${addToBagText}</span>
@@ -1455,49 +1463,34 @@
 
         // Add to Cart Handlers
         const addToCartFromIndex = (productId) => {
-            if (!window.LuxeBeauty?.isLoggedIn?.()) {
-                showToast('Please login to add items to cart');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 1400);
-                return;
-            }
-
-            const productList = getProducts();
-            const product = productList.find((p) => p.id === productId);
-            if (product) {
-                window.LuxeBeauty.addToCart(productId, {
+            const productList = (typeof getProducts === 'function' ? getProducts() : products) || [];
+            const product = productList.find((p) => String(p.id) === String(productId));
+            if (window.LuxeBeauty && typeof window.LuxeBeauty.addToCart === 'function') {
+                window.LuxeBeauty.addToCart(productId, product ? {
                     name: product.name,
                     price: product.price,
                     image: product.image
-                });
+                } : null);
             }
         };
 
         const toggleWishlistFromIndex = (productId) => {
-            if (!window.LuxeBeauty?.isLoggedIn?.()) {
-                showToast('Please login to add items to wishlist');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 1400);
-                return;
-            }
-
-            const productList = getProducts();
-            const product = productList.find((p) => p.id === productId);
-            if (product) {
-                window.LuxeBeauty.toggleWishlist(productId, {
+            const productList = (typeof getProducts === 'function' ? getProducts() : products) || [];
+            const product = productList.find((p) => String(p.id) === String(productId));
+            if (window.LuxeBeauty && typeof window.LuxeBeauty.toggleWishlist === 'function') {
+                window.LuxeBeauty.toggleWishlist(productId, product ? {
                     name: product.name,
                     price: product.price,
                     image: product.image
-                });
+                } : null);
                 window.LuxeBeauty.updateAllWishlistIcons?.();
             }
         };
 
         // Product Detail Modal
         const showProductDetail = (productId) => {
-            const product = products.find((p) => p.id === productId);
+            const productList = (typeof getProducts === 'function' ? getProducts() : products) || [];
+            const product = productList.find((p) => String(p.id) === String(productId));
             if (!product) return;
 
             const modal = document.getElementById('productModal');
@@ -1564,12 +1557,12 @@
                             <span class="text-3xl font-bold font-display text-pink-600">${priceFormatted}</span>
                         </div>
                         <div class="space-y-3">
-                            <button onclick="addToCartFromIndex(${id}); closeProductModal();" 
+                            <button onclick="addToCartFromIndex('${id}'); closeProductModal();" 
                                 class="w-full bg-pink-500 hover:bg-pink-600 text-white py-3.5 rounded-full font-semibold transition-all duration-300 shadow-md flex items-center justify-center space-x-2">
                                 <i class="fas fa-bag-shopping text-sm"></i>
                                 <span>${addToBagText}</span>
                             </button>
-                            <button onclick="toggleWishlistFromIndex(${id})" 
+                            <button onclick="toggleWishlistFromIndex('${id}')" 
                                 class="w-full bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 text-gray-800 dark:text-gray-200 py-3.5 rounded-full font-semibold transition flex items-center justify-center space-x-2">
                                 <i class="far fa-heart text-sm"></i>
                                 <span>${addToWishlistText}</span>
@@ -1933,15 +1926,6 @@
             } catch (e) {
                 console.warn('Admin check error:', e);
             }
-
-            // Mobile menu toggle
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const mobileMenu = document.getElementById('mobileMenu');
-            if (mobileMenuBtn && mobileMenu) {
-                mobileMenuBtn.addEventListener('click', () => {
-                    mobileMenu.classList.toggle('hidden');
-                });
-            }
         });
 
         // Smooth scroll for anchor links
@@ -1960,6 +1944,13 @@
                     }
                 }
             });
+        });
+
+        // Re-render dynamic elements when language changes
+        window.addEventListener('languageChanged', () => {
+            loadHeroBanners();
+            renderProducts();
+            loadReviews();
         });
 
         // Initialize immediately as DOM is ready

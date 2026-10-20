@@ -406,13 +406,13 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
                 <!-- Brand Info -->
                 <div class="md:col-span-1">
-                    <div class="flex items-center space-x-2.5 mb-4">
-                        <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white">
+                    <a href="index.html" class="flex items-center space-x-2.5 mb-4 group" title="Return to Home">
+                        <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
                             <i class="fa-brands fa-shopify text-base"></i>
                         </div>
                         <span class="text-2xl font-display font-bold text-white tracking-tight">Koko Shop</span>
-                    </div>
-                    <p class="text-xs text-gray-400 leading-relaxed mb-6">
+                    </a>
+                    <p class="cms-footer-about text-xs text-gray-400 leading-relaxed mb-6">
                         Clean botanical clinical formulations crafted for discerning skincare rituals. Certified non-comedogenic and cruelty-free.
                     </p>
                     <div class="flex space-x-3 text-sm text-gray-400">
@@ -450,13 +450,13 @@
                     <ul class="space-y-2.5 text-xs text-gray-400">
                         <li class="flex items-center"><i class="fas fa-check text-pink-500 mr-2"></i> 30-Day Money-Back Guarantee</li>
                         <li class="flex items-center"><i class="fas fa-check text-pink-500 mr-2"></i> Free Carbon-Neutral Delivery</li>
-                        <li class="flex items-center"><i class="fas fa-envelope text-pink-500 mr-2"></i> concierge@kokoshop.com</li>
+                        <li class="flex items-center"><i class="fas fa-envelope text-pink-500 mr-2"></i> <span class="cms-footer-email">concierge@kokoshop.com</span></li>
                     </ul>
                 </div>
             </div>
 
             <div class="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
-                <p>&copy; 2026 Koko Shop. All botanical clinical formulations preserved.</p>
+                <p class="cms-footer-copyright">&copy; 2026 Koko Shop. All botanical clinical formulations preserved.</p>
                 <div class="flex items-center space-x-4 text-gray-400">
                     <span class="flex items-center"><i class="fab fa-cc-visa text-lg mr-2"></i> Visa</span>
                     <span class="flex items-center"><i class="fab fa-cc-mastercard text-lg mr-2"></i> Mastercard</span>
@@ -522,6 +522,7 @@
         };
 
         // Retrieve Category Definitions
+        // Retrieve Category Definitions with Dual-Language Object Support
         const getCategories = () => {
             let stored = [];
             try {
@@ -530,33 +531,34 @@
                 stored = [];
             }
 
-            return stored.length ? stored : [
-                { name: 'Serum' },
-                { name: 'Moisturizer' },
-                { name: 'Cleanser' },
-                { name: 'Sunscreen' },
-                { name: 'Mask' },
-                { name: 'Toner' }
-            ];
+            if (!stored.length) {
+                stored = [
+                    { name: { en: 'Serum', ar: 'سيروم' } },
+                    { name: { en: 'Moisturizer', ar: 'مرطب' } },
+                    { name: { en: 'Cleanser', ar: 'غسول' } },
+                    { name: { en: 'Sunscreen', ar: 'واقي شمس' } },
+                    { name: { en: 'Mask', ar: 'قناع' } },
+                    { name: { en: 'Toner', ar: 'تونر' } }
+                ];
+            }
+
+            return stored.map((cat) => {
+                const canonicalName = typeof cat.name === 'object' ? (cat.name.en || cat.name.ar || '') : String(cat.name || '');
+                const displayName = window.getLocalized ? window.getLocalized(cat.name, canonicalName) : canonicalName;
+                return {
+                    ...cat,
+                    canonicalName,
+                    displayName
+                };
+            });
         };
 
         // Render Category Checkbox in Sidebar
-        const createCategoryFilterItem = ({ name }) => {
-            const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
-            const catMap = {
-                'Serum': 'سيروم',
-                'Moisturizer': 'مرطب',
-                'Cleanser': 'غسول',
-                'Night Cream': 'كريم ليلي',
-                'Toner': 'تونر',
-                'Sunscreen': 'واقي شمس',
-                'Mask': 'قناع'
-            };
-            const displayName = isAr ? (catMap[name] || name) : name;
+        const createCategoryFilterItem = ({ canonicalName, displayName }) => {
             return `
                 <label class="flex items-center justify-between cursor-pointer hover:text-pink-600 transition text-xs text-gray-700 dark:text-gray-300 p-1.5 rounded-lg hover:bg-pink-50/50 dark:hover:bg-slate-700/50">
                     <span class="flex items-center">
-                        <input type="checkbox" class="category-filter mr-2.5 rounded accent-pink-500" value="${name}">
+                        <input type="checkbox" class="category-filter mr-2.5 rounded accent-pink-500" value="${canonicalName}">
                         <span>${displayName}</span>
                     </span>
                 </label>
@@ -615,16 +617,8 @@
             const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
             const displayName = window.i18n ? window.i18n.translateText(name) : name;
             const displayDesc = window.i18n ? window.i18n.translateText(description) : (description || 'Pure bio-compatible botanical formulation.');
-            const catMap = {
-                'Serum': 'سيروم',
-                'Moisturizer': 'مرطب',
-                'Cleanser': 'غسول',
-                'Night Cream': 'كريم ليلي',
-                'Toner': 'تونر',
-                'Sunscreen': 'واقي شمس',
-                'Mask': 'قناع'
-            };
-            const displayCategory = isAr ? (catMap[category] || (window.i18n ? window.i18n.translateText(category) : category)) : category;
+            const canonicalCategory = typeof category === 'object' ? (category.en || category.ar || '') : category;
+            const displayCategory = window.getLocalized ? window.getLocalized(category, canonicalCategory) : (window.i18n ? window.i18n.translateText(canonicalCategory) : canonicalCategory);
             const priceFormatted = isAr ? `${Number(price).toFixed(2)} ج.م` : `EGP ${Number(price).toFixed(2)}`;
             const oldPriceFormatted = isAr ? `${Number(originalPrice).toFixed(2)} ج.م` : `EGP ${Number(originalPrice).toFixed(2)}`;
             const addToBagText = isAr ? 'أضف للحقيبة' : 'Add to Bag';
@@ -632,13 +626,13 @@
             const badgeText = hasDiscount ? (isAr ? `خصم ${discountPercent}%` : `-${discountPercent}%`) : '';
 
             return `
-                <div class="product-card group relative bg-white dark:bg-slate-800 rounded-2xl border border-pink-100/80 dark:border-slate-700/80 p-4 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between cursor-pointer" onclick="showProductDetail(${id})">
+                <div class="product-card group relative bg-white dark:bg-slate-800 rounded-2xl border border-pink-100/80 dark:border-slate-700/80 p-4 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between cursor-pointer" data-product-id="${id}" onclick="showProductDetail('${id}')">
                     <!-- Image Container -->
                     <div class="relative aspect-square rounded-xl overflow-hidden bg-pink-50/50 dark:bg-slate-900/50 mb-3.5">
                         <img src="${image}" alt="${displayName}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
                         
                         <!-- Floating Wishlist Button -->
-                        <button onclick="event.stopPropagation(); toggleWishlistFromProducts(${id})" 
+                        <button data-action="toggle-wishlist" data-product-id="${id}" onclick="event.stopPropagation(); toggleWishlistFromProducts('${id}')" 
                             class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 dark:bg-slate-800/90 backdrop-blur-md flex items-center justify-center text-gray-500 dark:text-gray-300 hover:text-pink-500 hover:bg-white shadow-sm transition-all"
                             title="${wishlistTitle}" aria-label="${wishlistTitle}">
                             <i class="far fa-heart text-xs" data-wishlist-id="${id}"></i>
@@ -675,7 +669,7 @@
                                 <span class="text-lg font-bold font-display text-pink-600">${priceFormatted}</span>
                             </div>
 
-                            <button onclick="event.stopPropagation(); addToCartFromProducts(${id})" 
+                            <button data-action="add-to-cart" data-product-id="${id}" onclick="event.stopPropagation(); addToCartFromProducts('${id}')" 
                                 class="w-full bg-pink-500 hover:bg-pink-600 text-white py-2.5 px-4 rounded-full text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all duration-300 shadow-sm hover:shadow-md">
                                 <i class="fas fa-bag-shopping text-xs"></i>
                                 <span>${addToBagText}</span>
@@ -734,10 +728,11 @@
             });
 
             filteredProducts = allProducts.filter((product) => {
+                const prodCatCanonical = typeof product.category === 'object' ? (product.category.en || product.category.ar || '') : (product.category || '');
                 const matchesSearch = !searchTerm ||
                     (product.name || '').toLowerCase().includes(searchTerm) ||
                     (product.description || '').toLowerCase().includes(searchTerm) ||
-                    (product.category || '').toLowerCase().includes(searchTerm);
+                    prodCatCanonical.toLowerCase().includes(searchTerm);
 
                 const matchesPrice = Number(product.price || 0) <= maxPrice;
                 const matchesRating = selectedRating === 0 || product.rating >= selectedRating;
@@ -745,9 +740,9 @@
                 // Category match: Either sidebar categories or active pill category
                 let matchesCategory = true;
                 if (activePillCategory !== 'all') {
-                    matchesCategory = (product.category === activePillCategory);
+                    matchesCategory = (prodCatCanonical === activePillCategory);
                 } else if (selectedCategories.length > 0 && !selectedCategories.includes('all')) {
-                    matchesCategory = selectedCategories.includes(product.category);
+                    matchesCategory = selectedCategories.includes(prodCatCanonical);
                 }
 
                 // Skin type match
@@ -861,47 +856,52 @@
 
         // Cart & Wishlist Actions
         const addToCartFromProducts = (productId) => {
-            if (!window.LuxeBeauty?.isLoggedIn?.()) {
-                showToast('Please login to add items to cart');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 1400);
-                return;
+            const targetId = String(productId);
+            let product = allProducts.find((p) => String(p.id) === targetId);
+            if (!product) {
+                const storedProducts = getNormalizedProducts();
+                product = storedProducts.find((p) => String(p.id) === targetId);
             }
 
-            const product = allProducts.find((p) => p.id === productId);
             if (product) {
-                window.LuxeBeauty.addToCart(productId, {
+                window.LuxeBeauty.addToCart(targetId, {
                     name: product.name,
-                    price: product.price,
+                    price: Number(product.salePrice || product.price || 0),
                     image: product.image
                 });
+            } else {
+                window.LuxeBeauty.addToCart(targetId);
             }
         };
 
         const toggleWishlistFromProducts = (productId) => {
-            if (!window.LuxeBeauty?.isLoggedIn?.()) {
-                showToast('Please login to add items to wishlist');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 1400);
-                return;
+            const targetId = String(productId);
+            let product = allProducts.find((p) => String(p.id) === targetId);
+            if (!product) {
+                const storedProducts = getNormalizedProducts();
+                product = storedProducts.find((p) => String(p.id) === targetId);
             }
 
-            const product = allProducts.find((p) => p.id === productId);
             if (product) {
-                window.LuxeBeauty.toggleWishlist(productId, {
+                window.LuxeBeauty.toggleWishlist(targetId, {
                     name: product.name,
-                    price: product.price,
+                    price: Number(product.salePrice || product.price || 0),
                     image: product.image
                 });
-                window.LuxeBeauty.updateAllWishlistIcons?.();
+            } else {
+                window.LuxeBeauty.toggleWishlist(targetId);
             }
+            window.LuxeBeauty.updateAllWishlistIcons?.();
         };
 
         // Product Detail Modal
         const showProductDetail = (productId) => {
-            const product = allProducts.find((p) => p.id === productId);
+            const targetId = String(productId);
+            let product = allProducts.find((p) => String(p.id) === targetId);
+            if (!product) {
+                const storedProducts = getNormalizedProducts();
+                product = storedProducts.find((p) => String(p.id) === targetId);
+            }
             if (!product) return;
 
             const modal = document.getElementById('productModal');
@@ -960,12 +960,12 @@
                             <span class="text-3xl font-bold font-display text-pink-600">${priceFormatted}</span>
                         </div>
                         <div class="space-y-3">
-                            <button onclick="addToCartFromProducts(${id}); closeProductModal();" 
+                            <button onclick="addToCartFromProducts('${id}'); closeProductModal();" 
                                 class="w-full bg-pink-500 hover:bg-pink-600 text-white py-3.5 rounded-full font-semibold transition-all duration-300 shadow-md flex items-center justify-center space-x-2">
                                 <i class="fas fa-bag-shopping text-sm"></i>
                                 <span>${addToBagText}</span>
                             </button>
-                            <button onclick="toggleWishlistFromProducts(${id})" 
+                            <button onclick="toggleWishlistFromProducts('${id}')" 
                                 class="w-full bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 text-gray-800 dark:text-gray-200 py-3.5 rounded-full font-semibold transition flex items-center justify-center space-x-2">
                                 <i class="far fa-heart text-sm"></i>
                                 <span>${addToWishlistText}</span>
@@ -1126,15 +1126,6 @@
                 el.addEventListener('change', filterProducts);
             });
 
-            // Mobile Menu Toggle
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const mobileMenu = document.getElementById('mobileMenu');
-            if (mobileMenuBtn && mobileMenu) {
-                mobileMenuBtn.addEventListener('click', () => {
-                    mobileMenu.classList.toggle('hidden');
-                });
-            }
-
             // Close modal on click outside
             const productModal = document.getElementById('productModal');
             if (productModal) {
@@ -1153,6 +1144,11 @@
             const urlParams = new URLSearchParams(window.location.search);
             const cat = urlParams.get('category') || 'all';
             setCategoryPill(cat);
+        });
+
+        window.addEventListener('languageChanged', () => {
+            renderCategoryFilters();
+            renderProducts();
         });
 
         // Run immediately since DOM elements are already available above this script

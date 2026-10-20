@@ -1193,7 +1193,80 @@
         'Apply': 'تطبيق',
         'Estimated Total': 'الإجمالي التقديري',
         '30-Day Ritual Satisfaction Guarantee': 'ضمان الرضا التام لمدة 30 يوماً',
-        'Complimentary Express': 'شحن سريع ومجاني'
+        'Complimentary Express': 'شحن سريع ومجاني',
+        
+        // Admin Studio & Dashboard Comprehensive Translations
+        'Studio Overview': 'نظرة عامة على المتجر',
+        'Real-time performance metrics and botanical orders': 'مؤشرات الأداء اللحظية والطلبات المسجلة',
+        'Load Demo Data': 'تحميل بيانات تجريبية',
+        'Active Formulations': 'مستحضرات نشطة',
+        'Total Orders Placed': 'إجمالي الطلبات المسجلة',
+        'Registered Accounts': 'الحسابات المسجلة',
+        'Gross Sales Value': 'إجمالي قيمة المبيعات',
+        'Recent Orders': 'أحدث الطلبات',
+        'View All Orders': 'عرض كافة الطلبات',
+        'Products Management': 'إدارة المنتجات',
+        'Curate and update botanical formulations': 'إضافة وتعديل التركيبات العلاجية',
+        'Add New Product': 'إضافة منتج جديد',
+        'Formula Name': 'اسم المنتج',
+        'Price': 'السعر',
+        'Stock': 'المخزون',
+        'Actions': 'إجراءات',
+        'Categories Management': 'إدارة الأقسام والتصنيفات',
+        'Manage skin ritual category tags': 'التحكم في تصنيفات وأقسام المنتجات',
+        'Add Category': 'إضافة قسم جديد',
+        'Add New Category': 'إضافة قسم جديد',
+        'Edit Category': 'تعديل القسم',
+        'Category Name': 'اسم القسم',
+        'Category Name (English)': 'اسم القسم (بالإنجليزية)',
+        'اسم القسم (بالعربية)': 'اسم القسم (بالعربية)',
+        'Image URL': 'رابط الصورة',
+        'Save Category': 'حفظ القسم',
+        'Clear': 'إلغاء / تفريغ',
+        'Hero Banners & Campaigns': 'بانرات الواجهة والحملات',
+        'Configure visual slides on the home landing page': 'إدارة وتخصيص سلايدر الصفحة الرئيسية',
+        'Add Banner': 'إضافة بانر',
+        'Add New Banner': 'إضافة بانر جديد',
+        'Edit Banner': 'تعديل البانر',
+        'Badge Tag': 'شارة البانر',
+        'Main Heading': 'العنوان الرئيسي',
+        'Subtitle / Italic Accent': 'العنوان الفرعي',
+        'Button Label': 'نص الزر',
+        'Banner Image URL': 'رابط صورة البانر',
+        'Target Link': 'الرابط المستهدف',
+        'Save Banner': 'حفظ البانر',
+        'Customer Reviews': 'تقييمات وآراء العملاء',
+        'Moderate and curate clinical testimonials': 'مراجعة واعتماد تجارب العملاء',
+        'Add Review': 'إضافة تقييم',
+        'Add New Review': 'إضافة تقييم جديد',
+        'Orders Management': 'إدارة الطلبات',
+        'Orders & Shipments': 'الطلبات والشحنات',
+        'Track and fulfill customer orders': 'متابعة وتحديث حالات طلبات العملاء',
+        'Export CSV': 'تصدير كملف CSV',
+        'System Alerts & Notifications': 'التنبيهات وإشعارات النظام',
+        'Monitor real-time system activities': 'مراقبة حركة النظام والطلبات الجديدة',
+        'Mark All Read': 'تحديد الكل كمقروء',
+        'Clear All': 'مسح الكل',
+        'Customers Management': 'إدارة العملاء',
+        'View and manage registered clients': 'عرض وإدارة بيانات العملاء المسجلين',
+        'Add Customer': 'إضافة عميل',
+        'Add New Customer': 'إضافة عميل جديد',
+        'Save Customer': 'حفظ بيانات العميل',
+        'Store Configurations': 'إعدادات وتخصيصات المتجر',
+        'Global clinical store settings and delivery rules': 'إعدادات المتجر العامة وقواعد الشحن',
+        'Store Name': 'اسم المتجر',
+        'Support Email': 'بريد الدعم وخدمة العملاء',
+        'Free Delivery Threshold (EGP)': 'الحد الأدنى للشحن المجاني (ج.م)',
+        'Save Configurations': 'حفظ الإعدادات',
+        'Dashboard': 'لوحة التحكم',
+        'Products': 'المنتجات',
+        'Categories': 'الأقسام',
+        'Banners': 'البانرات',
+        'Reviews': 'التقييمات',
+        'Orders': 'الطلبات',
+        'Notifications': 'الإشعارات',
+        'Customers': 'العملاء',
+        'Settings': 'الإعدادات'
     };
 
     // Inverse Map for Arabic to English
@@ -1235,6 +1308,16 @@
         if (!text || typeof text !== 'string') return text;
         const trimmed = text.trim();
         return reverseTextMap[trimmed] || text;
+    };
+
+    // Dual-Language Object Resolver: supports { ar: "...", en: "..." } or string
+    const getLocalized = (field, fallback = '') => {
+        if (!field) return fallback;
+        const lang = getCurrentLanguage();
+        if (typeof field === 'object') {
+            return field[lang] || field.en || field.ar || fallback;
+        }
+        return lang === 'ar' ? (translateText(field) || field) : (reverseTranslateText(field) || field);
     };
 
     const translateProduct = (product, lang = getCurrentLanguage()) => {
@@ -1386,6 +1469,14 @@
             if (typeof window.updateCartCount === 'function') window.updateCartCount();
             if (typeof window.updateWishlistCount === 'function') window.updateWishlistCount();
             if (typeof window.showQuizQuestion === 'function') window.showQuizQuestion();
+            if (typeof window.loadHeroBanners === 'function') window.loadHeroBanners();
+            if (typeof window.loadDashboardOverview === 'function') window.loadDashboardOverview();
+            if (typeof window.loadCategoriesTable === 'function') window.loadCategoriesTable();
+            if (typeof window.loadBannersTable === 'function') window.loadBannersTable();
+            if (typeof window.loadProductsTable === 'function') window.loadProductsTable();
+            if (typeof window.loadReviewsTable === 'function') window.loadReviewsTable();
+            if (typeof window.loadOrdersTable === 'function') window.loadOrdersTable();
+            if (typeof window.loadUsersTable === 'function') window.loadUsersTable();
         } catch (e) {
             console.debug('Re-render hook note:', e);
         }
@@ -1443,12 +1534,14 @@
         formatPrice: formatLocalizedPrice,
         translateText,
         reverseTranslateText,
+        getLocalized,
         translateProduct
     };
 
     // Expose directly on window for inline handlers and modules
     window.toggleLanguage = toggleLanguage;
     window.t = t;
+    window.getLocalized = getLocalized;
     window.formatLocalizedPrice = formatLocalizedPrice;
     window.translateText = translateText;
     window.reverseTranslateText = reverseTranslateText;

@@ -184,11 +184,11 @@
                 <i class="fas fa-leaf text-[11px] mr-1"></i>
                 Our Clinical Philosophy
             </span>
-            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-gray-900 dark:text-white mb-6 tracking-tight leading-tight">
+            <h1 id="cmsAboutHeroTitle" class="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-gray-900 dark:text-white mb-6 tracking-tight leading-tight">
                 Where Botanical Wisdom Meets <br class="hidden sm:inline">
                 <span class="font-display italic font-normal text-pink-500">Clinical Formulation</span>
             </h1>
-            <p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed mb-8">
+            <p id="cmsAboutHeroDesc" class="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed mb-8">
                 Founded on the belief that healthy skin radiance is cultivated through bio-compatible nourishment rather than harsh interventions.
             </p>
         </div>
@@ -243,7 +243,7 @@
                     <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
                         Koko Shop was conceived out of a passion to bridge the gap between clinical potency and gentle botanical harmony. Conventional skincare frequently relies on harsh peeling agents that temporarily mask issues while compromising long-term lipid integrity.
                     </p>
-                    <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-8">
+                    <p id="cmsAboutStoryDesc" class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-8">
                         Our laboratory isolates potent plant actives, cold-pressed seed oils, and skin-identical ceramides to create rituals that fortify your skin's moisture mantle while promoting natural, luminous vitality.
                     </p>
                     <a href="products.html" class="inline-flex items-center space-x-2 bg-pink-500 hover:bg-pink-600 text-white px-8 py-3.5 rounded-full text-xs font-semibold transition-all duration-300 shadow-md shadow-pink-500/25 transform hover:scale-[1.02]">
@@ -290,7 +290,7 @@
     <footer class="bg-slate-900 text-gray-300 pt-16 pb-12 mt-auto border-t border-pink-900/20">
         <div class="container mx-auto px-4 lg:px-8">
             <div class="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
-                <p>&copy; 2026 Koko Shop. All botanical clinical formulations preserved.</p>
+                <p class="cms-footer-copyright">&copy; 2026 Koko Shop. All botanical clinical formulations preserved.</p>
                 <div class="flex items-center space-x-4 text-gray-400">
                     <span class="flex items-center"><i class="fab fa-cc-visa text-lg mr-2"></i> Visa</span>
                     <span class="flex items-center"><i class="fab fa-cc-mastercard text-lg mr-2"></i> Mastercard</span>
@@ -314,15 +314,6 @@
                 }
             } catch (e) {
                 console.warn('Admin check notice:', e);
-            }
-
-            // Mobile Menu
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const mobileMenu = document.getElementById('mobileMenu');
-            if (mobileMenuBtn && mobileMenu) {
-                mobileMenuBtn.addEventListener('click', () => {
-                    mobileMenu.classList.toggle('hidden');
-                });
             }
         });
     </script>

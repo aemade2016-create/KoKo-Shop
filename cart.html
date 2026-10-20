@@ -323,13 +323,13 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
                 <!-- Brand Info -->
                 <div class="md:col-span-1">
-                    <div class="flex items-center space-x-2.5 mb-4">
-                        <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white">
+                    <a href="index.html" class="flex items-center space-x-2.5 mb-4 group" title="Return to Home">
+                        <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
                             <i class="fa-brands fa-shopify text-base"></i>
                         </div>
                         <span class="text-2xl font-display font-bold text-white tracking-tight">Koko Shop</span>
-                    </div>
-                    <p class="text-xs text-gray-400 leading-relaxed mb-6">
+                    </a>
+                    <p class="cms-footer-about text-xs text-gray-400 leading-relaxed mb-6">
                         Clean botanical clinical formulations crafted for discerning skincare rituals. Certified non-comedogenic and cruelty-free.
                     </p>
                     <div class="flex space-x-3 text-sm text-gray-400">
@@ -367,13 +367,13 @@
                     <ul class="space-y-2.5 text-xs text-gray-400">
                         <li class="flex items-center"><i class="fas fa-check text-pink-500 mr-2"></i> 30-Day Money-Back Guarantee</li>
                         <li class="flex items-center"><i class="fas fa-check text-pink-500 mr-2"></i> Free Carbon-Neutral Delivery</li>
-                        <li class="flex items-center"><i class="fas fa-envelope text-pink-500 mr-2"></i> concierge@kokoshop.com</li>
+                        <li class="flex items-center"><i class="fas fa-envelope text-pink-500 mr-2"></i> <span class="cms-footer-email">concierge@kokoshop.com</span></li>
                     </ul>
                 </div>
             </div>
 
             <div class="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
-                <p>&copy; 2026 Koko Shop. All botanical clinical formulations preserved.</p>
+                <p class="cms-footer-copyright">&copy; 2026 Koko Shop. All botanical clinical formulations preserved.</p>
                 <div class="flex items-center space-x-4 text-gray-400">
                     <span class="flex items-center"><i class="fab fa-cc-visa text-lg mr-2"></i> Visa</span>
                     <span class="flex items-center"><i class="fab fa-cc-mastercard text-lg mr-2"></i> Mastercard</span>
@@ -423,13 +423,13 @@
 
                         <!-- Quantity Stepper -->
                         <div class="inline-flex items-center space-x-3 bg-pink-50/70 dark:bg-slate-700/70 p-1 rounded-full border border-pink-100/60 dark:border-slate-600">
-                            <button onclick="updateQuantity(${id}, -1)" 
+                            <button onclick="updateQuantity('${id}', -1)" 
                                 class="w-7 h-7 bg-white dark:bg-slate-800 rounded-full text-gray-700 dark:text-gray-300 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-slate-700 transition flex items-center justify-center text-xs shadow-sm"
                                 title="Decrease quantity" aria-label="Decrease quantity">
                                 <i class="fas fa-minus text-[10px]"></i>
                             </button>
                             <span class="font-semibold text-xs text-gray-900 dark:text-white w-6 text-center">${quantity}</span>
-                            <button onclick="updateQuantity(${id}, 1)" 
+                            <button onclick="updateQuantity('${id}', 1)" 
                                 class="w-7 h-7 bg-white dark:bg-slate-800 rounded-full text-gray-700 dark:text-gray-300 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-slate-700 transition flex items-center justify-center text-xs shadow-sm"
                                 title="Increase quantity" aria-label="Increase quantity">
                                 <i class="fas fa-plus text-[10px]"></i>
@@ -439,7 +439,7 @@
 
                     <!-- Subtotal & Remove -->
                     <div class="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-4">
-                        <button onclick="removeFromCartPage(${id})" 
+                        <button onclick="removeFromCartPage('${id}')" 
                             class="text-gray-400 hover:text-rose-500 w-8 h-8 rounded-full hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center justify-center transition"
                             title="${removeTitle}" aria-label="${removeTitle}">
                             <i class="far fa-trash-can text-sm"></i>
@@ -452,11 +452,44 @@
             `;
         };
 
+        // Auth check helper
+        const isUserLoggedIn = () => {
+            return (typeof isLoggedIn === 'function' && isLoggedIn()) ||
+                   (window.LuxeBeauty && typeof window.LuxeBeauty.isLoggedIn === 'function' && window.LuxeBeauty.isLoggedIn()) ||
+                   Boolean(localStorage.getItem('currentUser') || localStorage.getItem('luxe_currentUser'));
+        };
+
         // Load and Display Cart
         const loadCart = () => {
-            const cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
             const emptyCart = document.getElementById('emptyCart');
             const cartItems = document.getElementById('cartItems');
+            const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+
+            if (!isUserLoggedIn()) {
+                if (cartItems) cartItems.classList.add('hidden');
+                if (emptyCart) {
+                    emptyCart.innerHTML = `
+                        <div class="w-20 h-20 rounded-full bg-pink-100 dark:bg-pink-950/60 text-pink-500 flex items-center justify-center mx-auto mb-6 text-3xl">
+                            <i class="fas fa-user-lock"></i>
+                        </div>
+                        <h2 class="text-2xl font-display font-bold text-gray-900 dark:text-white mb-3">
+                            ${isAr ? 'تسجيل الدخول مطلوب' : 'Login Required'}
+                        </h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8 leading-relaxed">
+                            ${isAr ? 'يجب عليك تسجيل الدخول أولاً للوصول إلى حقيبة التسوق وإدارة طلباتك.' : 'Please log in to your account to view your shopping bag and proceed to checkout.'}
+                        </p>
+                        <a href="login.html?redirect=cart.html"
+                            class="inline-flex items-center space-x-2 bg-pink-500 hover:bg-pink-600 text-white px-8 py-3.5 rounded-full font-semibold text-xs tracking-wider uppercase transition-all duration-300 shadow-lg shadow-pink-500/25">
+                            <span>${isAr ? 'تسجيل الدخول الآن' : 'Log In Now'}</span>
+                            <i class="fas fa-arrow-right text-xs ml-1"></i>
+                        </a>
+                    `;
+                    emptyCart.classList.remove('hidden');
+                }
+                return;
+            }
+
+            const cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
             const cartItemsList = document.getElementById('cartItemsList');
             const itemCount = document.getElementById('itemCount');
 
@@ -485,7 +518,7 @@
         const updateQuantity = (productId, change) => {
             try {
                 const cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
-                const item = cart.find((i) => i.id === productId);
+                const item = cart.find((i) => String(i.id) === String(productId));
 
                 if (item) {
                     item.quantity = (parseInt(item.quantity, 10) || 1) + change;
@@ -517,7 +550,7 @@
                         removeFromCart(productId);
                     } else {
                         let cart = JSON.parse(localStorage.getItem('luxe_cart') || '[]');
-                        cart = cart.filter((item) => item.id !== productId);
+                        cart = cart.filter((item) => String(item.id) !== String(productId));
                         localStorage.setItem('luxe_cart', JSON.stringify(cart));
                         if (typeof updateCartCount === 'function') updateCartCount();
                     }
@@ -590,10 +623,20 @@
 
         // Proceed to Checkout
         const checkout = () => {
+            const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+            if (!isUserLoggedIn()) {
+                showToast(isAr ? 'يجب تسجيل الدخول لإتمام عملية الشراء' : 'Please log in to proceed to checkout');
+                sessionStorage.setItem('loginRedirect', 'checkout.html');
+                setTimeout(() => {
+                    window.location.href = 'login.html?redirect=checkout.html';
+                }, 1000);
+                return;
+            }
+
             const cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
 
             if (!cart || cart.length === 0) {
-                showToast('Your bag is currently empty!');
+                showToast(isAr ? 'حقيبة التسوق فارغة حالياً!' : 'Your bag is currently empty!');
                 return;
             }
 
@@ -617,6 +660,15 @@
         // Initialize on DOM Ready
         document.addEventListener('DOMContentLoaded', () => {
             try {
+                if (!isUserLoggedIn()) {
+                    sessionStorage.setItem('loginRedirect', 'cart.html');
+                    loadCart();
+                    setTimeout(() => {
+                        window.location.replace('login.html?redirect=cart.html');
+                    }, 1200);
+                    return;
+                }
+
                 loadCart();
 
                 // Check Admin Crown Icon
@@ -627,15 +679,6 @@
                 }
             } catch (error) {
                 console.warn('Cart initialization notice:', error);
-            }
-
-            // Mobile Menu Toggle
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const mobileMenu = document.getElementById('mobileMenu');
-            if (mobileMenuBtn && mobileMenu) {
-                mobileMenuBtn.addEventListener('click', () => {
-                    mobileMenu.classList.toggle('hidden');
-                });
             }
         });
     </script>

@@ -275,8 +275,24 @@ const createUserAccount = (name, email, password) => {
 // PROCESS CHECKOUT FORM SUBMISSION
 // ============================================
 
+const isUserLoggedIn = () => {
+    return (typeof isLoggedIn === 'function' && isLoggedIn()) ||
+           (window.LuxeBeauty && typeof window.LuxeBeauty.isLoggedIn === 'function' && window.LuxeBeauty.isLoggedIn()) ||
+           Boolean(localStorage.getItem('currentUser') || localStorage.getItem('luxe_currentUser'));
+};
+
 const processCheckout = async () => {
     try {
+        if (!isUserLoggedIn()) {
+            const isAr = window.i18n?.currentLang === 'ar';
+            showToast(isAr ? 'يرجى تسجيل الدخول أولاً لإتمام الشراء' : 'Please log in to complete your purchase', 'error');
+            sessionStorage.setItem('loginRedirect', 'checkout.html');
+            setTimeout(() => {
+                window.location.href = 'login.html?redirect=checkout.html';
+            }, 1100);
+            return;
+        }
+
         if (!selectedPaymentMethod) {
             showToast('Please select a payment method', 'error');
             return;
@@ -302,9 +318,11 @@ const processCheckout = async () => {
             String(user.email || '').toLowerCase() === String(formData.email || '').toLowerCase() &&
             (user.isBlocked || user.status === 'Blocked')
         );
+        const activeUser = typeof getCurrentUser === 'function' ? getCurrentUser() : JSON.parse(localStorage.getItem('currentUser') || 'null');
 
-        if (blockedUser) {
-            showToast('This customer account is blocked and cannot place orders.', 'error');
+        if (blockedUser || activeUser?.isBlocked) {
+            const isAr = window.i18n?.currentLang === 'ar';
+            showToast(isAr ? 'تم إيقاف هذا الحساب من إتمام الطلبات. يُرجى التواصل مع إدارة المتجر.' : 'This customer account is blocked and cannot place orders.', 'error');
             return;
         }
 
@@ -395,7 +413,33 @@ const showToast = (message, type = 'success') => {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Auth Guard for Checkout
+    if (!isUserLoggedIn()) {
+        sessionStorage.setItem('loginRedirect', 'checkout.html');
+        const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+        showToast(isAr ? 'يرجى تسجيل الدخول أولاً لإتمام طلب الشراء' : 'Please log in to complete your checkout', 'error');
+        setTimeout(() => {
+            window.location.replace('login.html?redirect=checkout.html');
+        }, 1100);
+        return;
+    }
+
     loadOrderSummary();
+
+    // Auto-fill customer info if logged in
+    try {
+        const activeUser = JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('luxe_currentUser') || 'null');
+        if (activeUser) {
+            const nameField = document.getElementById('fullName');
+            const emailField = document.getElementById('email');
+            const phoneField = document.getElementById('phone');
+            if (nameField && !nameField.value && activeUser.name) nameField.value = activeUser.name;
+            if (emailField && !emailField.value && activeUser.email) emailField.value = activeUser.email;
+            if (phoneField && !phoneField.value && activeUser.phone) phoneField.value = activeUser.phone;
+        }
+    } catch (e) {
+        console.warn('Could not auto-fill customer info:', e);
+    }
 
     // Default select Cash on Delivery or Card
     selectPayment('cod');
@@ -459,12 +503,4 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn('Admin check notice:', e);
     }
 
-    // Mobile Menu Toggle
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const mobileMenu = document.getElementById('mobileMenu');
-    if (mobileMenuBtn && mobileMenu) {
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-    }
 });

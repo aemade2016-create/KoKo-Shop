@@ -16,9 +16,6 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="responsive.css">
 
-    <!-- I18n Localization Engine -->
-    <script src="i18n.js"></script>
-
     <!-- Firebase Configuration -->
     <script type="module" src="firebase-config.js"></script>
 
@@ -240,7 +237,7 @@
     <footer class="bg-slate-900 text-gray-300 pt-16 pb-12 mt-auto border-t border-pink-900/20">
         <div class="container mx-auto px-4 lg:px-8">
             <div class="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
-                <p>&copy; 2026 Koko Shop. All botanical clinical formulations preserved.</p>
+                <p class="cms-footer-copyright">&copy; 2026 Koko Shop. All botanical clinical formulations preserved.</p>
                 <div class="flex items-center space-x-4 text-gray-400">
                     <span class="flex items-center"><i class="fab fa-cc-visa text-lg mr-2"></i> Visa</span>
                     <span class="flex items-center"><i class="fab fa-cc-mastercard text-lg mr-2"></i> Mastercard</span>
@@ -282,12 +279,12 @@
             const removeTitle = isAr ? 'حذف من المفضلة' : 'Remove from wishlist';
 
             return `
-                <div class="product-card group relative bg-white dark:bg-slate-800 rounded-2xl border border-pink-100/80 dark:border-slate-700/80 p-4 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
+                <div class="product-card group relative bg-white dark:bg-slate-800 rounded-2xl border border-pink-100/80 dark:border-slate-700/80 p-4 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between" data-product-id="${id}">
                     <!-- Image & Remove -->
                     <div class="relative aspect-square rounded-xl overflow-hidden bg-pink-50/50 dark:bg-slate-900/50 mb-3.5">
                         <img src="${image}" alt="${displayName}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
                         
-                        <button onclick="removeFromWishlistPage(${id})" 
+                        <button onclick="removeFromWishlistPage('${id}')" 
                             class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/90 dark:bg-slate-800/90 backdrop-blur-md flex items-center justify-center text-rose-500 hover:bg-rose-50 shadow-sm transition-all"
                             title="${removeTitle}" aria-label="${removeTitle}">
                             <i class="fas fa-heart text-xs"></i>
@@ -307,7 +304,7 @@
                                 <span class="text-base font-bold font-display text-pink-600">${priceFormatted}</span>
                             </div>
 
-                            <button onclick="moveToCart(${id})" 
+                            <button data-action="add-to-cart" data-product-id="${id}" onclick="moveToCart('${id}')" 
                                 class="w-full bg-pink-500 hover:bg-pink-600 text-white py-2.5 px-4 rounded-full text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all duration-300 shadow-sm hover:shadow-md">
                                 <i class="fas fa-bag-shopping text-xs"></i>
                                 <span>${moveBtnText}</span>
@@ -355,7 +352,7 @@
                     removeFromWishlist(productId);
                 } else {
                     let wishlist = JSON.parse(localStorage.getItem('luxe_wishlist') || '[]');
-                    wishlist = wishlist.filter((item) => item.id !== productId);
+                    wishlist = wishlist.filter((item) => String(item.id) !== String(productId));
                     localStorage.setItem('luxe_wishlist', JSON.stringify(wishlist));
                     if (typeof updateWishlistCount === 'function') updateWishlistCount();
                 }
@@ -370,10 +367,16 @@
         const moveToCart = (productId) => {
             try {
                 const wishlist = typeof getWishlist === 'function' ? getWishlist() : JSON.parse(localStorage.getItem('luxe_wishlist') || '[]');
-                const item = wishlist.find((i) => i.id === productId);
+                const item = wishlist.find((i) => String(i.id) === String(productId));
 
                 if (item) {
-                    if (typeof addToCart === 'function') {
+                    if (window.LuxeBeauty && typeof window.LuxeBeauty.addToCart === 'function') {
+                        window.LuxeBeauty.addToCart(productId, {
+                            name: item.name,
+                            price: item.price,
+                            image: item.image
+                        });
+                    } else if (typeof addToCart === 'function') {
                         addToCart(productId, {
                             name: item.name,
                             price: item.price,
@@ -397,6 +400,11 @@
                 loadWishlist();
             }
         };
+
+        // Expose action handlers to window for inline onclick execution
+        window.removeFromWishlistPage = removeFromWishlistPage;
+        window.moveToCart = moveToCart;
+        window.clearAllWishlist = clearAllWishlist;
 
         // Toast Helper
         const showToast = (message) => {
@@ -425,15 +433,6 @@
                 }
             } catch (e) {
                 console.warn('Admin check notice:', e);
-            }
-
-            // Mobile Menu
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const mobileMenu = document.getElementById('mobileMenu');
-            if (mobileMenuBtn && mobileMenu) {
-                mobileMenuBtn.addEventListener('click', () => {
-                    mobileMenu.classList.toggle('hidden');
-                });
             }
         });
     </script>

@@ -318,12 +318,12 @@
     <footer class="bg-gray-900 text-gray-300 py-12">
         <div class="container mx-auto px-4">
             <div class="text-center">
-                <div class="flex items-center justify-center space-x-2 mb-4">
-                    <i class="fas fa-gem text-primary-500 text-2xl"></i>
-                    <span class="text-2xl font-display font-bold text-white">Luxe Beauty</span>
-                </div>
-                <p class="mb-4">Thank you for choosing Luxe Beauty</p>
-                <p class="text-sm">&copy; 2026 Luxe Beauty. All rights reserved.</p>
+                <a href="index.html" class="inline-flex items-center justify-center space-x-2 mb-4 group hover:opacity-90 transition">
+                    <i class="fas fa-gem text-primary-500 text-2xl group-hover:scale-105 transition-transform"></i>
+                    <span class="text-2xl font-display font-bold text-white">KoKo <span class="text-pink-500">Shop</span></span>
+                </a>
+                <p class="mb-4">Thank you for choosing KoKo Shop</p>
+                <p class="text-sm">&copy; 2026 KoKo Shop. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -332,8 +332,8 @@
     <script src="app.js"></script>
     <script>
         // Get order ID from URL
-        var urlParams = new URLSearchParams(window.location.search);
-        var orderId = urlParams.get('orderId');
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('orderId');
 
         if (!orderId) {
             window.location.href = 'index.html';
@@ -341,8 +341,8 @@
 
         // Load order details
         function loadOrderDetails() {
-            var orders = JSON.parse(localStorage.getItem('luxe_orders')) || [];
-            var order = orders.find(function (o) { return o.orderId === orderId; });
+            const orders = JSON.parse(localStorage.getItem('luxe_orders')) || [];
+            const order = orders.find((o) => o.orderId === orderId);
 
             if (!order) {
                 window.location.href = 'index.html';
@@ -356,39 +356,48 @@
                 month: 'long',
                 day: 'numeric'
             });
-            document.getElementById('customerEmail').textContent = order.customerInfo.email;
+            document.getElementById('customerEmail').textContent = order.customerInfo?.email || '';
 
             // Display order items
-            var itemsHtml = '';
-            order.items.forEach(function (item) {
-                itemsHtml += '<div class="flex items-center space-x-4 pb-4 border-b border-gray-200 dark:border-gray-700">';
-                itemsHtml += '<img src="' + item.image + '" alt="' + item.name + '" class="w-20 h-20 object-cover rounded-lg">';
-                itemsHtml += '<div class="flex-1">';
-                itemsHtml += '<h4 class="font-semibold">' + item.name + '</h4>';
-                itemsHtml += '<p class="text-sm text-gray-500">Quantity: ' + item.quantity + '</p>';
-                itemsHtml += '</div>';
-                itemsHtml += '<span class="font-bold text-primary-500">$' + (item.price * item.quantity).toFixed(2) + '</span>';
-                itemsHtml += '</div>';
+            let itemsHtml = '';
+            (order.items || []).forEach((item) => {
+                itemsHtml += `
+                    <div class="flex items-center space-x-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                        <img src="${item.image || './images/slider 1.jpeg'}" alt="${item.name}" class="w-20 h-20 object-cover rounded-lg">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-900 dark:text-white">${item.name}</h4>
+                            <p class="text-sm text-gray-500">Quantity: ${item.quantity}</p>
+                        </div>
+                        <span class="font-bold text-pink-500">EGP ${(item.price * item.quantity).toFixed(2)}</span>
+                    </div>
+                `;
             });
             document.getElementById('orderItemsList').innerHTML = itemsHtml;
 
             // Display shipping address
-            var address = order.customerInfo.address;
-            var addressHtml = '<p class="font-semibold">' + order.customerInfo.name + '</p>';
-            addressHtml += '<p>' + address.street + '</p>';
+            const address = order.customerInfo?.address || {};
+            let addressHtml = `<p class="font-semibold">${order.customerInfo?.name || 'Client'}</p>`;
+            addressHtml += `<p>${address.street || ''}</p>`;
             if (address.apartment) {
-                addressHtml += '<p>' + address.apartment + '</p>';
+                addressHtml += `<p>${address.apartment}</p>`;
             }
-            addressHtml += '<p>' + address.city + ', ' + address.state + ' ' + address.zip + '</p>';
-            addressHtml += '<p>' + address.country + '</p>';
-            addressHtml += '<p class="mt-2">Phone: ' + order.customerInfo.phone + '</p>';
+            addressHtml += `<p>${address.city || ''}, ${address.state || ''} ${address.zip || ''}</p>`;
+            addressHtml += `<p>${address.country || ''}</p>`;
+            if (order.customerInfo?.phone) {
+                addressHtml += `<p class="mt-2">Phone: ${order.customerInfo.phone}</p>`;
+            }
             document.getElementById('shippingAddress').innerHTML = addressHtml;
 
             // Display pricing
-            document.getElementById('orderSubtotal').textContent = 'EGP ' + order.pricing.subtotal.toFixed(2);
-            document.getElementById('orderShipping').textContent = order.pricing.shipping > 0 ? 'EGP ' + order.pricing.shipping.toFixed(2) : 'FREE';
-            document.getElementById('orderTax').textContent = 'EGP ' + order.pricing.tax.toFixed(2);
-            document.getElementById('orderTotal').textContent = 'EGP ' + order.pricing.total.toFixed(2);
+            const subtotal = order.pricing?.subtotal ? Number(order.pricing.subtotal).toFixed(2) : '0.00';
+            const shipping = order.pricing?.shipping && Number(order.pricing.shipping) > 0 ? `EGP ${Number(order.pricing.shipping).toFixed(2)}` : 'FREE';
+            const tax = order.pricing?.tax ? Number(order.pricing.tax).toFixed(2) : '0.00';
+            const total = order.pricing?.total ? Number(order.pricing.total).toFixed(2) : '0.00';
+
+            document.getElementById('orderSubtotal').textContent = `EGP ${subtotal}`;
+            document.getElementById('orderShipping').textContent = shipping;
+            document.getElementById('orderTax').textContent = `EGP ${tax}`;
+            document.getElementById('orderTotal').textContent = `EGP ${total}`;
         }
 
         // Initialize

@@ -73,7 +73,7 @@
                     <button id="sidebarToggle" class="lg:hidden w-9 h-9 rounded-full bg-pink-50 dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:text-pink-600 flex items-center justify-center transition">
                         <i class="fas fa-bars text-sm"></i>
                     </button>
-                    <a href="admin-dashboard.html" class="flex items-center space-x-2.5 group">
+                    <a href="index.html" class="flex items-center space-x-2.5 group" title="Return to Storefront">
                         <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 to-rose-400 text-white flex items-center justify-center shadow-md shadow-pink-500/25 group-hover:scale-105 transition-transform">
                             <i class="fas fa-crown text-base"></i>
                         </div>
@@ -305,18 +305,29 @@
                         <h2 id="categoryFormTitle" class="text-base font-display font-bold mb-4">Add New Category</h2>
                         <form id="categoryForm" class="space-y-4">
                             <input type="hidden" id="categoryId">
-                            <div>
-                                <label for="categoryName" class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Category Name</label>
-                                <input type="text" id="categoryName" required
-                                    class="w-full px-4 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label for="categoryNameEn" class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+                                        <i class="fas fa-globe mr-1 text-pink-500"></i>Name (English) *
+                                    </label>
+                                    <input type="text" id="categoryNameEn" placeholder="e.g. Serums" required
+                                        class="w-full px-4 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
+                                <div>
+                                    <label for="categoryNameAr" class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+                                        <i class="fas fa-language mr-1 text-pink-500"></i>الاسم (بالعربية) *
+                                    </label>
+                                    <input type="text" id="categoryNameAr" placeholder="مثال: سيروم" dir="rtl" required
+                                        class="w-full px-4 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
                             </div>
                             <div>
-                                <label for="categoryImage" class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Image URL</label>
+                                <label for="categoryImage" class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Image URL *</label>
                                 <input type="url" id="categoryImage" placeholder="https://..." required
                                     class="w-full px-4 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
                             </div>
                             <div class="flex gap-2 pt-2">
-                                <button type="submit" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-full font-semibold text-xs shadow-sm transition">
+                                <button type="submit" id="saveCategoryBtn" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-full font-semibold text-xs shadow-sm transition">
                                     Save Category
                                 </button>
                                 <button type="button" onclick="resetCategoryForm()" class="px-4 bg-pink-50 dark:bg-slate-700 hover:bg-pink-100 text-gray-700 dark:text-gray-200 rounded-full text-xs font-semibold transition">
@@ -332,13 +343,14 @@
                                 <thead class="bg-pink-50/70 dark:bg-slate-800/90 text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                     <tr>
                                         <th class="px-5 py-3.5">Image</th>
-                                        <th class="px-5 py-3.5">Category Name</th>
+                                        <th class="px-5 py-3.5">Name (EN)</th>
+                                        <th class="px-5 py-3.5">الاسم (AR)</th>
                                         <th class="px-5 py-3.5 text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="categoriesTableBody" class="divide-y divide-pink-50 dark:divide-slate-700/60 text-xs">
                                     <tr>
-                                        <td colspan="3" class="px-6 py-8 text-center text-gray-400">No categories found</td>
+                                        <td colspan="4" class="px-6 py-8 text-center text-gray-400">No categories found</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -352,7 +364,7 @@
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
                         <h1 class="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white">Hero Banners & Campaigns</h1>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Configure visual slides on the home landing page</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Configure visual slides on the home landing page with dual-language support</p>
                     </div>
                     <button onclick="resetBannerForm()"
                         class="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2.5 rounded-full font-semibold text-xs shadow-md shadow-pink-500/25 transition">
@@ -365,43 +377,109 @@
                         <h2 id="bannerFormTitle" class="text-base font-display font-bold mb-4">Add New Banner</h2>
                         <form id="bannerForm" class="space-y-3.5">
                             <input type="hidden" id="bannerId">
-                            <div>
-                                <label for="bannerBadge" class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Badge Tag</label>
-                                <input type="text" id="bannerBadge" placeholder="Featured Ritual"
-                                    class="w-full px-4 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+
+                            <!-- Dual-Language Badge -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div>
+                                    <label for="bannerBadgeEn" class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">
+                                        <i class="fas fa-globe mr-1 text-pink-500"></i>Badge (EN)
+                                    </label>
+                                    <input type="text" id="bannerBadgeEn" placeholder="e.g. Featured Ritual"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
+                                <div>
+                                    <label for="bannerBadgeAr" class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">
+                                        <i class="fas fa-language mr-1 text-pink-500"></i>الشارة (عربي)
+                                    </label>
+                                    <input type="text" id="bannerBadgeAr" placeholder="مثال: طقس مميز" dir="rtl"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
                             </div>
-                            <div>
-                                <label for="bannerTitle" class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Main Heading</label>
-                                <input type="text" id="bannerTitle" placeholder="Reveal Natural Glow" required
-                                    class="w-full px-4 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+
+                            <!-- Dual-Language Main Heading -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div>
+                                    <label for="bannerTitleEn" class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">
+                                        <i class="fas fa-globe mr-1 text-pink-500"></i>Heading (EN) *
+                                    </label>
+                                    <input type="text" id="bannerTitleEn" placeholder="Reveal Natural Glow" required
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
+                                <div>
+                                    <label for="bannerTitleAr" class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">
+                                        <i class="fas fa-language mr-1 text-pink-500"></i>العنوان الرئيسي (عربي) *
+                                    </label>
+                                    <input type="text" id="bannerTitleAr" placeholder="أعيدي لبشرتكِ" dir="rtl" required
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
                             </div>
-                            <div>
-                                <label for="bannerSubtitle" class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Subtitle / Italic Accent</label>
-                                <input type="text" id="bannerSubtitle" placeholder="Botanical Radiance" required
-                                    class="w-full px-4 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+
+                            <!-- Dual-Language Subtitle -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div>
+                                    <label for="bannerSubtitleEn" class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">
+                                        <i class="fas fa-globe mr-1 text-pink-500"></i>Subtitle (EN) *
+                                    </label>
+                                    <input type="text" id="bannerSubtitleEn" placeholder="Botanical Radiance" required
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
+                                <div>
+                                    <label for="bannerSubtitleAr" class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">
+                                        <i class="fas fa-language mr-1 text-pink-500"></i>العنوان الفرعي (عربي) *
+                                    </label>
+                                    <input type="text" id="bannerSubtitleAr" placeholder="إشراقة طبيعية" dir="rtl" required
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
                             </div>
-                            <div>
-                                <label for="bannerDescription" class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Description</label>
-                                <textarea id="bannerDescription" rows="2" placeholder="Cold-pressed actives for healthy skin." required
-                                    class="w-full px-4 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none"></textarea>
+
+                            <!-- Dual-Language Description -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div>
+                                    <label for="bannerDescriptionEn" class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">
+                                        <i class="fas fa-globe mr-1 text-pink-500"></i>Description (EN)
+                                    </label>
+                                    <textarea id="bannerDescriptionEn" rows="2" placeholder="Cold-pressed botanical actives..."
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none"></textarea>
+                                </div>
+                                <div>
+                                    <label for="bannerDescriptionAr" class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">
+                                        <i class="fas fa-language mr-1 text-pink-500"></i>الوصف (عربي)
+                                    </label>
+                                    <textarea id="bannerDescriptionAr" rows="2" placeholder="تركيبات نباتية سريرية لنضارة البشرة..." dir="rtl"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none"></textarea>
+                                </div>
                             </div>
-                            <div>
-                                <label for="bannerButtonText" class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Button Label</label>
-                                <input type="text" id="bannerButtonText" placeholder="Shop Now" required
-                                    class="w-full px-4 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+
+                            <!-- Dual-Language Button Label -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div>
+                                    <label for="bannerButtonTextEn" class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">
+                                        <i class="fas fa-globe mr-1 text-pink-500"></i>Button Text (EN) *
+                                    </label>
+                                    <input type="text" id="bannerButtonTextEn" placeholder="Shop Now" required
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
+                                <div>
+                                    <label for="bannerButtonTextAr" class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">
+                                        <i class="fas fa-language mr-1 text-pink-500"></i>نص الزر (عربي) *
+                                    </label>
+                                    <input type="text" id="bannerButtonTextAr" placeholder="تسوق الآن" dir="rtl" required
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
                             </div>
+
                             <div>
-                                <label for="bannerImageUrl" class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Banner Image URL</label>
+                                <label for="bannerImageUrl" class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">Banner Image URL *</label>
                                 <input type="url" id="bannerImageUrl" placeholder="https://..." required
-                                    class="w-full px-4 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                    class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
                             </div>
                             <div>
-                                <label for="bannerTargetUrl" class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Target Link</label>
+                                <label for="bannerTargetUrl" class="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1">Target Link *</label>
                                 <input type="text" id="bannerTargetUrl" placeholder="products.html" required
-                                    class="w-full px-4 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                    class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
                             </div>
                             <div class="flex gap-2 pt-2">
-                                <button type="submit" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-full font-semibold text-xs shadow-sm transition">
+                                <button type="submit" id="saveBannerBtn" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-full font-semibold text-xs shadow-sm transition">
                                     Save Banner
                                 </button>
                                 <button type="button" onclick="resetBannerForm()" class="px-4 bg-pink-50 dark:bg-slate-700 hover:bg-pink-100 text-gray-700 dark:text-gray-200 rounded-full text-xs font-semibold transition">
@@ -417,7 +495,7 @@
                                 <thead class="bg-pink-50/70 dark:bg-slate-800/90 text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                     <tr>
                                         <th class="px-5 py-3.5">Image</th>
-                                        <th class="px-5 py-3.5">Banner Title</th>
+                                        <th class="px-5 py-3.5">Title (EN / AR)</th>
                                         <th class="px-5 py-3.5">Target</th>
                                         <th class="px-5 py-3.5 text-right">Actions</th>
                                     </tr>
@@ -616,6 +694,7 @@
                                 <tr>
                                     <th class="px-5 py-3.5">Customer</th>
                                     <th class="px-5 py-3.5">Email</th>
+                                    <th class="px-5 py-3.5">Role</th>
                                     <th class="px-5 py-3.5">Orders</th>
                                     <th class="px-5 py-3.5">Status</th>
                                     <th class="px-5 py-3.5 text-right">Actions</th>
@@ -623,7 +702,7 @@
                             </thead>
                             <tbody id="usersTableBody" class="divide-y divide-pink-50 dark:divide-slate-700/60 text-xs">
                                 <tr>
-                                    <td colspan="5" class="px-6 py-8 text-center text-gray-400">No users found</td>
+                                    <td colspan="6" class="px-6 py-8 text-center text-gray-400">No users found</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -631,35 +710,231 @@
                 </div>
             </div>
 
-            <!-- 9. SETTINGS TAB -->
+            <!-- 9. SETTINGS TAB (FULL CMS & STORE CONFIGURATIONS) -->
             <div id="settingsTab" class="tab-content space-y-6">
                 <div>
-                    <h1 class="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white">Store Configurations</h1>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Global clinical store settings and delivery rules</p>
+                    <h1 class="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white">Store Configurations & Live CMS</h1>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Manage site branding, homepage content, about ethos, and footer texts across English and Arabic</p>
                 </div>
 
-                <div class="bg-white dark:bg-slate-800 rounded-3xl border border-pink-100/80 dark:border-slate-700/80 shadow-sm p-6 sm:p-8 max-w-2xl">
-                    <form id="storeSettingsForm" class="space-y-4">
-                        <div>
-                            <label for="storeName" class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Store Name</label>
-                            <input type="text" id="storeName" value="Koko Shop"
-                                class="w-full px-4 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                <form id="storeSettingsForm" class="space-y-6">
+                    <!-- General Store Configurations -->
+                    <div class="bg-white dark:bg-slate-800 rounded-3xl border border-pink-100/80 dark:border-slate-700/80 shadow-sm p-6 sm:p-8">
+                        <div class="flex items-center space-x-2.5 mb-5 pb-3 border-b border-pink-50 dark:border-slate-700">
+                            <i class="fas fa-sliders text-pink-500"></i>
+                            <h2 class="text-base font-display font-bold text-gray-900 dark:text-white">General Store Information</h2>
                         </div>
-                        <div>
-                            <label for="supportEmail" class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Support Email</label>
-                            <input type="email" id="supportEmail" value="concierge@kokoshop.com"
-                                class="w-full px-4 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <label for="storeName" class="block font-bold uppercase tracking-wider text-[11px] text-gray-500 mb-1">Store Name</label>
+                                <input type="text" id="storeName" value="Koko Shop" required
+                                    class="w-full px-4 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                            </div>
+                            <div>
+                                <label for="supportEmail" class="block font-bold uppercase tracking-wider text-[11px] text-gray-500 mb-1">Support / Concierge Email</label>
+                                <input type="email" id="supportEmail" value="concierge@kokoshop.com" required
+                                    class="w-full px-4 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                            </div>
+                            <div>
+                                <label for="supportPhone" class="block font-bold uppercase tracking-wider text-[11px] text-gray-500 mb-1">Support Phone / Hotline</label>
+                                <input type="text" id="supportPhone" value="+20 100 000 0000"
+                                    class="w-full px-4 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                            </div>
+                            <div>
+                                <label for="freeShippingThreshold" class="block font-bold uppercase tracking-wider text-[11px] text-gray-500 mb-1">Free Delivery Threshold (EGP)</label>
+                                <input type="number" id="freeShippingThreshold" value="500" required
+                                    class="w-full px-4 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                            </div>
                         </div>
-                        <div>
-                            <label for="freeShippingThreshold" class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Free Delivery Threshold (EGP)</label>
-                            <input type="number" id="freeShippingThreshold" value="500"
-                                class="w-full px-4 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                    </div>
+
+                    <!-- Homepage Live CMS -->
+                    <div class="bg-white dark:bg-slate-800 rounded-3xl border border-pink-100/80 dark:border-slate-700/80 shadow-sm p-6 sm:p-8">
+                        <div class="flex items-center space-x-2.5 mb-5 pb-3 border-b border-pink-50 dark:border-slate-700">
+                            <i class="fas fa-home text-pink-500"></i>
+                            <h2 class="text-base font-display font-bold text-gray-900 dark:text-white">Homepage Content (Clean Philosophy & Featured Sections)</h2>
                         </div>
-                        <button type="submit" class="bg-pink-500 hover:bg-pink-600 text-white px-8 py-3 rounded-full font-semibold text-xs shadow-md shadow-pink-500/25 transition mt-2">
-                            Save Configurations
+                        <div class="space-y-4 text-xs">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="homePhilosophyBadgeEn" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-globe mr-1 text-pink-500"></i>Philosophy Badge (EN)
+                                    </label>
+                                    <input type="text" id="homePhilosophyBadgeEn" value="The Clean Philosophy"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
+                                <div>
+                                    <label for="homePhilosophyBadgeAr" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-language mr-1 text-pink-500"></i>شارة الفلسفة النظيفة (عربي)
+                                    </label>
+                                    <input type="text" id="homePhilosophyBadgeAr" value="فلسفة النقاء والجمال" dir="rtl"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="homePhilosophyTitleEn" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-globe mr-1 text-pink-500"></i>Philosophy Title (EN)
+                                    </label>
+                                    <input type="text" id="homePhilosophyTitleEn" value="Nourish Your Skin With Pure Botanical Actives"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
+                                <div>
+                                    <label for="homePhilosophyTitleAr" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-language mr-1 text-pink-500"></i>عنوان الفلسفة النظيفة (عربي)
+                                    </label>
+                                    <input type="text" id="homePhilosophyTitleAr" value="غذّي بشرتكِ بخلاصات نباتية نقية وفعالة" dir="rtl"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="homePhilosophyDescEn" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-globe mr-1 text-pink-500"></i>Philosophy Description (EN)
+                                    </label>
+                                    <textarea id="homePhilosophyDescEn" rows="2"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">We believe transformative skincare should never compromise purity. Every formula is crafted with scientifically proven botanicals, cold-pressed antioxidants, and skin-identical bio-lipids.</textarea>
+                                </div>
+                                <div>
+                                    <label for="homePhilosophyDescAr" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-language mr-1 text-pink-500"></i>وصف الفلسفة النظيفة (عربي)
+                                    </label>
+                                    <textarea id="homePhilosophyDescAr" rows="2" dir="rtl"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">نؤمن بأن العناية الفائقة بالبشرة لا تساوم على النقاء أبداً. كل تركيبة مصممة بعناية فائقة من مستخلصات نباتية مثبتة ومضادات أكسدة مضغوطة على البارد.</textarea>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                                <div>
+                                    <label for="homeFeaturedTitleEn" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-globe mr-1 text-pink-500"></i>Featured Section Title (EN)
+                                    </label>
+                                    <input type="text" id="homeFeaturedTitleEn" value="Featured Creations"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
+                                <div>
+                                    <label for="homeFeaturedTitleAr" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-language mr-1 text-pink-500"></i>عنوان قسم المنتجات المميزة (عربي)
+                                    </label>
+                                    <input type="text" id="homeFeaturedTitleAr" value="إبداعاتنا المختارة" dir="rtl"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- About Page Live CMS -->
+                    <div class="bg-white dark:bg-slate-800 rounded-3xl border border-pink-100/80 dark:border-slate-700/80 shadow-sm p-6 sm:p-8">
+                        <div class="flex items-center space-x-2.5 mb-5 pb-3 border-b border-pink-50 dark:border-slate-700">
+                            <i class="fas fa-book-open text-pink-500"></i>
+                            <h2 class="text-base font-display font-bold text-gray-900 dark:text-white">About Page Content (Ethos & Origin Story)</h2>
+                        </div>
+                        <div class="space-y-4 text-xs">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="aboutHeroTitleEn" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-globe mr-1 text-pink-500"></i>Hero Main Heading (EN)
+                                    </label>
+                                    <input type="text" id="aboutHeroTitleEn" value="Where Botanical Wisdom Meets Clinical Formulation"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
+                                <div>
+                                    <label for="aboutHeroTitleAr" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-language mr-1 text-pink-500"></i>العنوان الرئيسي لصفحة من نحن (عربي)
+                                    </label>
+                                    <input type="text" id="aboutHeroTitleAr" value="حيث تلتقي حكمة الطبيعة بالعلوم السريرية الحديثة" dir="rtl"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="aboutHeroDescEn" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-globe mr-1 text-pink-500"></i>Hero Subtitle / Description (EN)
+                                    </label>
+                                    <textarea id="aboutHeroDescEn" rows="2"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">Founded on the belief that healthy skin radiance is cultivated through bio-compatible nourishment rather than harsh interventions.</textarea>
+                                </div>
+                                <div>
+                                    <label for="aboutHeroDescAr" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-language mr-1 text-pink-500"></i>الوصف الفرعي لصفحة من نحن (عربي)
+                                    </label>
+                                    <textarea id="aboutHeroDescAr" rows="2" dir="rtl"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">تأسسنا على يقين بأن إشراقة البشرة الصحية تنبع من التغذية الحيوية المتوافقة مع خلاياها بعيداً عن المكونات القاسية.</textarea>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="aboutStoryDescEn" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-globe mr-1 text-pink-500"></i>Origin Story Description (EN)
+                                    </label>
+                                    <textarea id="aboutStoryDescEn" rows="3"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">Koko Shop was conceived out of a passion to bridge the gap between clinical potency and gentle botanical harmony. Our laboratory isolates potent plant actives, cold-pressed seed oils, and skin-identical ceramides.</textarea>
+                                </div>
+                                <div>
+                                    <label for="aboutStoryDescAr" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-language mr-1 text-pink-500"></i>نص قصة البداية والشغف (عربي)
+                                    </label>
+                                    <textarea id="aboutStoryDescAr" rows="3" dir="rtl"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">انطلقت كوكو شوب من شغف حقيقي للجمع بين الفاعلية السريرية والتناغم النباتي اللطيف. يعمل مختبرنا على استخلاص أنقى الزيوت والسيراميدات لتقوية حاجز البشرة وحمايته.</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer & Legal CMS -->
+                    <div class="bg-white dark:bg-slate-800 rounded-3xl border border-pink-100/80 dark:border-slate-700/80 shadow-sm p-6 sm:p-8">
+                        <div class="flex items-center space-x-2.5 mb-5 pb-3 border-b border-pink-50 dark:border-slate-700">
+                            <i class="fas fa-shoe-prints text-pink-500"></i>
+                            <h2 class="text-base font-display font-bold text-gray-900 dark:text-white">Footer & Legal Content (All Pages)</h2>
+                        </div>
+                        <div class="space-y-4 text-xs">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="footerAboutEn" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-globe mr-1 text-pink-500"></i>Footer Brand Summary (EN)
+                                    </label>
+                                    <textarea id="footerAboutEn" rows="2"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">Clean botanical clinical formulations crafted for discerning skincare rituals. Certified non-comedogenic and cruelty-free.</textarea>
+                                </div>
+                                <div>
+                                    <label for="footerAboutAr" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-language mr-1 text-pink-500"></i>نبذة الفوتر عن المتجر (عربي)
+                                    </label>
+                                    <textarea id="footerAboutAr" rows="2" dir="rtl"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">تركيبات نباتية علاجية ونقية مصممة لطقوس العناية الفاخرة بالبشرة. معتمدة طبياً وخالية من القسوة.</textarea>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="footerCopyrightEn" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-globe mr-1 text-pink-500"></i>Copyright Text (EN)
+                                    </label>
+                                    <input type="text" id="footerCopyrightEn" value="© 2026 Koko Shop. All botanical clinical formulations preserved."
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
+                                <div>
+                                    <label for="footerCopyrightAr" class="block font-bold text-[11px] text-gray-500 mb-1">
+                                        <i class="fas fa-language mr-1 text-pink-500"></i>حقوق النشر والملكية (عربي)
+                                    </label>
+                                    <input type="text" id="footerCopyrightAr" value="© 2026 كوكو شوب. جميع التركيبات النباتية والسريرية محفوظة ومحمية." dir="rtl"
+                                        class="w-full px-3.5 py-2 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <button type="submit" id="saveStoreSettingsBtn"
+                            class="bg-pink-500 hover:bg-pink-600 text-white px-8 py-3.5 rounded-full font-semibold text-xs shadow-lg shadow-pink-500/25 transition">
+                            <i class="fas fa-cloud-arrow-up mr-2"></i>Save & Deploy All Settings (حفظ ومزامنة الإعدادات)
                         </button>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
 
         </main>
@@ -772,6 +1047,62 @@
                 </button>
             </div>
             <div id="orderDetailsContent" class="text-xs"></div>
+        </div>
+    </div>
+
+    <!-- User Permissions Modal -->
+    <div id="permissionsModal"
+        class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full border border-pink-100 dark:border-slate-700 shadow-2xl p-6 sm:p-7">
+            <div class="flex items-center justify-between pb-3.5 border-b border-pink-50 dark:border-slate-700 mb-5">
+                <div>
+                    <h3 class="font-display font-bold text-sm text-gray-900 dark:text-white">Customer Role & Permissions</h3>
+                    <p id="permUserEmail" class="text-[11px] text-gray-400 font-mono mt-0.5">client@kokoshop.com</p>
+                </div>
+                <button onclick="closePermissionsModal()" class="w-7 h-7 rounded-full bg-pink-50 dark:bg-slate-700 text-gray-500 hover:text-pink-600 flex items-center justify-center transition">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <input type="hidden" id="permUserId">
+            <div class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-bold uppercase tracking-wider text-[10px] text-gray-500 mb-1.5">User System Role</label>
+                    <select id="permRoleSelect" class="w-full px-3.5 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs outline-none focus:ring-2 focus:ring-pink-400">
+                        <option value="customer">Customer (Standard User / عميل)</option>
+                        <option value="moderator">Moderator (Orders & Reviews / مشرف)</option>
+                        <option value="admin">Admin (Full Control / مدير كامل)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold uppercase tracking-wider text-[10px] text-gray-500 mb-1.5">Custom Permissions / الصلاحيات المخصصة</label>
+                    <div class="space-y-2.5 bg-pink-50/30 dark:bg-slate-700/30 p-3.5 rounded-2xl border border-pink-100/70 dark:border-slate-700/70">
+                        <label class="flex items-center space-x-2.5 cursor-pointer hover:text-pink-600 transition">
+                            <input type="checkbox" id="permProducts" class="rounded accent-pink-500">
+                            <span class="font-medium text-gray-700 dark:text-gray-200">Manage Catalog & Formulations (المنتجات)</span>
+                        </label>
+                        <label class="flex items-center space-x-2.5 cursor-pointer hover:text-pink-600 transition">
+                            <input type="checkbox" id="permOrders" class="rounded accent-pink-500">
+                            <span class="font-medium text-gray-700 dark:text-gray-200">Fulfill & Update Orders (الطلبات)</span>
+                        </label>
+                        <label class="flex items-center space-x-2.5 cursor-pointer hover:text-pink-600 transition">
+                            <input type="checkbox" id="permBanners" class="rounded accent-pink-500">
+                            <span class="font-medium text-gray-700 dark:text-gray-200">Edit Banners & Categories (الأقسام والبانرات)</span>
+                        </label>
+                        <label class="flex items-center space-x-2.5 cursor-pointer hover:text-pink-600 transition">
+                            <input type="checkbox" id="permSettings" class="rounded accent-pink-500">
+                            <span class="font-medium text-gray-700 dark:text-gray-200">Modify Store CMS & Configurations (إعدادات الموقع)</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="saveUserPermissions()" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-2.5 rounded-full font-semibold transition shadow-md shadow-pink-500/25">
+                        <i class="fas fa-check mr-1.5"></i>Save Privileges
+                    </button>
+                    <button type="button" onclick="closePermissionsModal()" class="px-5 bg-pink-50 dark:bg-slate-700 text-gray-700 dark:text-gray-200 py-2.5 rounded-full font-semibold transition">
+                        Cancel
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 

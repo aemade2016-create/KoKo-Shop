@@ -412,6 +412,20 @@
         };
 
         // Sign In Form Handler
+        const handleLoginSuccess = (isAdmin, welcomeMsg) => {
+            showToast(welcomeMsg);
+            const redirectTarget = new URLSearchParams(window.location.search).get('redirect') || sessionStorage.getItem('loginRedirect');
+            sessionStorage.removeItem('loginRedirect');
+
+            setTimeout(() => {
+                if (redirectTarget && !isAdmin) {
+                    window.location.href = redirectTarget;
+                } else {
+                    window.location.href = isAdmin ? 'admin-dashboard.html' : 'profile.html';
+                }
+            }, 1000);
+        };
+
         const signinForm = document.getElementById('signinForm');
         if (signinForm) {
             signinForm.addEventListener('submit', async (e) => {
@@ -438,11 +452,7 @@
                     localStorage.setItem('luxe_currentUser', JSON.stringify(userData));
                     localStorage.setItem('currentUser', JSON.stringify(userData));
 
-                    showToast(isAdmin ? 'Welcome Admin! 👑' : `Welcome back, ${userData.name}!`);
-
-                    setTimeout(() => {
-                        window.location.href = isAdmin ? 'admin-dashboard.html' : 'profile.html';
-                    }, 1000);
+                    handleLoginSuccess(isAdmin, isAdmin ? 'Welcome Admin! 👑' : `Welcome back, ${userData.name}!`);
                 } else {
                     showToast('Invalid email or password!', 'error');
                 }
@@ -483,10 +493,7 @@
                     localStorage.setItem('luxe_currentUser', JSON.stringify(userData));
                     localStorage.setItem('currentUser', JSON.stringify(userData));
 
-                    showToast('Account created successfully!');
-                    setTimeout(() => {
-                        window.location.href = isAdmin ? 'admin-dashboard.html' : 'profile.html';
-                    }, 1000);
+                    handleLoginSuccess(isAdmin, 'Account created successfully!');
                 } else {
                     showToast(result.error || 'Registration failed', 'error');
                 }
@@ -513,10 +520,7 @@
                 localStorage.setItem('luxe_currentUser', JSON.stringify(userData));
                 localStorage.setItem('currentUser', JSON.stringify(userData));
 
-                showToast('Signed in with Google!');
-                setTimeout(() => {
-                    window.location.href = isAdmin ? 'admin-dashboard.html' : 'profile.html';
-                }, 1000);
+                handleLoginSuccess(isAdmin, 'Signed in with Google!');
             } else {
                 showToast(result.error || 'Google login failed', 'error');
             }
@@ -541,10 +545,7 @@
                 localStorage.setItem('luxe_currentUser', JSON.stringify(userData));
                 localStorage.setItem('currentUser', JSON.stringify(userData));
 
-                showToast('Signed in with Facebook!');
-                setTimeout(() => {
-                    window.location.href = isAdmin ? 'admin-dashboard.html' : 'profile.html';
-                }, 1000);
+                handleLoginSuccess(isAdmin, 'Signed in with Facebook!');
             } else {
                 showToast(result.error || 'Facebook login failed', 'error');
             }
@@ -553,7 +554,13 @@
         // Check if already authenticated
         const currentUser = JSON.parse(localStorage.getItem('luxe_currentUser') || localStorage.getItem('currentUser') || 'null');
         if (currentUser) {
-            window.location.href = currentUser.isAdmin ? 'admin-dashboard.html' : 'profile.html';
+            const redirectTarget = new URLSearchParams(window.location.search).get('redirect') || sessionStorage.getItem('loginRedirect');
+            sessionStorage.removeItem('loginRedirect');
+            if (redirectTarget && !currentUser.isAdmin) {
+                window.location.href = redirectTarget;
+            } else {
+                window.location.href = currentUser.isAdmin ? 'admin-dashboard.html' : 'profile.html';
+            }
         }
     </script>
 </body>

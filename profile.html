@@ -435,7 +435,7 @@
     <footer class="bg-slate-900 text-gray-300 pt-16 pb-12 mt-auto border-t border-pink-900/20">
         <div class="container mx-auto px-4 lg:px-8">
             <div class="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
-                <p>&copy; 2026 Koko Shop. All botanical clinical formulations preserved.</p>
+                <p class="cms-footer-copyright">&copy; 2026 Koko Shop. All botanical clinical formulations preserved.</p>
                 <div class="flex items-center space-x-4 text-gray-400">
                     <span class="flex items-center"><i class="fab fa-cc-visa text-lg mr-2"></i> Visa</span>
                     <span class="flex items-center"><i class="fab fa-cc-mastercard text-lg mr-2"></i> Mastercard</span>
@@ -445,19 +445,66 @@
         </div>
     </footer>
 
-    <!-- Modern ES6+ Clean JavaScript -->
+    <!-- Modern ES6+ Clean JavaScript & Firestore Profile Engine -->
     <script src="init-products.js"></script>
     <script src="app.js"></script>
-    <script>
-        // Authentication Guard
-        const getCurrentUserFromStorage = () => {
-            return JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('luxe_currentUser') || 'null');
+    <script type="module">
+        import { auth, db } from './firebase-config.js';
+        import { onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import {
+            doc,
+            getDoc,
+            setDoc,
+            updateDoc,
+            serverTimestamp,
+            collection,
+            query,
+            where,
+            getDocs
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Current user session state
+        let currentUserProfile = null;
+
+        // Local Storage Cache Helper
+        const getCachedUser = () => {
+            try {
+                return JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('luxe_currentUser') || 'null');
+            } catch (e) {
+                return null;
+            }
         };
 
-        let user = getCurrentUserFromStorage();
-        if (!user) {
-            window.location.href = 'login.html';
-        }
+        const setCachedUser = (data) => {
+            try {
+                localStorage.setItem('currentUser', JSON.stringify(data));
+                localStorage.setItem('luxe_currentUser', JSON.stringify(data));
+            } catch (e) {
+                console.warn('Could not cache user data in localStorage:', e);
+            }
+        };
+
+        // Toast Helper
+        const showToast = (message, type = 'success') => {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            if (!toast || !toastMessage) return;
+
+            toastMessage.textContent = message;
+            if (type === 'error') {
+                toast.classList.remove('border-pink-200', 'dark:border-slate-700');
+                toast.classList.add('border-rose-500', 'bg-rose-50', 'dark:bg-rose-950/80');
+            } else {
+                toast.classList.remove('border-rose-500', 'bg-rose-50', 'dark:bg-rose-950/80');
+                toast.classList.add('border-pink-200', 'dark:border-slate-700');
+            }
+
+            toast.style.transform = 'translateY(0)';
+            setTimeout(() => {
+                toast.style.transform = 'translateY(8rem)';
+            }, 3200);
+        };
+        window.showToast = showToast;
 
         // Tab Switching
         const showTab = (tabName) => {
@@ -477,19 +524,18 @@
                 activeNav.className = 'tab-nav-btn w-full text-left px-4 py-2.5 rounded-2xl transition flex items-center text-xs font-semibold bg-pink-100 dark:bg-pink-950/60 text-pink-600 dark:text-pink-400';
             }
 
-            if (tabName === 'orders') loadOrders();
-            if (tabName === 'wishlist') loadWishlist();
+            if (tabName === 'orders') renderOrdersUI(currentUserProfile);
+            if (tabName === 'wishlist') renderWishlistUI();
         };
+        window.showTab = showTab;
 
-        // Populate User Data
-        const loadUserData = () => {
-            user = getCurrentUserFromStorage();
-            if (!user) return;
+        // Render User Data in UI
+        const renderUserData = (userData) => {
+            if (!userData) return;
 
             const nameEl = document.getElementById('userName');
             const emailEl = document.getElementById('userEmail');
             const memberSinceEl = document.getElementById('memberSince');
-            const totalOrdersEl = document.getElementById('totalOrders');
 
             const infoName = document.getElementById('infoName');
             const infoEmail = document.getElementById('infoEmail');
@@ -497,52 +543,104 @@
 
             const settingsName = document.getElementById('settingsName');
             const settingsEmail = document.getElementById('settingsEmail');
+            const settingsPhone = document.getElementById('settingsPhone');
 
-            if (nameEl) nameEl.textContent = user.name || 'Client';
-            if (emailEl) emailEl.textContent = user.email || 'client@domain.com';
+            const displayName = userData.name || userData.displayName || 'VIP Client';
+            const displayEmail = userData.email || 'client@domain.com';
+            const displayPhone = userData.phone || '';
 
-            const createdDate = user.createdAt ? new Date(user.createdAt) : new Date();
+            if (nameEl) nameEl.textContent = displayName;
+            if (emailEl) emailEl.textContent = displayEmail;
+
+            // Handle date parsing safely (Firestore Timestamp or ISO string or Date)
+            let createdDate = new Date();
+            if (userData.createdAt) {
+                if (typeof userData.createdAt.toDate === 'function') {
+                    createdDate = userData.createdAt.toDate();
+                } else {
+                    createdDate = new Date(userData.createdAt);
+                }
+            }
             const dateStr = createdDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
             if (memberSinceEl) memberSinceEl.textContent = `Member since ${dateStr}`;
             if (infoDate) infoDate.textContent = dateStr;
 
-            if (infoName) infoName.textContent = user.name || 'Client';
-            if (infoEmail) infoEmail.textContent = user.email || 'client@domain.com';
+            if (infoName) infoName.textContent = displayName;
+            if (infoEmail) infoEmail.textContent = displayEmail;
 
-            if (settingsName) settingsName.value = user.name || '';
-            if (settingsEmail) settingsEmail.value = user.email || '';
+            if (settingsName && !settingsName.matches(':focus')) settingsName.value = displayName;
+            if (settingsEmail && !settingsEmail.matches(':focus')) settingsEmail.value = displayEmail;
+            if (settingsPhone && !settingsPhone.matches(':focus')) settingsPhone.value = displayPhone;
 
-            // Count orders
-            const allOrders = JSON.parse(localStorage.getItem('luxe_orders') || '[]');
-            const userOrders = allOrders.filter((o) => o.userId === user.email || o.customerInfo?.email === user.email);
+            // Admin Crown Icon Check
+            const adminIcon = document.getElementById('adminPanelIcon');
+            if (adminIcon) {
+                const isAdmin = (userData.email === 'aemade2016@gmail.com' || userData.isAdmin === true || userData.role === 'admin');
+                if (isAdmin) {
+                    adminIcon.classList.remove('hidden');
+                } else {
+                    adminIcon.classList.add('hidden');
+                }
+            }
 
-            if (totalOrdersEl) totalOrdersEl.textContent = userOrders.length;
-            const statsOrders = document.getElementById('statsOrders');
-            if (statsOrders) statsOrders.textContent = userOrders.length;
-
-            const wishlist = typeof getWishlist === 'function' ? getWishlist() : JSON.parse(localStorage.getItem('luxe_wishlist') || '[]');
-            const cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
+            // Stats from Wishlist & Cart
+            const wishlist = typeof window.getWishlist === 'function'
+                ? window.getWishlist()
+                : (userData.wishlist || JSON.parse(localStorage.getItem('luxe_wishlist') || '[]'));
+            const cart = typeof window.getCart === 'function'
+                ? window.getCart()
+                : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
 
             const statsWishlist = document.getElementById('statsWishlist');
             const statsCart = document.getElementById('statsCart');
-            const statsSpent = document.getElementById('statsSpent');
-
             if (statsWishlist) statsWishlist.textContent = wishlist.length;
             if (statsCart) statsCart.textContent = cart.length;
-
-            const totalSpent = userOrders.reduce((sum, o) => sum + (parseFloat(o.pricing?.total) || 0), 0);
-            if (statsSpent) statsSpent.textContent = `EGP ${totalSpent.toFixed(0)}`;
         };
 
-        // Load Orders
-        const loadOrders = () => {
+        // Render Orders List & Stats
+        const renderOrdersUI = async (userData) => {
             const container = document.getElementById('ordersList');
+            const totalOrdersEl = document.getElementById('totalOrders');
+            const statsOrders = document.getElementById('statsOrders');
+            const statsSpent = document.getElementById('statsSpent');
+
+            let orders = [];
+
+            // Attempt to load from Firestore 'orders' collection first
+            if (userData && userData.email) {
+                try {
+                    const ordersRef = collection(db, 'orders');
+                    const q = query(ordersRef, where('customerInfo.email', '==', userData.email));
+                    const snap = await getDocs(q);
+                    if (!snap.empty) {
+                        orders = snap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+                    }
+                } catch (e) {
+                    console.warn('Firestore orders fetch fallback:', e);
+                }
+            }
+
+            // Fallback to local storage if Firestore returned empty or offline
+            if (!orders.length) {
+                const localOrders = JSON.parse(localStorage.getItem('luxe_orders') || '[]');
+                if (userData && userData.email) {
+                    orders = localOrders.filter((o) => o.userId === userData.email || o.customerInfo?.email === userData.email);
+                } else {
+                    orders = localOrders;
+                }
+            }
+
+            const totalCount = orders.length;
+            if (totalOrdersEl) totalOrdersEl.textContent = totalCount;
+            if (statsOrders) statsOrders.textContent = totalCount;
+
+            const totalSpent = orders.reduce((sum, o) => sum + (parseFloat(o.pricing?.total) || 0), 0);
+            if (statsSpent) statsSpent.textContent = `EGP ${totalSpent.toFixed(0)}`;
+
             if (!container) return;
 
-            const allOrders = JSON.parse(localStorage.getItem('luxe_orders') || '[]');
-            const userOrders = allOrders.filter((o) => o.userId === user.email || o.customerInfo?.email === user.email);
-
-            if (!userOrders.length) {
+            if (!orders.length) {
                 container.innerHTML = `
                     <div class="text-center py-12 text-gray-400">
                         <i class="fas fa-box-open text-4xl mb-3 text-pink-300"></i>
@@ -556,13 +654,14 @@
                 return;
             }
 
-            container.innerHTML = userOrders.map((order) => {
-                const dateStr = new Date(order.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+            container.innerHTML = orders.map((order) => {
+                const dateVal = order.createdAt ? (order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt)) : new Date();
+                const dateStr = dateVal.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
                 const total = Number(order.pricing?.total || 0).toFixed(2);
                 const itemCount = (order.items || []).length;
-                const status = order.status || 'pending';
+                const status = (order.status || 'pending').toLowerCase();
 
-                const statusBadge = status === 'completed' || status === 'delivered'
+                const statusBadge = (status === 'completed' || status === 'delivered')
                     ? '<span class="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">Delivered</span>'
                     : '<span class="bg-amber-50 dark:bg-amber-950/60 text-amber-600 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">Processing</span>';
 
@@ -570,7 +669,7 @@
                     <div class="bg-pink-50/30 dark:bg-slate-700/30 p-4 sm:p-5 rounded-2xl border border-pink-100 dark:border-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div>
                             <div class="flex items-center space-x-2.5 mb-1">
-                                <span class="font-mono text-xs font-bold text-gray-900 dark:text-white">${order.orderId}</span>
+                                <span class="font-mono text-xs font-bold text-gray-900 dark:text-white">${order.orderId || order.id || 'ORDER'}</span>
                                 ${statusBadge}
                             </div>
                             <p class="text-xs text-gray-400">${dateStr} • ${itemCount} ${itemCount === 1 ? 'Formulation' : 'Formulations'}</p>
@@ -586,12 +685,12 @@
             }).join('');
         };
 
-        // Load Wishlist Snippet
-        const loadWishlist = () => {
+        // Render Wishlist
+        const renderWishlistUI = () => {
             const grid = document.getElementById('profileWishlistGrid');
             if (!grid) return;
 
-            const wishlist = typeof getWishlist === 'function' ? getWishlist() : JSON.parse(localStorage.getItem('luxe_wishlist') || '[]');
+            const wishlist = typeof window.getWishlist === 'function' ? window.getWishlist() : JSON.parse(localStorage.getItem('luxe_wishlist') || '[]');
             if (!wishlist.length) {
                 grid.innerHTML = '<p class="col-span-full text-xs text-gray-400 py-6 text-center">No saved formulations in your wishlist.</p>';
                 return;
@@ -599,29 +698,13 @@
 
             grid.innerHTML = wishlist.slice(0, 6).map((item) => `
                 <div class="bg-pink-50/30 dark:bg-slate-700/30 rounded-2xl p-3 border border-pink-100 dark:border-slate-700 flex flex-col justify-between">
-                    <img src="${item.image}" alt="${item.name}" class="w-full aspect-square rounded-xl object-cover mb-2">
+                    <img src="${item.image || './images/slider 1.jpeg'}" alt="${item.name}" class="w-full aspect-square rounded-xl object-cover mb-2">
                     <h4 class="font-semibold text-xs text-gray-800 dark:text-white truncate mb-1">${item.name}</h4>
                     <span class="text-xs font-bold text-pink-600 block mb-2">EGP ${Number(item.price || 0).toFixed(2)}</span>
                     <a href="wishlist.html" class="text-[11px] text-pink-600 hover:underline font-semibold">View in Wishlist</a>
                 </div>
             `).join('');
         };
-
-        // Form Submit: Settings Update
-        const settingsForm = document.getElementById('settingsForm');
-        if (settingsForm) {
-            settingsForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                user.name = document.getElementById('settingsName')?.value.trim() || user.name;
-                user.email = document.getElementById('settingsEmail')?.value.trim() || user.email;
-
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                localStorage.setItem('luxe_currentUser', JSON.stringify(user));
-
-                showToast('Profile updated successfully!');
-                loadUserData();
-            });
-        }
 
         // Clear Notifications
         const clearNotifications = () => {
@@ -631,56 +714,142 @@
             if (badge) badge.classList.add('hidden');
             showToast('All notifications read');
         };
+        window.clearNotifications = clearNotifications;
 
-        // Logout
-        const logout = () => {
+        // Sign Out Safe Handler
+        const logout = async () => {
+            try {
+                await signOut(auth);
+            } catch (err) {
+                console.warn('SignOut Firebase error:', err);
+            }
             localStorage.removeItem('currentUser');
             localStorage.removeItem('luxe_currentUser');
             sessionStorage.clear();
             showToast('Signed out safely');
             setTimeout(() => {
                 window.location.href = 'index.html';
-            }, 800);
+            }, 700);
         };
+        window.logout = logout;
 
-        // Toast Helper
-        const showToast = (message) => {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toastMessage');
-            if (!toast || !toastMessage) return;
+        // 1. Initial Quick Render from Cache to Avoid UI Glitch
+        const cachedUser = getCachedUser();
+        if (cachedUser) {
+            currentUserProfile = cachedUser;
+            renderUserData(cachedUser);
+            renderOrdersUI(cachedUser);
+            renderWishlistUI();
+        }
 
-            toastMessage.textContent = message;
-            toast.style.transform = 'translateY(0)';
+        // 2. Core Authentication Observer & Firestore Hydration
+        onAuthStateChanged(auth, async (firebaseUser) => {
+            if (firebaseUser) {
+                try {
+                    const userDocRef = doc(db, 'users', firebaseUser.uid);
+                    const userSnap = await getDoc(userDocRef);
 
-            setTimeout(() => {
-                toast.style.transform = 'translateY(8rem)';
-            }, 3000);
-        };
+                    if (userSnap.exists()) {
+                        currentUserProfile = {
+                            uid: firebaseUser.uid,
+                            email: firebaseUser.email,
+                            ...userSnap.data()
+                        };
+                    } else {
+                        // User exists in Auth but not yet in Firestore: create initial doc
+                        currentUserProfile = {
+                            uid: firebaseUser.uid,
+                            name: firebaseUser.displayName || 'VIP Client',
+                            email: firebaseUser.email,
+                            phone: firebaseUser.phoneNumber || '',
+                            photoURL: firebaseUser.photoURL || '',
+                            isAdmin: (firebaseUser.email === 'aemade2016@gmail.com'),
+                            createdAt: serverTimestamp(),
+                            orders: [],
+                            wishlist: []
+                        };
+                        await setDoc(userDocRef, currentUserProfile);
+                    }
 
-        // Initialization
-        document.addEventListener('DOMContentLoaded', () => {
-            loadUserData();
+                    // Update storage caches
+                    setCachedUser(currentUserProfile);
 
-            // Admin Crown Icon Check
-            try {
-                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-                const adminIcon = document.getElementById('adminPanelIcon');
-                if (adminIcon && (currentUser.email === 'aemade2016@gmail.com' || currentUser.isAdmin)) {
-                    adminIcon.classList.remove('hidden');
+                    // Inject fresh data into DOM
+                    renderUserData(currentUserProfile);
+                    await renderOrdersUI(currentUserProfile);
+                    renderWishlistUI();
+
+                } catch (error) {
+                    console.error('Error hydrating user from Firestore:', error);
+                    // Use fallback data if network/rules error
+                    if (!currentUserProfile) {
+                        currentUserProfile = {
+                            uid: firebaseUser.uid,
+                            name: firebaseUser.displayName || 'VIP Client',
+                            email: firebaseUser.email
+                        };
+                        renderUserData(currentUserProfile);
+                    }
                 }
-            } catch (e) {
-                console.warn('Admin check notice:', e);
-            }
-
-            // Mobile Menu
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const mobileMenu = document.getElementById('mobileMenu');
-            if (mobileMenuBtn && mobileMenu) {
-                mobileMenuBtn.addEventListener('click', () => {
-                    mobileMenu.classList.toggle('hidden');
-                });
+            } else {
+                // If Firebase Auth confirms logged out and no cached user exists, redirect to login
+                const cached = getCachedUser();
+                if (!cached) {
+                    window.location.href = 'login.html';
+                }
             }
         });
+
+        // 3. Settings Form Submission (Firestore updateDoc + Auth profile update)
+        const settingsForm = document.getElementById('settingsForm');
+        if (settingsForm) {
+            settingsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const newName = document.getElementById('settingsName')?.value.trim();
+                const newEmail = document.getElementById('settingsEmail')?.value.trim();
+                const newPhone = document.getElementById('settingsPhone')?.value.trim();
+
+                if (!newName) {
+                    showToast('Name cannot be empty', 'error');
+                    return;
+                }
+
+                try {
+                    // Update Firestore document if user is authenticated
+                    const user = auth.currentUser;
+                    if (user) {
+                        const userDocRef = doc(db, 'users', user.uid);
+                        await updateDoc(userDocRef, {
+                            name: newName,
+                            email: newEmail,
+                            phone: newPhone,
+                            updatedAt: serverTimestamp()
+                        });
+
+                        try {
+                            await updateProfile(user, { displayName: newName });
+                        } catch (pErr) {
+                            console.warn('Update Auth displayName notice:', pErr);
+                        }
+                    }
+
+                    // Update local state and cache
+                    if (!currentUserProfile) currentUserProfile = {};
+                    currentUserProfile.name = newName;
+                    currentUserProfile.email = newEmail;
+                    currentUserProfile.phone = newPhone;
+
+                    setCachedUser(currentUserProfile);
+                    renderUserData(currentUserProfile);
+
+                    showToast('Profile updated successfully!', 'success');
+                } catch (err) {
+                    console.error('Failed to update profile in Firestore:', err);
+                    showToast('Failed to save changes: ' + (err.message || 'Error occurred'), 'error');
+                }
+            });
+        }
     </script>
 </body>
 
