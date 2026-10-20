@@ -68,27 +68,47 @@ export async function signInWithGoogle() {
     try {
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
+        const isAdmin = (user.email === 'aemade2016@gmail.com');
 
-        // Check if user document exists
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        let profileData = {
+            uid: user.uid,
+            name: user.displayName || user.email.split('@')[0],
+            email: user.email,
+            photoURL: user.photoURL || '',
+            role: isAdmin ? 'admin' : 'customer',
+            isAdmin: isAdmin,
+            isBlocked: false,
+            orders: [],
+            wishlist: []
+        };
 
-        if (!userDoc.exists()) {
-            // Create user document if doesn't exist
-            await setDoc(doc(db, 'users', user.uid), {
-                uid: user.uid,
-                name: user.displayName,
-                email: user.email,
-                photoURL: user.photoURL,
-                createdAt: serverTimestamp(),
-                orders: [],
-                wishlist: []
-            });
+        // Check and sync user document in Firestore
+        try {
+            const userRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userRef);
+
+            if (!userDoc.exists()) {
+                await setDoc(userRef, {
+                    ...profileData,
+                    createdAt: serverTimestamp()
+                });
+            } else {
+                const existingData = userDoc.data();
+                profileData = {
+                    ...profileData,
+                    ...existingData,
+                    name: user.displayName || existingData.name || profileData.name,
+                    photoURL: user.photoURL || existingData.photoURL || profileData.photoURL
+                };
+            }
+        } catch (dbErr) {
+            console.warn('Firestore profile sync warning:', dbErr);
         }
 
-        return { success: true, user: user };
+        return { success: true, user: user, userData: profileData };
     } catch (error) {
         console.error('Google sign in error:', error);
-        return { success: false, error: error.message };
+        return { success: false, error: error.message, code: error.code || 'auth/unknown' };
     }
 }
 
@@ -97,27 +117,46 @@ export async function signInWithFacebook() {
     try {
         const result = await signInWithPopup(auth, facebookProvider);
         const user = result.user;
+        const isAdmin = (user.email === 'aemade2016@gmail.com');
 
-        // Check if user document exists
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        let profileData = {
+            uid: user.uid,
+            name: user.displayName || user.email.split('@')[0],
+            email: user.email,
+            photoURL: user.photoURL || '',
+            role: isAdmin ? 'admin' : 'customer',
+            isAdmin: isAdmin,
+            isBlocked: false,
+            orders: [],
+            wishlist: []
+        };
 
-        if (!userDoc.exists()) {
-            // Create user document if doesn't exist
-            await setDoc(doc(db, 'users', user.uid), {
-                uid: user.uid,
-                name: user.displayName,
-                email: user.email,
-                photoURL: user.photoURL,
-                createdAt: serverTimestamp(),
-                orders: [],
-                wishlist: []
-            });
+        try {
+            const userRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userRef);
+
+            if (!userDoc.exists()) {
+                await setDoc(userRef, {
+                    ...profileData,
+                    createdAt: serverTimestamp()
+                });
+            } else {
+                const existingData = userDoc.data();
+                profileData = {
+                    ...profileData,
+                    ...existingData,
+                    name: user.displayName || existingData.name || profileData.name,
+                    photoURL: user.photoURL || existingData.photoURL || profileData.photoURL
+                };
+            }
+        } catch (dbErr) {
+            console.warn('Firestore Facebook profile sync warning:', dbErr);
         }
 
-        return { success: true, user: user };
+        return { success: true, user: user, userData: profileData };
     } catch (error) {
         console.error('Facebook sign in error:', error);
-        return { success: false, error: error.message };
+        return { success: false, error: error.message, code: error.code || 'auth/unknown' };
     }
 }
 

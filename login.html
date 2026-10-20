@@ -243,10 +243,10 @@
                 </div>
 
                 <div class="space-y-2.5">
-                    <button onclick="loginWithGoogle()"
-                        class="w-full flex items-center justify-center space-x-2.5 bg-white dark:bg-slate-700/60 border border-pink-100 dark:border-slate-600 hover:bg-pink-50/50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200 py-3 rounded-full text-xs font-semibold transition">
+                    <button type="button" onclick="loginWithGoogle()"
+                        class="google-auth-btn w-full flex items-center justify-center space-x-2.5 bg-white dark:bg-slate-700/60 border border-pink-100 dark:border-slate-600 hover:bg-pink-50/50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200 py-3 rounded-full text-xs font-semibold transition hover:shadow-sm">
                         <i class="fab fa-google text-rose-500"></i>
-                        <span>Continue with Google</span>
+                        <span data-i18n="btn_google">Continue with Google</span>
                     </button>
 
                     <button onclick="loginWithFacebook()"
@@ -325,10 +325,10 @@
                 </div>
 
                 <div class="space-y-2.5">
-                    <button onclick="loginWithGoogle()"
-                        class="w-full flex items-center justify-center space-x-2.5 bg-white dark:bg-slate-700/60 border border-pink-100 dark:border-slate-600 hover:bg-pink-50/50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200 py-3 rounded-full text-xs font-semibold transition">
+                    <button type="button" onclick="loginWithGoogle()"
+                        class="google-auth-btn w-full flex items-center justify-center space-x-2.5 bg-white dark:bg-slate-700/60 border border-pink-100 dark:border-slate-600 hover:bg-pink-50/50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200 py-3 rounded-full text-xs font-semibold transition hover:shadow-sm">
                         <i class="fab fa-google text-rose-500"></i>
-                        <span>Continue with Google</span>
+                        <span data-i18n="btn_google_signup">Sign Up with Google</span>
                     </button>
 
                     <button onclick="loginWithFacebook()"
@@ -500,29 +500,121 @@
             });
         }
 
+        const getFriendlyAuthErrorMessage = (code, rawMsg) => {
+            const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+            switch (code) {
+                case 'auth/popup-closed-by-user':
+                    return isAr ? 'تم إغلاق نافذة تسجيل الدخول قبل اكتمال العملية.' : 'Sign in popup was closed before completing.';
+                case 'auth/cancelled-popup-request':
+                    return isAr ? 'تم إلغاء الطلب.' : 'Popup request was cancelled.';
+                case 'auth/unauthorized-domain':
+                    return isAr ? 'هذا النطاق غير مصرح به في Firebase Console. أضف النطاق إلى Authorized Domains.' : 'This domain is not authorized in Firebase Console settings.';
+                case 'auth/operation-not-allowed':
+                    return isAr ? 'تسجيل الدخول عبر Google غير مفعل في Firebase Console (Authentication > Sign-in method).' : 'Google sign-in is not enabled in Firebase Console.';
+                case 'auth/operation-not-supported-in-this-environment':
+                    return isAr ? 'خدمات Google تتطلب تشغيل خادم محلي (مثل Live Server / http://localhost) وليس فتح ملف file://' : 'Google Auth requires an HTTP/HTTPS origin (e.g. localhost via Live Server).';
+                case 'auth/network-request-failed':
+                    return isAr ? 'تعذر الاتصال بخوادم Google، تحقق من شبكة الإنترنت.' : 'Network connection failed.';
+                default:
+                    return isAr ? (rawMsg || 'فشل تسجيل الدخول عبر Google.') : (rawMsg || 'Google sign-in failed.');
+            }
+        };
+
         // Social Logins
         window.loginWithGoogle = async () => {
             sessionStorage.removeItem('redirecting_to_login');
             sessionStorage.removeItem('redirecting_from_admin');
 
-            const result = await signInWithGoogle();
-            if (result.success) {
-                const isAdmin = (result.user.email === 'aemade2016@gmail.com');
-                const userData = {
-                    uid: result.user.uid,
-                    email: result.user.email,
-                    name: result.user.displayName || 'Client',
-                    photoURL: result.user.photoURL,
-                    isAdmin,
-                    createdAt: new Date().toISOString()
-                };
+            const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+            const googleBtns = document.querySelectorAll('.google-auth-btn');
+            googleBtns.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-70', 'pointer-events-none');
+            });
 
-                localStorage.setItem('luxe_currentUser', JSON.stringify(userData));
-                localStorage.setItem('currentUser', JSON.stringify(userData));
+            try {
+                // If browsing directly via file://, Firebase popups cannot connect
+                if (window.location.protocol === 'file:') {
+                    const proceedMock = confirm(
+                        isAr
+                        ? 'تنبيه:\nأنت تتصفح الموقع عبر بروتوكول ملفات (file://).\nخدمة Google Auth تتطلب تشغيل خادم محلي (مثل Live Server على http://localhost).\n\nهل ترغب في تسجيل الدخول بحساب Google تجريبي للاختبار الآن؟'
+                        : 'Notice:\nYou are viewing this file via file:// protocol. Google Auth requires an http://localhost server (e.g. Live Server in VS Code).\n\nWould you like to test with a simulated Google Account now?'
+                    );
 
-                handleLoginSuccess(isAdmin, 'Signed in with Google!');
-            } else {
-                showToast(result.error || 'Google login failed', 'error');
+                    if (proceedMock) {
+                        const mockUser = {
+                            uid: 'google_user_' + Date.now(),
+                            email: 'client.google@gmail.com',
+                            name: 'Google Client User',
+                            photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+                            isAdmin: false,
+                            role: 'customer',
+                            isBlocked: false,
+                            createdAt: new Date().toISOString()
+                        };
+
+                        localStorage.setItem('luxe_currentUser', JSON.stringify(mockUser));
+                        localStorage.setItem('currentUser', JSON.stringify(mockUser));
+
+                        try {
+                            let localUsers = JSON.parse(localStorage.getItem('luxe_users') || '[]');
+                            const idx = localUsers.findIndex(u => u.email === mockUser.email);
+                            if (idx > -1) {
+                                localUsers[idx] = { ...localUsers[idx], ...mockUser };
+                            } else {
+                                localUsers.push(mockUser);
+                            }
+                            localStorage.setItem('luxe_users', JSON.stringify(localUsers));
+                        } catch (e) {}
+
+                        handleLoginSuccess(false, isAr ? 'تم تسجيل الدخول بحساب Google بنجاح!' : 'Signed in with Google!');
+                        return;
+                    }
+                }
+
+                const result = await signInWithGoogle();
+                if (result.success) {
+                    const isAdmin = (result.user.email === 'aemade2016@gmail.com') || (result.userData?.role === 'admin') || (result.userData?.isAdmin === true);
+                    const userData = {
+                        uid: result.user.uid,
+                        email: result.user.email,
+                        name: result.user.displayName || result.userData?.name || 'Client',
+                        photoURL: result.user.photoURL || result.userData?.photoURL || '',
+                        isAdmin,
+                        role: isAdmin ? 'admin' : (result.userData?.role || 'customer'),
+                        isBlocked: !!result.userData?.isBlocked,
+                        orders: result.userData?.orders || [],
+                        createdAt: result.userData?.createdAt || new Date().toISOString()
+                    };
+
+                    localStorage.setItem('luxe_currentUser', JSON.stringify(userData));
+                    localStorage.setItem('currentUser', JSON.stringify(userData));
+
+                    // Sync with luxe_users
+                    try {
+                        let localUsers = JSON.parse(localStorage.getItem('luxe_users') || '[]');
+                        const idx = localUsers.findIndex(u => u.email === userData.email);
+                        if (idx > -1) {
+                            localUsers[idx] = { ...localUsers[idx], ...userData };
+                        } else {
+                            localUsers.push(userData);
+                        }
+                        localStorage.setItem('luxe_users', JSON.stringify(localUsers));
+                    } catch (e) {}
+
+                    handleLoginSuccess(isAdmin, isAr ? `مرحباً بك، ${userData.name}! ✨` : `Welcome, ${userData.name}!`);
+                } else {
+                    const friendlyMsg = getFriendlyAuthErrorMessage(result.code, result.error);
+                    showToast(friendlyMsg, 'error');
+                }
+            } catch (err) {
+                console.error('Google Auth Error:', err);
+                showToast(isAr ? 'حدث خطأ أثناء الاتصال بخدمة Google' : 'Error connecting to Google service', 'error');
+            } finally {
+                googleBtns.forEach(btn => {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-70', 'pointer-events-none');
+                });
             }
         };
 
