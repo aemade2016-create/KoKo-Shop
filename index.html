@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth overflow-x-hidden max-w-[100vw]">
 
 <head>
     <meta charset="UTF-8">
@@ -59,7 +59,7 @@
     </script>
 </head>
 
-<body class="bg-[#fdf8fa] dark:bg-[#0f172a] text-gray-800 dark:text-gray-100 transition-colors duration-300 antialiased selection:bg-pink-100 selection:text-pink-600">
+<body class="bg-[#fdf8fa] dark:bg-[#0f172a] text-gray-800 dark:text-gray-100 transition-colors duration-300 antialiased selection:bg-pink-100 selection:text-pink-600 overflow-x-hidden max-w-[100vw] w-full">
 
     <!-- Top Announcement Bar -->
     <aside aria-label="Announcement" class="bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white text-xs font-medium py-2.5 px-4">
@@ -917,7 +917,7 @@
     </section>
 
     <!-- Footer -->
-    <footer id="contact" class="bg-gray-900 text-gray-300 py-16 border-t border-gray-800">
+    <footer id="contact" class="bg-gray-900 text-gray-300 py-16 border-t border-gray-800 overflow-x-hidden max-w-[100vw]">
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
                 <!-- Brand -->
@@ -930,17 +930,17 @@
                         Pure botanical intelligence for transcendent skin. Formulated with biocompatible actives and certified clean standards.
                     </p>
                     <div class="flex space-x-3">
-                        <a href="#" class="w-9 h-9 bg-gray-800 hover:bg-pink-500 hover:text-white text-gray-400 rounded-full flex items-center justify-center transition" aria-label="Instagram">
+                        <a href="#" class="cms-footer-social-instagram w-9 h-9 bg-gray-800 hover:bg-pink-500 hover:text-white text-gray-400 rounded-full flex items-center justify-center transition" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
                             <i class="fab fa-instagram text-sm"></i>
                         </a>
-                        <a href="#" class="w-9 h-9 bg-gray-800 hover:bg-pink-500 hover:text-white text-gray-400 rounded-full flex items-center justify-center transition" aria-label="Facebook">
+                        <a href="#" class="cms-footer-social-facebook w-9 h-9 bg-gray-800 hover:bg-pink-500 hover:text-white text-gray-400 rounded-full flex items-center justify-center transition" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
                             <i class="fab fa-facebook-f text-sm"></i>
                         </a>
-                        <a href="#" class="w-9 h-9 bg-gray-800 hover:bg-pink-500 hover:text-white text-gray-400 rounded-full flex items-center justify-center transition" aria-label="TikTok">
+                        <a href="#" class="cms-footer-social-tiktok w-9 h-9 bg-gray-800 hover:bg-pink-500 hover:text-white text-gray-400 rounded-full flex items-center justify-center transition" aria-label="TikTok" target="_blank" rel="noopener noreferrer">
                             <i class="fab fa-tiktok text-sm"></i>
                         </a>
-                        <a href="#" class="w-9 h-9 bg-gray-800 hover:bg-pink-500 hover:text-white text-gray-400 rounded-full flex items-center justify-center transition" aria-label="Pinterest">
-                            <i class="fab fa-pinterest-p text-sm"></i>
+                        <a href="#" class="cms-footer-social-whatsapp w-9 h-9 bg-gray-800 hover:bg-pink-500 hover:text-white text-gray-400 rounded-full flex items-center justify-center transition" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-whatsapp text-sm"></i>
                         </a>
                     </div>
                 </div>
@@ -953,7 +953,7 @@
                         <li><a href="products.html" class="hover:text-pink-400 transition">All Formulations</a></li>
                         <li><a href="products.html?category=Serum" class="hover:text-pink-400 transition">Serums & Treatments</a></li>
                         <li><a href="products.html?category=Moisturizer" class="hover:text-pink-400 transition">Barrier Creams</a></li>
-                        <li><a href="#skin-quiz" class="hover:text-pink-400 transition">Skin Diagnostic Quiz</a></li>
+                        <li><a href="javascript:void(0)" onclick="if(typeof openSkinQuiz==='function'){openSkinQuiz();}else if(typeof startSkinQuiz==='function'){startSkinQuiz();}" class="hover:text-pink-400 transition">Skin Diagnostic Quiz</a></li>
                     </ul>
                 </div>
 
@@ -962,10 +962,10 @@
                     <h3 class="text-white font-semibold text-sm uppercase tracking-wider mb-4">Customer Care</h3>
                     <ul class="space-y-2.5 text-sm">
                         <li><a href="about.html" class="hover:text-pink-400 transition">About Our Clean Ethos</a></li>
-                        <li><a href="#" class="hover:text-pink-400 transition">Express Shipping & Delivery</a></li>
-                        <li><a href="#" class="hover:text-pink-400 transition">30-Day Radiant Guarantee</a></li>
-                        <li><a href="#" class="hover:text-pink-400 transition">Ingredient Transparency</a></li>
+                        <li><a href="wishlist.html" class="hover:text-pink-400 transition">My Saved Rituals</a></li>
+                        <li><a href="cart.html" class="hover:text-pink-400 transition">Shopping Bag & Checkout</a></li>
                         <li><a href="profile.html" class="hover:text-pink-400 transition">Track Your Order</a></li>
+                        <li><a href="about.html#concierge" class="hover:text-pink-400 transition">Ingredient Transparency</a></li>
                     </ul>
                 </div>
 
@@ -1371,11 +1371,20 @@
                 image = './images/slider 1.jpeg',
                 price = 0,
                 originalPrice = 0,
+                salePrice = 0,
                 rating = 5,
                 reviews = 0,
                 hasDiscount = false,
-                discountPercent = 0
+                discountPercent = 0,
+                savings = 0
             } = product;
+
+            // Dynamic Discount System (CRO Optimized)
+            const currentPrice = Number(salePrice || price || 0);
+            const origPrice = Number(originalPrice || currentPrice);
+            const calculatedSavings = Number(savings) || Math.max(origPrice - currentPrice, 0);
+            const isDiscounted = (calculatedSavings > 0) || (hasDiscount && origPrice > currentPrice);
+            const savingsFormatted = calculatedSavings % 1 === 0 ? calculatedSavings.toFixed(0) : calculatedSavings.toFixed(2);
 
             const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
             const catMap = {
@@ -1388,11 +1397,11 @@
             };
             const displayCategory = isAr ? (catMap[category] || (window.i18n?.translateText?.(category) || category)) : category;
             const displayName = isAr ? (window.i18n?.translateText?.(name) || name) : (window.i18n?.reverseTranslateText?.(name) || name);
-            const priceFormatted = isAr ? `${Number(price).toFixed(2)} ج.م` : `EGP ${Number(price).toFixed(2)}`;
-            const oldPriceFormatted = isAr ? `${Number(originalPrice).toFixed(2)} ج.م` : `EGP ${Number(originalPrice).toFixed(2)}`;
+            const priceFormatted = isAr ? `${currentPrice.toFixed(2)} ج.م` : `EGP ${currentPrice.toFixed(2)}`;
+            const oldPriceFormatted = isAr ? `${origPrice.toFixed(2)} ج.م` : `EGP ${origPrice.toFixed(2)}`;
             const addToBagText = isAr ? 'أضف للحقيبة' : 'Add to Bag';
             const wishlistTitle = isAr ? 'أضف إلى قائمة الرغبات' : 'Add to Wishlist';
-            const badgeText = hasDiscount ? (isAr ? `خصم ${discountPercent}%` : `-${discountPercent}%`) : '';
+            const badgeText = isAr ? `وفرت ${savingsFormatted} ج.م` : `Save EGP ${savingsFormatted}`;
 
             return `
                 <div class="product-card group relative bg-white dark:bg-slate-800 rounded-2xl border border-pink-100/80 dark:border-slate-700/80 p-4 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between cursor-pointer" data-product-id="${id}" onclick="showProductDetail('${id}')">
@@ -1407,10 +1416,11 @@
                             <i class="far fa-heart text-xs" data-wishlist-id="${id}"></i>
                         </button>
 
-                        <!-- Discount Bubble -->
-                        ${hasDiscount ? `
-                            <span class="absolute top-2.5 left-2.5 bg-pink-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-sm">
-                                ${badgeText}
+                        <!-- Dynamic Discount Badge (وفرت X) -->
+                        ${isDiscounted ? `
+                            <span class="absolute top-2.5 left-2.5 z-10 bg-gradient-to-r from-pink-600 to-rose-500 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+                                <i class="fas fa-tag text-[9px]"></i>
+                                <span>${badgeText}</span>
                             </span>
                         ` : ''}
                     </div>
@@ -1429,11 +1439,11 @@
 
                         <!-- Price & Action -->
                         <div class="pt-2 border-t border-pink-50 dark:border-slate-700/60">
-                            <div class="flex items-baseline space-x-2 mb-3">
-                                ${hasDiscount && originalPrice > price ? `
-                                    <span class="text-xs text-gray-400 line-through">${oldPriceFormatted}</span>
-                                ` : ''}
+                            <div class="flex items-baseline gap-2 mb-3 flex-wrap">
                                 <span class="text-lg font-bold font-display text-pink-600">${priceFormatted}</span>
+                                ${isDiscounted && origPrice > currentPrice ? `
+                                    <span class="text-xs text-gray-400 line-through decoration-pink-400 font-medium">${oldPriceFormatted}</span>
+                                ` : ''}
                             </div>
 
                             <button data-action="add-to-cart" data-product-id="${id}" onclick="event.stopPropagation(); addToCartFromIndex('${id}')" 
@@ -1475,6 +1485,20 @@
         };
 
         const toggleWishlistFromIndex = (productId) => {
+            const isUserAuth = (window.LuxeBeauty && typeof window.LuxeBeauty.isLoggedIn === 'function')
+                ? window.LuxeBeauty.isLoggedIn()
+                : (typeof isLoggedIn === 'function' ? isLoggedIn() : (!!localStorage.getItem('currentUser') || !!localStorage.getItem('luxe_currentUser')));
+
+            if (!isUserAuth) {
+                const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+                showToast(isAr ? 'يجب تسجيل الدخول أولاً لحفظ المنتجات في المفضلة' : 'Please log in first to save items to your wishlist');
+                sessionStorage.setItem('loginRedirect', window.location.href);
+                setTimeout(() => {
+                    window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+                }, 1200);
+                return;
+            }
+
             const productList = (typeof getProducts === 'function' ? getProducts() : products) || [];
             const product = productList.find((p) => String(p.id) === String(productId));
             if (window.LuxeBeauty && typeof window.LuxeBeauty.toggleWishlist === 'function') {
@@ -1505,11 +1529,20 @@
                 description = 'Clinical botanical formula designed to restore skin barrier health, hydration, and natural radiance.',
                 price = 0,
                 originalPrice = 0,
+                salePrice = 0,
                 rating = 5,
                 reviews = 0,
                 hasDiscount = false,
-                discountPercent = 0
+                discountPercent = 0,
+                savings = 0
             } = product;
+
+            // Dynamic Discount System (CRO Optimized)
+            const currentPrice = Number(salePrice || price || 0);
+            const origPrice = Number(originalPrice || currentPrice);
+            const calculatedSavings = Number(savings) || Math.max(origPrice - currentPrice, 0);
+            const isDiscounted = (calculatedSavings > 0) || (hasDiscount && origPrice > currentPrice);
+            const savingsFormatted = calculatedSavings % 1 === 0 ? calculatedSavings.toFixed(0) : calculatedSavings.toFixed(2);
 
             const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
             const catMap = {
@@ -1523,12 +1556,12 @@
             const displayCategory = isAr ? (catMap[category] || (window.i18n?.translateText?.(category) || category)) : category;
             const displayName = isAr ? (window.i18n?.translateText?.(name) || name) : (window.i18n?.reverseTranslateText?.(name) || name);
             const displayDesc = isAr ? (window.i18n?.translateText?.(description) || description) : (window.i18n?.reverseTranslateText?.(description) || description);
-            const priceFormatted = isAr ? `${Number(price).toFixed(2)} ج.م` : `EGP ${Number(price).toFixed(2)}`;
-            const oldPriceFormatted = isAr ? `${Number(originalPrice).toFixed(2)} ج.م` : `EGP ${Number(originalPrice).toFixed(2)}`;
+            const priceFormatted = isAr ? `${currentPrice.toFixed(2)} ج.م` : `EGP ${currentPrice.toFixed(2)}`;
+            const oldPriceFormatted = isAr ? `${origPrice.toFixed(2)} ج.م` : `EGP ${origPrice.toFixed(2)}`;
             const addToBagText = isAr ? 'أضف للحقيبة' : 'Add to Bag';
             const addToWishlistText = isAr ? 'أضف إلى قائمة الرغبات' : 'Add to Wishlist';
             const reviewsLabel = isAr ? 'تقييمات موثقة' : 'reviews';
-            const discountLabel = isAr ? `خصم ${discountPercent}%` : `-${discountPercent}% OFF`;
+            const badgeText = isAr ? `وفرت ${savingsFormatted} ج.م` : `Save EGP ${savingsFormatted}`;
 
             content.innerHTML = `
                 <div class="grid md:grid-cols-2 gap-8 items-center text-left">
@@ -1536,11 +1569,12 @@
                         <img src="${image}" alt="${displayName}" class="w-full h-full object-cover">
                     </div>
                     <div>
-                        <div class="flex items-center gap-2 mb-2">
+                        <div class="flex items-center gap-2 mb-2 flex-wrap">
                             <span class="text-xs text-pink-600 dark:text-pink-400 font-bold uppercase tracking-wider">${displayCategory}</span>
-                            ${hasDiscount ? `
-                                <span class="bg-pink-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
-                                    ${discountLabel}
+                            ${isDiscounted ? `
+                                <span class="inline-flex items-center gap-1 bg-gradient-to-r from-pink-600 to-rose-500 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-sm">
+                                    <i class="fas fa-tag text-[9px]"></i>
+                                    <span>${badgeText}</span>
                                 </span>
                             ` : ''}
                         </div>
@@ -1550,11 +1584,11 @@
                             <span class="text-xs text-gray-400 ml-2">(${reviews} ${reviewsLabel})</span>
                         </div>
                         <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-6">${displayDesc}</p>
-                        <div class="flex items-baseline space-x-3 mb-6">
-                            ${hasDiscount && originalPrice > price ? `
-                                <span class="text-sm text-gray-400 line-through">${oldPriceFormatted}</span>
-                            ` : ''}
+                        <div class="flex items-baseline gap-3 mb-6 flex-wrap">
                             <span class="text-3xl font-bold font-display text-pink-600">${priceFormatted}</span>
+                            ${isDiscounted && origPrice > currentPrice ? `
+                                <span class="text-base text-gray-400 line-through decoration-pink-400 font-medium">${oldPriceFormatted}</span>
+                            ` : ''}
                         </div>
                         <div class="space-y-3">
                             <button onclick="addToCartFromIndex('${id}'); closeProductModal();" 
@@ -1951,6 +1985,16 @@
             loadHeroBanners();
             renderProducts();
             loadReviews();
+        });
+
+        // Listen for product catalog updates from Admin
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'luxe_products' || e.key === 'luxe_products_updated') {
+                renderProducts();
+            }
+        });
+        window.addEventListener('products-updated', () => {
+            renderProducts();
         });
 
         // Initialize immediately as DOM is ready

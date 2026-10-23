@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth overflow-x-hidden max-w-[100vw]">
 
 <head>
     <meta charset="UTF-8">
@@ -51,7 +51,7 @@
     </script>
 </head>
 
-<body class="bg-[#fdf8fa] dark:bg-[#0f172a] text-gray-800 dark:text-gray-100 transition-colors duration-300 antialiased selection:bg-pink-100 selection:text-pink-600 min-h-screen flex flex-col">
+<body class="bg-[#fdf8fa] dark:bg-[#0f172a] text-gray-800 dark:text-gray-100 transition-colors duration-300 antialiased selection:bg-pink-100 selection:text-pink-600 min-h-screen flex flex-col overflow-x-hidden max-w-[100vw] w-full">
 
     <!-- Top Announcement Bar -->
     <aside aria-label="Announcement" class="bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white text-xs font-medium py-2.5 px-4">
@@ -318,7 +318,7 @@
     </div>
 
     <!-- Luxury Dark Footer -->
-    <footer class="bg-slate-900 text-gray-300 pt-16 pb-12 mt-auto border-t border-pink-900/20">
+    <footer class="bg-slate-900 text-gray-300 pt-16 pb-12 mt-auto border-t border-pink-900/20 overflow-x-hidden max-w-[100vw]">
         <div class="container mx-auto px-4 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
                 <!-- Brand Info -->
@@ -327,37 +327,38 @@
                         <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
                             <i class="fa-brands fa-shopify text-base"></i>
                         </div>
-                        <span class="text-2xl font-display font-bold text-white tracking-tight">Koko Shop</span>
+                        <span class="text-2xl font-display font-bold text-white tracking-tight">KoKo <span class="italic font-normal text-pink-400">Shop</span></span>
                     </a>
                     <p class="cms-footer-about text-xs text-gray-400 leading-relaxed mb-6">
                         Clean botanical clinical formulations crafted for discerning skincare rituals. Certified non-comedogenic and cruelty-free.
                     </p>
                     <div class="flex space-x-3 text-sm text-gray-400">
-                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-pink-400 hover:bg-slate-700 transition"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-pink-400 hover:bg-slate-700 transition"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-pink-400 hover:bg-slate-700 transition"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" class="cms-footer-social-instagram w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-white hover:bg-pink-500 transition" aria-label="Instagram" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="cms-footer-social-facebook w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-white hover:bg-pink-500 transition" aria-label="Facebook" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="cms-footer-social-tiktok w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-white hover:bg-pink-500 transition" aria-label="TikTok" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" class="cms-footer-social-whatsapp w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-white hover:bg-pink-500 transition" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
 
                 <!-- Quick Links -->
                 <div>
-                    <h3 class="text-white font-display font-semibold text-sm mb-4 tracking-wider uppercase text-pink-400">Quick Links</h3>
+                    <h3 class="text-white font-display font-semibold text-sm mb-4 tracking-wider uppercase text-pink-400">Shop by Ritual</h3>
                     <ul class="space-y-2.5 text-xs text-gray-400">
-                        <li><a href="index.html" class="hover:text-pink-400 transition">Home</a></li>
-                        <li><a href="products.html" class="hover:text-pink-400 transition">Products & Catalog</a></li>
-                        <li><a href="about.html" class="hover:text-pink-400 transition">About Our Philosophy</a></li>
-                        <li><a href="index.html#contact" class="hover:text-pink-400 transition">Contact Concierge</a></li>
+                        <li><a href="products.html" class="hover:text-pink-400 transition">All Formulations</a></li>
+                        <li><a href="products.html?category=Serum" class="hover:text-pink-400 transition">Serums & Elixirs</a></li>
+                        <li><a href="products.html?category=Moisturizer" class="hover:text-pink-400 transition">Barrier Creams</a></li>
+                        <li><a href="index.html#skin-quiz" class="hover:text-pink-400 transition">Diagnostic Skin Quiz</a></li>
                     </ul>
                 </div>
 
                 <!-- Client Service -->
                 <div>
-                    <h3 class="text-white font-display font-semibold text-sm mb-4 tracking-wider uppercase text-pink-400">Client Service</h3>
+                    <h3 class="text-white font-display font-semibold text-sm mb-4 tracking-wider uppercase text-pink-400">Concierge</h3>
                     <ul class="space-y-2.5 text-xs text-gray-400">
-                        <li><a href="profile.html" class="hover:text-pink-400 transition">Order History & Tracking</a></li>
+                        <li><a href="about.html" class="hover:text-pink-400 transition">About Our Clean Ethos</a></li>
                         <li><a href="wishlist.html" class="hover:text-pink-400 transition">Saved Formulations</a></li>
-                        <li><a href="index.html#skin-quiz" class="hover:text-pink-400 transition">Skin Quiz Concierge</a></li>
-                        <li><a href="#" class="hover:text-pink-400 transition">Shipping & Return Policy</a></li>
+                        <li><a href="cart.html" class="hover:text-pink-400 transition">Shopping Bag & Checkout</a></li>
+                        <li><a href="profile.html" class="hover:text-pink-400 transition">Order History & Tracking</a></li>
                     </ul>
                 </div>
 
@@ -373,7 +374,7 @@
             </div>
 
             <div class="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
-                <p class="cms-footer-copyright">&copy; 2026 Koko Shop. All botanical clinical formulations preserved.</p>
+                <p class="cms-footer-copyright">&copy; 2026 KoKo Shop. All botanical clinical formulations preserved.</p>
                 <div class="flex items-center space-x-4 text-gray-400">
                     <span class="flex items-center"><i class="fab fa-cc-visa text-lg mr-2"></i> Visa</span>
                     <span class="flex items-center"><i class="fab fa-cc-mastercard text-lg mr-2"></i> Mastercard</span>
@@ -398,27 +399,45 @@
                 quantity = 1
             } = item;
 
-            const unitPrice = parseFloat(price) || 0;
+            const isGift = Boolean(item.isGift || item.id === 'free-gift-promo');
+            const unitPrice = isGift ? 0 : (parseFloat(price) || 0);
             const itemTotal = unitPrice * (parseInt(quantity, 10) || 1);
             const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
             const displayName = window.i18n ? window.i18n.translateText(name) : name;
-            const unitPriceFormatted = isAr ? `${unitPrice.toFixed(2)} ج.م` : `EGP ${unitPrice.toFixed(2)}`;
-            const itemTotalFormatted = isAr ? `${itemTotal.toFixed(2)} ج.م` : `EGP ${itemTotal.toFixed(2)}`;
+            const unitPriceFormatted = isGift 
+                ? (isAr ? '0.00 ج.م' : 'EGP 0.00') 
+                : (isAr ? `${unitPrice.toFixed(2)} ج.م` : `EGP ${unitPrice.toFixed(2)}`);
+            const itemTotalFormatted = isGift 
+                ? (isAr ? '0.00 ج.م' : 'EGP 0.00') 
+                : (isAr ? `${itemTotal.toFixed(2)} ج.م` : `EGP ${itemTotal.toFixed(2)}`);
             const perUnitText = isAr ? 'لكل عبوة' : '/ unit';
             const removeTitle = isAr ? 'حذف المنتج من الحقيبة' : 'Remove item';
 
             return `
-                <div class="p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 hover:bg-pink-50/30 dark:hover:bg-slate-700/30 rounded-2xl transition-all duration-300">
+                <div class="p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 hover:bg-pink-50/30 dark:hover:bg-slate-700/30 rounded-2xl transition-all duration-300 ${isGift ? 'bg-pink-50/40 dark:bg-pink-950/20 border border-pink-200/60 dark:border-pink-800/40' : ''}">
                     <!-- Thumbnail -->
-                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-pink-50 dark:bg-slate-900 border border-pink-100 dark:border-slate-700 flex-shrink-0">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-pink-50 dark:bg-slate-900 border border-pink-100 dark:border-slate-700 flex-shrink-0 relative">
                         <img src="${image}" alt="${displayName}" class="w-full h-full object-cover">
+                        ${isGift ? `
+                            <span class="absolute top-1 left-1 bg-pink-500 text-white text-[9px] font-bold p-1 rounded-full flex items-center justify-center">
+                                <i class="fas fa-gift text-[8px]"></i>
+                            </span>
+                        ` : ''}
                     </div>
 
                     <!-- Details -->
                     <div class="flex-1 text-center sm:text-left">
-                        <h3 class="font-display font-semibold text-gray-900 dark:text-white text-base mb-1">${displayName}</h3>
+                        <div class="flex items-center gap-2 justify-center sm:justify-start flex-wrap mb-1">
+                            <h3 class="font-display font-semibold text-gray-900 dark:text-white text-base">${displayName}</h3>
+                            ${isGift ? `
+                                <span class="inline-flex items-center gap-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                                    <i class="fas fa-gift text-[9px]"></i>
+                                    <span>${isAr ? 'هدية مجانية' : 'Free Gift'}</span>
+                                </span>
+                            ` : ''}
+                        </div>
                         <p class="text-xs font-semibold text-pink-600 dark:text-pink-400 mb-3">
-                            ${unitPriceFormatted} <span class="text-gray-400 font-normal">${perUnitText}</span>
+                            ${unitPriceFormatted} ${!isGift ? `<span class="text-gray-400 font-normal">${perUnitText}</span>` : ''}
                         </p>
 
                         <!-- Quantity Stepper -->
@@ -429,11 +448,17 @@
                                 <i class="fas fa-minus text-[10px]"></i>
                             </button>
                             <span class="font-semibold text-xs text-gray-900 dark:text-white w-6 text-center">${quantity}</span>
-                            <button onclick="updateQuantity('${id}', 1)" 
-                                class="w-7 h-7 bg-white dark:bg-slate-800 rounded-full text-gray-700 dark:text-gray-300 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-slate-700 transition flex items-center justify-center text-xs shadow-sm"
-                                title="Increase quantity" aria-label="Increase quantity">
-                                <i class="fas fa-plus text-[10px]"></i>
-                            </button>
+                            ${!isGift ? `
+                                <button onclick="updateQuantity('${id}', 1)" 
+                                    class="w-7 h-7 bg-white dark:bg-slate-800 rounded-full text-gray-700 dark:text-gray-300 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-slate-700 transition flex items-center justify-center text-xs shadow-sm"
+                                    title="Increase quantity" aria-label="Increase quantity">
+                                    <i class="fas fa-plus text-[10px]"></i>
+                                </button>
+                            ` : `
+                                <span class="w-7 h-7 flex items-center justify-center text-[10px] text-gray-400" title="Max 1 gift per order">
+                                    <i class="fas fa-lock text-[8px]"></i>
+                                </span>
+                            `}
                         </div>
                     </div>
 
@@ -444,7 +469,7 @@
                             title="${removeTitle}" aria-label="${removeTitle}">
                             <i class="far fa-trash-can text-sm"></i>
                         </button>
-                        <span class="text-base font-bold font-display text-gray-900 dark:text-white">
+                        <span class="text-base font-bold font-display ${isGift ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'}">
                             ${itemTotalFormatted}
                         </span>
                     </div>
@@ -521,6 +546,9 @@
                 const item = cart.find((i) => String(i.id) === String(productId));
 
                 if (item) {
+                    if ((item.isGift || item.id === 'free-gift-promo') && change > 0) {
+                        return;
+                    }
                     item.quantity = (parseInt(item.quantity, 10) || 1) + change;
 
                     if (item.quantity <= 0) {

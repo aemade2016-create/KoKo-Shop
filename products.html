@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth overflow-x-hidden max-w-[100vw]">
 
 <head>
     <meta charset="UTF-8">
@@ -49,7 +49,7 @@
     </script>
 </head>
 
-<body class="bg-[#fdf8fa] dark:bg-[#0f172a] text-gray-800 dark:text-gray-100 transition-colors duration-300 antialiased selection:bg-pink-100 selection:text-pink-600 min-h-screen flex flex-col">
+<body class="bg-[#fdf8fa] dark:bg-[#0f172a] text-gray-800 dark:text-gray-100 transition-colors duration-300 antialiased selection:bg-pink-100 selection:text-pink-600 min-h-screen flex flex-col overflow-x-hidden max-w-[100vw] w-full">
 
     <!-- Top Announcement Bar -->
     <aside aria-label="Announcement" class="bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white text-xs font-medium py-2.5 px-4">
@@ -401,7 +401,7 @@
     </div>
 
     <!-- Luxury Dark Footer -->
-    <footer class="bg-slate-900 text-gray-300 pt-16 pb-12 mt-auto border-t border-pink-900/20">
+    <footer class="bg-slate-900 text-gray-300 pt-16 pb-12 mt-auto border-t border-pink-900/20 overflow-x-hidden max-w-[100vw]">
         <div class="container mx-auto px-4 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
                 <!-- Brand Info -->
@@ -410,15 +410,16 @@
                         <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
                             <i class="fa-brands fa-shopify text-base"></i>
                         </div>
-                        <span class="text-2xl font-display font-bold text-white tracking-tight">Koko Shop</span>
+                        <span class="text-2xl font-display font-bold text-white tracking-tight">KoKo <span class="italic font-normal text-pink-400">Shop</span></span>
                     </a>
                     <p class="cms-footer-about text-xs text-gray-400 leading-relaxed mb-6">
                         Clean botanical clinical formulations crafted for discerning skincare rituals. Certified non-comedogenic and cruelty-free.
                     </p>
                     <div class="flex space-x-3 text-sm text-gray-400">
-                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-pink-400 hover:bg-slate-700 transition"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-pink-400 hover:bg-slate-700 transition"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-pink-400 hover:bg-slate-700 transition"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" class="cms-footer-social-instagram w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-white hover:bg-pink-500 transition" aria-label="Instagram" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="cms-footer-social-facebook w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-white hover:bg-pink-500 transition" aria-label="Facebook" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="cms-footer-social-tiktok w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-white hover:bg-pink-500 transition" aria-label="TikTok" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" class="cms-footer-social-whatsapp w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-white hover:bg-pink-500 transition" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
 
@@ -426,10 +427,10 @@
                 <div>
                     <h3 class="text-white font-display font-semibold text-sm mb-4 tracking-wider uppercase text-pink-400">Shop by Ritual</h3>
                     <ul class="space-y-2.5 text-xs text-gray-400">
-                        <li><a href="products.html" class="hover:text-pink-400 transition">Brightening & Vitamin C</a></li>
-                        <li><a href="products.html" class="hover:text-pink-400 transition">Barrier Ceramides & Dew</a></li>
-                        <li><a href="products.html" class="hover:text-pink-400 transition">Deep Cleansing Balms</a></li>
-                        <li><a href="products.html" class="hover:text-pink-400 transition">Mineral Veil Sunscreens</a></li>
+                        <li><a href="products.html" class="hover:text-pink-400 transition">All Formulations</a></li>
+                        <li><a href="products.html?category=Serum" class="hover:text-pink-400 transition">Serums & Elixirs</a></li>
+                        <li><a href="products.html?category=Moisturizer" class="hover:text-pink-400 transition">Barrier Creams</a></li>
+                        <li><a href="index.html#skin-quiz" class="hover:text-pink-400 transition">Diagnostic Skin Quiz</a></li>
                     </ul>
                 </div>
 
@@ -437,10 +438,10 @@
                 <div>
                     <h3 class="text-white font-display font-semibold text-sm mb-4 tracking-wider uppercase text-pink-400">Concierge</h3>
                     <ul class="space-y-2.5 text-xs text-gray-400">
-                        <li><a href="index.html#skin-quiz" class="hover:text-pink-400 transition">Diagnostic Skin Quiz</a></li>
-                        <li><a href="about.html" class="hover:text-pink-400 transition">Clinical Philosophy</a></li>
-                        <li><a href="profile.html" class="hover:text-pink-400 transition">Order Tracking & Rituals</a></li>
-                        <li><a href="wishlist.html" class="hover:text-pink-400 transition">Saved Formulations</a></li>
+                        <li><a href="about.html" class="hover:text-pink-400 transition">About Our Clean Ethos</a></li>
+                        <li><a href="wishlist.html" class="hover:text-pink-400 transition">My Saved Rituals</a></li>
+                        <li><a href="cart.html" class="hover:text-pink-400 transition">Shopping Bag & Checkout</a></li>
+                        <li><a href="profile.html" class="hover:text-pink-400 transition">Order Tracking & History</a></li>
                     </ul>
                 </div>
 
@@ -456,7 +457,7 @@
             </div>
 
             <div class="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
-                <p class="cms-footer-copyright">&copy; 2026 Koko Shop. All botanical clinical formulations preserved.</p>
+                <p class="cms-footer-copyright">&copy; 2026 KoKo Shop. All botanical clinical formulations preserved.</p>
                 <div class="flex items-center space-x-4 text-gray-400">
                     <span class="flex items-center"><i class="fab fa-cc-visa text-lg mr-2"></i> Visa</span>
                     <span class="flex items-center"><i class="fab fa-cc-mastercard text-lg mr-2"></i> Mastercard</span>
@@ -607,23 +608,32 @@
                 image = './images/slider 1.jpeg',
                 price = 0,
                 originalPrice = 0,
+                salePrice = 0,
                 rating = 5,
                 reviews = 0,
                 description = '',
                 hasDiscount = false,
-                discountPercent = 0
+                discountPercent = 0,
+                savings = 0
             } = product;
+
+            // Dynamic Discount System (CRO Optimized)
+            const currentPrice = Number(salePrice || price || 0);
+            const origPrice = Number(originalPrice || currentPrice);
+            const calculatedSavings = Number(savings) || Math.max(origPrice - currentPrice, 0);
+            const isDiscounted = (calculatedSavings > 0) || (hasDiscount && origPrice > currentPrice);
+            const savingsFormatted = calculatedSavings % 1 === 0 ? calculatedSavings.toFixed(0) : calculatedSavings.toFixed(2);
 
             const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
             const displayName = window.i18n ? window.i18n.translateText(name) : name;
             const displayDesc = window.i18n ? window.i18n.translateText(description) : (description || 'Pure bio-compatible botanical formulation.');
             const canonicalCategory = typeof category === 'object' ? (category.en || category.ar || '') : category;
             const displayCategory = window.getLocalized ? window.getLocalized(category, canonicalCategory) : (window.i18n ? window.i18n.translateText(canonicalCategory) : canonicalCategory);
-            const priceFormatted = isAr ? `${Number(price).toFixed(2)} ج.م` : `EGP ${Number(price).toFixed(2)}`;
-            const oldPriceFormatted = isAr ? `${Number(originalPrice).toFixed(2)} ج.م` : `EGP ${Number(originalPrice).toFixed(2)}`;
+            const priceFormatted = isAr ? `${currentPrice.toFixed(2)} ج.م` : `EGP ${currentPrice.toFixed(2)}`;
+            const oldPriceFormatted = isAr ? `${origPrice.toFixed(2)} ج.م` : `EGP ${origPrice.toFixed(2)}`;
             const addToBagText = isAr ? 'أضف للحقيبة' : 'Add to Bag';
             const wishlistTitle = isAr ? 'أضف إلى قائمة الرغبات' : 'Add to Wishlist';
-            const badgeText = hasDiscount ? (isAr ? `خصم ${discountPercent}%` : `-${discountPercent}%`) : '';
+            const badgeText = isAr ? `وفرت ${savingsFormatted} ج.م` : `Save EGP ${savingsFormatted}`;
 
             return `
                 <div class="product-card group relative bg-white dark:bg-slate-800 rounded-2xl border border-pink-100/80 dark:border-slate-700/80 p-4 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between cursor-pointer" data-product-id="${id}" onclick="showProductDetail('${id}')">
@@ -638,10 +648,11 @@
                             <i class="far fa-heart text-xs" data-wishlist-id="${id}"></i>
                         </button>
 
-                        <!-- Discount Bubble -->
-                        ${hasDiscount ? `
-                            <span class="absolute top-2.5 left-2.5 bg-pink-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-sm">
-                                ${badgeText}
+                        <!-- Dynamic Discount Badge (وفرت X) -->
+                        ${isDiscounted ? `
+                            <span class="absolute top-2.5 left-2.5 z-10 bg-gradient-to-r from-pink-600 to-rose-500 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+                                <i class="fas fa-tag text-[9px]"></i>
+                                <span>${badgeText}</span>
                             </span>
                         ` : ''}
                     </div>
@@ -662,11 +673,11 @@
 
                         <!-- Price & Action -->
                         <div class="pt-2 border-t border-pink-50 dark:border-slate-700/60">
-                            <div class="flex items-baseline space-x-2 mb-3">
-                                ${hasDiscount && originalPrice > price ? `
-                                    <span class="text-xs text-gray-400 line-through">${oldPriceFormatted}</span>
-                                ` : ''}
+                            <div class="flex items-baseline gap-2 mb-3 flex-wrap">
                                 <span class="text-lg font-bold font-display text-pink-600">${priceFormatted}</span>
+                                ${isDiscounted && origPrice > currentPrice ? `
+                                    <span class="text-xs text-gray-400 line-through decoration-pink-400 font-medium">${oldPriceFormatted}</span>
+                                ` : ''}
                             </div>
 
                             <button data-action="add-to-cart" data-product-id="${id}" onclick="event.stopPropagation(); addToCartFromProducts('${id}')" 
@@ -875,6 +886,20 @@
         };
 
         const toggleWishlistFromProducts = (productId) => {
+            const isUserAuth = (window.LuxeBeauty && typeof window.LuxeBeauty.isLoggedIn === 'function')
+                ? window.LuxeBeauty.isLoggedIn()
+                : (typeof isLoggedIn === 'function' ? isLoggedIn() : (!!localStorage.getItem('currentUser') || !!localStorage.getItem('luxe_currentUser')));
+
+            if (!isUserAuth) {
+                const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+                showToast(isAr ? 'يجب تسجيل الدخول أولاً لحفظ المنتجات في المفضلة' : 'Please log in first to save items to your wishlist');
+                sessionStorage.setItem('loginRedirect', window.location.href);
+                setTimeout(() => {
+                    window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+                }, 1200);
+                return;
+            }
+
             const targetId = String(productId);
             let product = allProducts.find((p) => String(p.id) === targetId);
             if (!product) {
@@ -916,22 +941,31 @@
                 description = 'Clinical botanical formula designed to restore skin barrier health, hydration, and natural radiance.',
                 price = 0,
                 originalPrice = 0,
+                salePrice = 0,
                 rating = 5,
                 reviews = 0,
                 hasDiscount = false,
-                discountPercent = 0
+                discountPercent = 0,
+                savings = 0
             } = product;
+
+            // Dynamic Discount System (CRO Optimized)
+            const currentPrice = Number(salePrice || price || 0);
+            const origPrice = Number(originalPrice || currentPrice);
+            const calculatedSavings = Number(savings) || Math.max(origPrice - currentPrice, 0);
+            const isDiscounted = (calculatedSavings > 0) || (hasDiscount && origPrice > currentPrice);
+            const savingsFormatted = calculatedSavings % 1 === 0 ? calculatedSavings.toFixed(0) : calculatedSavings.toFixed(2);
 
             const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
             const displayName = window.i18n ? window.i18n.translateText(name) : name;
             const displayDesc = window.i18n ? window.i18n.translateText(description) : description;
             const displayCategory = window.i18n ? window.i18n.translateText(category) : category;
-            const priceFormatted = isAr ? `${Number(price).toFixed(2)} ج.م` : `EGP ${Number(price).toFixed(2)}`;
-            const oldPriceFormatted = isAr ? `${Number(originalPrice).toFixed(2)} ج.م` : `EGP ${Number(originalPrice).toFixed(2)}`;
+            const priceFormatted = isAr ? `${currentPrice.toFixed(2)} ج.م` : `EGP ${currentPrice.toFixed(2)}`;
+            const oldPriceFormatted = isAr ? `${origPrice.toFixed(2)} ج.م` : `EGP ${origPrice.toFixed(2)}`;
             const addToBagText = isAr ? 'أضف للحقيبة' : 'Add to Bag';
             const addToWishlistText = isAr ? 'أضف إلى قائمة الرغبات' : 'Add to Wishlist';
             const reviewsText = isAr ? `(${reviews} تقييم)` : `(${reviews} reviews)`;
-            const offText = isAr ? `خصم ${discountPercent}%` : `-${discountPercent}% OFF`;
+            const badgeText = isAr ? `وفرت ${savingsFormatted} ج.م` : `Save EGP ${savingsFormatted}`;
 
             content.innerHTML = `
                 <div class="grid md:grid-cols-2 gap-8 items-center text-left">
@@ -939,11 +973,12 @@
                         <img src="${image}" alt="${displayName}" class="w-full h-full object-cover">
                     </div>
                     <div>
-                        <div class="flex items-center gap-2 mb-2">
+                        <div class="flex items-center gap-2 mb-2 flex-wrap">
                             <span class="text-xs text-pink-600 dark:text-pink-400 font-bold uppercase tracking-wider">${displayCategory}</span>
-                            ${hasDiscount ? `
-                                <span class="bg-pink-500 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
-                                    ${offText}
+                            ${isDiscounted ? `
+                                <span class="inline-flex items-center gap-1 bg-gradient-to-r from-pink-600 to-rose-500 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-sm">
+                                    <i class="fas fa-tag text-[9px]"></i>
+                                    <span>${badgeText}</span>
                                 </span>
                             ` : ''}
                         </div>
@@ -953,11 +988,11 @@
                             <span class="text-xs text-gray-400 ml-2">${reviewsText}</span>
                         </div>
                         <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-6">${displayDesc}</p>
-                        <div class="flex items-baseline space-x-3 mb-6">
-                            ${hasDiscount && originalPrice > price ? `
-                                <span class="text-sm text-gray-400 line-through">${oldPriceFormatted}</span>
-                            ` : ''}
+                        <div class="flex items-baseline gap-3 mb-6 flex-wrap">
                             <span class="text-3xl font-bold font-display text-pink-600">${priceFormatted}</span>
+                            ${isDiscounted && origPrice > currentPrice ? `
+                                <span class="text-base text-gray-400 line-through decoration-pink-400 font-medium">${oldPriceFormatted}</span>
+                            ` : ''}
                         </div>
                         <div class="space-y-3">
                             <button onclick="addToCartFromProducts('${id}'); closeProductModal();" 
@@ -1013,8 +1048,13 @@
         window.showProductDetail = showProductDetail;
         window.closeProductModal = closeProductModal;
 
-        // Load live products from Firebase Firestore (with fallback)
-        const loadFirestoreProducts = async () => {
+        // Fetch products and render immediately with Firestore sync
+        const fetchProducts = async () => {
+            // 1. Instant render from local cache
+            allProducts = getNormalizedProducts();
+            filterProducts();
+
+            // 2. Fetch live updates from Firestore
             try {
                 const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
                 const configModule = await import('./firebase-config.js');
@@ -1023,10 +1063,13 @@
 
                 const snapshot = await getDocs(collection(db, 'products'));
                 if (!snapshot.empty) {
-                    const firestoreProducts = snapshot.docs.map((docItem) => ({
-                        id: docItem.data().id || docItem.id,
-                        ...docItem.data()
-                    }));
+                    const firestoreProducts = snapshot.docs.map((docItem) => {
+                        const data = docItem.data();
+                        return {
+                            id: data.id || docItem.id,
+                            ...data
+                        };
+                    });
                     if (firestoreProducts.length > 0) {
                         localStorage.setItem('luxe_products', JSON.stringify(firestoreProducts));
                         allProducts = getNormalizedProducts();
@@ -1038,6 +1081,8 @@
                 console.warn('Firestore products fetch notice (using storage fallback):', err);
             }
         };
+        const loadFirestoreProducts = fetchProducts;
+        window.fetchProducts = fetchProducts;
 
         // Sync local products to Firestore
         window.syncProductsToFirestore = async () => {
@@ -1149,6 +1194,19 @@
         window.addEventListener('languageChanged', () => {
             renderCategoryFilters();
             renderProducts();
+        });
+
+        // Real-time synchronization when products are added/edited in Admin
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'luxe_products' || e.key === 'luxe_products_updated') {
+                allProducts = getNormalizedProducts();
+                filterProducts();
+            }
+        });
+
+        window.addEventListener('products-updated', () => {
+            allProducts = getNormalizedProducts();
+            filterProducts();
         });
 
         // Run immediately since DOM elements are already available above this script

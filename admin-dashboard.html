@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth overflow-x-hidden max-w-[100vw]">
 
 <head>
     <meta charset="UTF-8">
@@ -63,7 +63,7 @@
     </script>
 </head>
 
-<body class="admin-dashboard bg-[#fdf8fa] dark:bg-slate-900 text-gray-900 dark:text-gray-100 font-sans min-h-screen flex flex-col">
+<body class="admin-dashboard bg-[#fdf8fa] dark:bg-slate-900 text-gray-900 dark:text-gray-100 font-sans min-h-screen flex flex-col overflow-x-hidden max-w-[100vw] w-full">
 
     <!-- Top Admin Header Bar -->
     <header class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-pink-100/60 dark:border-slate-800 sticky top-0 z-50 transition-colors">
@@ -158,6 +158,12 @@
                     class="sidebar-link w-full text-left px-4 py-2.5 rounded-2xl transition flex items-center text-xs text-gray-600 dark:text-gray-300 hover:bg-pink-50/50 hover:text-pink-600">
                     <i class="fas fa-users mr-3 w-4 text-sm text-pink-500"></i>
                     <span>Customers</span>
+                </button>
+                <button onclick="showTab('inbox')" id="nav-inbox"
+                    class="sidebar-link w-full text-left px-4 py-2.5 rounded-2xl transition flex items-center text-xs text-gray-600 dark:text-gray-300 hover:bg-pink-50/50 hover:text-pink-600 relative">
+                    <i class="fas fa-inbox mr-3 w-4 text-sm text-pink-500"></i>
+                    <span>Inbox / الرسائل</span>
+                    <span id="inboxUnreadBadge" class="hidden absolute right-3 bg-rose-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">0</span>
                 </button>
                 <button onclick="showTab('settings')" id="nav-settings"
                     class="sidebar-link w-full text-left px-4 py-2.5 rounded-2xl transition flex items-center text-xs text-gray-600 dark:text-gray-300 hover:bg-pink-50/50 hover:text-pink-600">
@@ -928,6 +934,109 @@
                         </div>
                     </div>
 
+                    <!-- Social Media Links (Facebook, TikTok, Instagram, WhatsApp) -->
+                    <div class="bg-white dark:bg-slate-800 rounded-3xl border border-pink-100/80 dark:border-slate-700/80 shadow-sm p-6 sm:p-8">
+                        <div class="flex items-center space-x-2.5 mb-5 pb-3 border-b border-pink-50 dark:border-slate-700">
+                            <i class="fas fa-share-nodes text-pink-500"></i>
+                            <h2 class="text-base font-display font-bold text-gray-900 dark:text-white">روابط السوشيال ميديا (Social Media Links)</h2>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                            تحكم في روابط وسائل التواصل الاجتماعي التي تظهر في فوتر الموقع وجميع الصفحات وتُحفظ مباشرة في Firestore.
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <label for="socialFacebook" class="block font-bold text-[11px] text-gray-700 dark:text-gray-300 mb-1">
+                                    <i class="fab fa-facebook-f mr-1 text-blue-600"></i>رابط صفحة فيسبوك (Facebook URL)
+                                </label>
+                                <input type="url" id="socialFacebook" placeholder="https://facebook.com/yourpage"
+                                    class="w-full px-3.5 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none font-sans">
+                            </div>
+                            <div>
+                                <label for="socialTiktok" class="block font-bold text-[11px] text-gray-700 dark:text-gray-300 mb-1">
+                                    <i class="fab fa-tiktok mr-1 text-gray-900 dark:text-pink-400"></i>رابط حساب تيك توك (TikTok URL)
+                                </label>
+                                <input type="url" id="socialTiktok" placeholder="https://tiktok.com/@youraccount"
+                                    class="w-full px-3.5 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none font-sans">
+                            </div>
+                            <div>
+                                <label for="socialInstagram" class="block font-bold text-[11px] text-gray-700 dark:text-gray-300 mb-1">
+                                    <i class="fab fa-instagram mr-1 text-pink-500"></i>رابط حساب إنستجرام (Instagram URL)
+                                </label>
+                                <input type="url" id="socialInstagram" placeholder="https://instagram.com/youraccount"
+                                    class="w-full px-3.5 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none font-sans">
+                            </div>
+                            <div>
+                                <label for="socialWhatsapp" class="block font-bold text-[11px] text-gray-700 dark:text-gray-300 mb-1">
+                                    <i class="fab fa-whatsapp mr-1 text-emerald-500"></i>رقم أو رابط واتساب (WhatsApp Link / Number)
+                                </label>
+                                <input type="text" id="socialWhatsapp" placeholder="https://wa.me/201000000000 أو 201000000000"
+                                    class="w-full px-3.5 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none font-sans">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Free Gift Widget Settings (إعدادات الهدية المجانية) -->
+                    <div class="bg-white dark:bg-slate-800 rounded-3xl border border-pink-100/80 dark:border-slate-700/80 shadow-sm p-6 sm:p-8">
+                        <div class="flex items-center justify-between mb-5 pb-3 border-b border-pink-50 dark:border-slate-700">
+                            <div class="flex items-center space-x-2.5">
+                                <i class="fas fa-gift text-pink-500"></i>
+                                <h2 class="text-base font-display font-bold text-gray-900 dark:text-white">إعدادات نظام الهدية المجانية (Free Gift Widget)</h2>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="giftEnabled" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-500"></div>
+                                <span class="ml-2 text-xs font-semibold text-gray-700 dark:text-gray-300">تفعيل الهدية</span>
+                            </label>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                            عند التفعيل، تظهر أيقونة هدية عائمة في واجهة العميل مع مؤقت عد تنازلي وشريط تقدم لحساب إجمالي السلة مقارنة بالحد الأدنى للهدية (زيادة التحويلات وعربة التسوق).
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                            <div>
+                                <label for="giftMinSpend" class="block font-bold text-[11px] text-gray-700 dark:text-gray-300 mb-1">
+                                    الحد الأدنى للطلب (EGP Min Spend) *
+                                </label>
+                                <input type="number" id="giftMinSpend" min="0" step="10" placeholder="500" required
+                                    class="w-full px-3.5 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none font-sans">
+                            </div>
+                            <div>
+                                <label for="giftNameEn" class="block font-bold text-[11px] text-gray-700 dark:text-gray-300 mb-1">
+                                    اسم الهدية (English Name) *
+                                </label>
+                                <input type="text" id="giftNameEn" placeholder="Mini Splash Khamrah" required
+                                    class="w-full px-3.5 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none font-sans">
+                            </div>
+                            <div>
+                                <label for="giftNameAr" class="block font-bold text-[11px] text-gray-700 dark:text-gray-300 mb-1">
+                                    اسم الهدية (بالعربية)
+                                </label>
+                                <input type="text" id="giftNameAr" placeholder="عطر ميني سبلاش خمرة مجاني"
+                                    class="w-full px-3.5 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none font-sans">
+                            </div>
+                            <div>
+                                <label for="giftOriginalPrice" class="block font-bold text-[11px] text-gray-700 dark:text-gray-300 mb-1">
+                                    السعر الأصلي للهدية قبل الخصم (EGP)
+                                </label>
+                                <input type="number" id="giftOriginalPrice" min="0" step="0.5" placeholder="122.50"
+                                    class="w-full px-3.5 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none font-sans">
+                            </div>
+                            <div>
+                                <label for="giftImage" class="block font-bold text-[11px] text-gray-700 dark:text-gray-300 mb-1">
+                                    رابط صورة الهدية (Gift Image URL) *
+                                </label>
+                                <input type="text" id="giftImage" placeholder="./images/slider 1.jpeg أو رابط صورة" required
+                                    class="w-full px-3.5 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none font-sans">
+                            </div>
+                            <div>
+                                <label for="giftTimerMinutes" class="block font-bold text-[11px] text-gray-700 dark:text-gray-300 mb-1">
+                                    مدة العد التنازلي الترويجي (بالدقائق)
+                                </label>
+                                <input type="number" id="giftTimerMinutes" min="5" max="1440" placeholder="30"
+                                    class="w-full px-3.5 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none font-sans">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="flex items-center gap-3">
                         <button type="submit" id="saveStoreSettingsBtn"
                             class="bg-pink-500 hover:bg-pink-600 text-white px-8 py-3.5 rounded-full font-semibold text-xs shadow-lg shadow-pink-500/25 transition">
@@ -935,6 +1044,87 @@
                         </button>
                     </div>
                 </form>
+            </div>
+
+            <!-- 10. INBOX TAB (LIVE CHAT & CUSTOMER MESSAGES) -->
+            <div id="inboxTab" class="tab-content space-y-6">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white">Customer Inbox & Live Support</h1>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">محادثات العملاء المباشرة، استفسارات الشحن والتوصيل، والرد الفوري في الوقت الحقيقي</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="loadInboxTab()"
+                            class="bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 text-pink-600 dark:text-pink-400 border border-pink-200 dark:border-slate-700 px-4 py-2 rounded-full font-semibold transition text-xs flex items-center shadow-sm">
+                            <i class="fas fa-arrows-rotate mr-1.5 text-xs"></i><span>تحديث الرسائل</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Inbox Chat Split Layout -->
+                <div class="bg-white dark:bg-slate-800 rounded-3xl border border-pink-100/80 dark:border-slate-700/80 shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[580px]">
+                    <!-- Left: Thread List -->
+                    <div class="md:col-span-5 lg:col-span-4 border-b md:border-b-0 md:border-r border-pink-100/80 dark:border-slate-700/80 flex flex-col bg-white dark:bg-slate-800">
+                        <div class="p-3.5 border-b border-pink-50 dark:border-slate-700/60">
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-3 top-3 text-gray-400 text-xs"></i>
+                                <input type="text" id="inboxSearchInput" oninput="filterInboxThreads(this.value)" placeholder="Search customer or message..."
+                                    class="w-full pl-8 pr-4 py-2 rounded-2xl bg-pink-50/30 dark:bg-slate-700/30 border border-pink-100 dark:border-slate-700 text-xs outline-none focus:ring-2 focus:ring-pink-400">
+                            </div>
+                        </div>
+
+                        <!-- Threads List Scrollable -->
+                        <div id="inboxThreadsList" class="flex-1 overflow-y-auto divide-y divide-pink-50 dark:divide-slate-700/40 max-h-[500px]">
+                            <div class="text-center py-16 text-gray-400 text-xs">
+                                <i class="fas fa-comments text-2xl mb-2 text-pink-200"></i>
+                                <p>جاري تحميل المحادثات...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Active Chat Conversation -->
+                    <div class="md:col-span-7 lg:col-span-8 flex flex-col bg-pink-50/10 dark:bg-slate-900/40">
+                        <!-- Header -->
+                        <div id="inboxActiveHeader" class="p-4 border-b border-pink-50 dark:border-slate-700/60 flex items-center justify-between bg-white dark:bg-slate-800">
+                            <div class="flex items-center gap-3">
+                                <div id="inboxActiveAvatar" class="w-10 h-10 rounded-full bg-pink-100 dark:bg-slate-700 text-pink-600 dark:text-pink-400 flex items-center justify-center font-bold text-sm shrink-0">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <h3 id="inboxActiveName" class="font-bold text-gray-900 dark:text-white text-sm">Select a Conversation</h3>
+                                    <p id="inboxActiveEmail" class="text-xs text-gray-400">اختر محادثة من القائمة لعرض الرسائل</p>
+                                </div>
+                            </div>
+                            <div id="inboxActiveActions" class="hidden items-center gap-2">
+                                <span id="inboxActiveStatusBadge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600">Active</span>
+                                <button type="button" onclick="toggleThreadResolved()" 
+                                    class="text-xs px-3 py-1.5 rounded-full border border-pink-200 dark:border-slate-700 hover:bg-pink-50 dark:hover:bg-slate-700 text-gray-600 dark:text-gray-300 transition">
+                                    <i class="fas fa-check mr-1 text-emerald-500"></i><span>إنهاء المحادثة</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Messages Stream -->
+                        <div id="inboxMessagesStream" class="flex-1 p-5 overflow-y-auto space-y-3 min-h-[360px] max-h-[460px]">
+                            <div class="text-center py-20 text-gray-400 text-xs">
+                                <i class="fas fa-comments text-4xl mb-3 text-pink-300"></i>
+                                <p class="font-medium">انقر على إحدى المحادثات على اليسار لقراءة الرسائل والرد على العميل مباشرة.</p>
+                            </div>
+                        </div>
+
+                        <!-- Admin Reply Input -->
+                        <div id="inboxReplyContainer" class="p-4 border-t border-pink-50 dark:border-slate-700/60 bg-white dark:bg-slate-800 hidden">
+                            <form id="inboxReplyForm" onsubmit="sendAdminReply(event)" class="flex gap-2">
+                                <input type="text" id="inboxReplyInput" placeholder="اكتب ردك للعميل هنا... (اضغط Enter للإرسال)" required
+                                    class="flex-1 px-4 py-2.5 rounded-2xl bg-pink-50/20 dark:bg-slate-700/30 border border-pink-100 dark:border-slate-700 text-xs outline-none focus:ring-2 focus:ring-pink-400">
+                                <button type="submit" class="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-5 py-2.5 rounded-2xl font-bold text-xs transition shadow-md shadow-pink-500/20 flex items-center gap-1.5">
+                                    <span>إرسال</span>
+                                    <i class="fas fa-paper-plane text-xs"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </main>
@@ -977,25 +1167,46 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label for="productOriginalPrice" class="block font-bold uppercase tracking-wider text-gray-500 mb-1">Original Price (EGP) *</label>
-                        <input type="number" id="productOriginalPrice" step="0.01" min="0" required
-                            class="w-full px-4 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 focus:ring-2 focus:ring-pink-400 outline-none">
+                        <label for="productOriginalPrice" class="block font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
+                            <span>السعر الأصلي - Original Price (EGP) *</span>
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="productOriginalPrice" step="0.01" min="0" required placeholder="مثال: 350.00"
+                                class="w-full px-4 py-2.5 pl-10 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 focus:ring-2 focus:ring-pink-400 outline-none font-semibold text-gray-900 dark:text-white">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">EGP</span>
+                        </div>
                     </div>
                     <div>
-                        <label for="productSalePrice" class="block font-bold uppercase tracking-wider text-gray-500 mb-1">Sale Price (EGP) *</label>
-                        <input type="number" id="productSalePrice" step="0.01" min="0" required
-                            class="w-full px-4 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 focus:ring-2 focus:ring-pink-400 outline-none">
+                        <label for="productSalePrice" class="block font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">
+                            <span>السعر بعد الخصم - Sale Price (EGP) *</span>
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="productSalePrice" step="0.01" min="0" required placeholder="مثال: 290.00"
+                                class="w-full px-4 py-2.5 pl-10 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 focus:ring-2 focus:ring-pink-400 outline-none font-semibold text-pink-600 dark:text-pink-400">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">EGP</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="rounded-2xl bg-pink-50/60 dark:bg-pink-950/30 p-3.5 border border-pink-100 dark:border-slate-700 flex items-center justify-between text-xs">
-                    <div>
-                        <span class="text-gray-500 dark:text-gray-400">Calculated Discount:</span>
-                        <span id="productDiscountLabel" class="font-bold text-pink-600 ml-1">0% OFF</span>
+                <!-- Dynamic Discount & Badge Preview Box -->
+                <div class="rounded-2xl bg-gradient-to-r from-pink-50/80 to-rose-50/50 dark:from-pink-950/30 dark:to-slate-800/60 p-3.5 border border-pink-100 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div class="flex items-center gap-3">
+                        <div>
+                            <span class="text-gray-500 dark:text-gray-400">نسبة الخصم:</span>
+                            <span id="productDiscountLabel" class="font-bold text-pink-600 ml-1">0% OFF</span>
+                        </div>
+                        <div class="h-4 w-px bg-pink-200 dark:bg-slate-700"></div>
+                        <div>
+                            <span class="text-gray-500 dark:text-gray-400">توفير العميل:</span>
+                            <span id="productSavingsLabel" class="font-bold text-emerald-600 dark:text-emerald-400 ml-1">وفرت 0.00 ج.م</span>
+                        </div>
                     </div>
-                    <div>
-                        <span class="text-gray-500 dark:text-gray-400">Client Savings:</span>
-                        <span id="productSavingsLabel" class="font-bold text-pink-600 ml-1">EGP 0</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-gray-400 text-[11px]">معاينة الشارة:</span>
+                        <span id="productBadgePreview" class="hidden inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-sm">
+                            <i class="fas fa-tag text-[9px]"></i>
+                            <span>وفرت 0 ج.م</span>
+                        </span>
                     </div>
                 </div>
 
@@ -1025,8 +1236,8 @@
                 </div>
 
                 <div class="flex gap-3 pt-3">
-                    <button type="submit" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-3 rounded-full font-semibold text-xs shadow-md shadow-pink-500/25 transition">
-                        <i class="fas fa-save mr-1.5"></i>Save Product Formula
+                    <button type="submit" id="saveProductBtn" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white py-3 rounded-full font-semibold text-xs shadow-md shadow-pink-500/25 transition">
+                        <i class="fas fa-save mr-1.5"></i><span>Save Product Formula</span>
                     </button>
                     <button type="button" onclick="closeProductModal()" class="px-6 bg-pink-50 dark:bg-slate-700 hover:bg-pink-100 text-gray-700 dark:text-gray-200 rounded-full text-xs font-semibold transition">
                         Cancel

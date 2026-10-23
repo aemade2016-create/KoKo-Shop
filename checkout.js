@@ -8,24 +8,39 @@ let selectedPaymentMethod = null;
 // MODULAR ORDER SUMMARY RENDERER
 // ============================================
 
-const createOrderItemRow = ({ name = 'Ritual Item', price = 0, quantity = 1, image = './images/slider 1.jpeg' }) => {
-    const itemPrice = parseFloat(price) || 0;
+const createOrderItemRow = ({ name = 'Ritual Item', price = 0, quantity = 1, image = './images/slider 1.jpeg', isGift = false, id = '' }) => {
+    const giftFlag = Boolean(isGift || id === 'free-gift-promo');
+    const itemPrice = giftFlag ? 0 : (parseFloat(price) || 0);
     const itemQty = parseInt(quantity, 10) || 1;
     const itemTotal = itemPrice * itemQty;
     const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
     const qtyLabel = isAr ? 'الكمية:' : 'Quantity:';
-    const totalFormatted = isAr ? `${itemTotal.toFixed(2)} ج.م` : `EGP ${itemTotal.toFixed(2)}`;
+    const totalFormatted = giftFlag 
+        ? (isAr ? '0.00 ج.م' : 'EGP 0.00') 
+        : (isAr ? `${itemTotal.toFixed(2)} ج.م` : `EGP ${itemTotal.toFixed(2)}`);
 
     return `
         <div class="flex items-center space-x-3 pt-3.5 first:pt-0">
-            <div class="w-14 h-14 rounded-xl overflow-hidden bg-pink-50 dark:bg-slate-900 border border-pink-100 dark:border-slate-700 flex-shrink-0">
+            <div class="w-14 h-14 rounded-xl overflow-hidden bg-pink-50 dark:bg-slate-900 border border-pink-100 dark:border-slate-700 flex-shrink-0 relative">
                 <img src="${image}" alt="${name}" class="w-full h-full object-cover">
+                ${giftFlag ? `
+                    <span class="absolute top-1 left-1 bg-pink-500 text-white text-[8px] font-bold p-0.5 rounded-full flex items-center justify-center">
+                        <i class="fas fa-gift text-[7px]"></i>
+                    </span>
+                ` : ''}
             </div>
             <div class="flex-1 min-w-0">
-                <h4 class="font-display font-semibold text-xs text-gray-900 dark:text-white truncate">${name}</h4>
+                <div class="flex items-center gap-1.5">
+                    <h4 class="font-display font-semibold text-xs text-gray-900 dark:text-white truncate">${name}</h4>
+                    ${giftFlag ? `
+                        <span class="text-[9px] bg-pink-100 text-pink-600 dark:bg-pink-950 dark:text-pink-300 px-1.5 py-0.5 rounded font-bold">
+                            ${isAr ? 'هدية مجانية' : 'Free Gift'}
+                        </span>
+                    ` : ''}
+                </div>
                 <p class="text-[11px] text-gray-400 mt-0.5">${qtyLabel} <span class="font-medium text-gray-600 dark:text-gray-300">${itemQty}</span></p>
             </div>
-            <span class="font-display font-bold text-xs text-pink-600 flex-shrink-0">
+            <span class="font-display font-bold text-xs ${giftFlag ? 'text-rose-600' : 'text-pink-600'} flex-shrink-0">
                 ${totalFormatted}
             </span>
         </div>
@@ -204,6 +219,7 @@ const createOrderObject = (formData) => {
             total
         },
         status: 'pending',
+        isRated: false,
         statusHistory: [
             {
                 status: 'pending',
@@ -216,11 +232,26 @@ const createOrderObject = (formData) => {
     };
 };
 
-const saveOrder = (order) => {
+const saveOrder = async (order) => {
     try {
         const orders = JSON.parse(localStorage.getItem('luxe_orders')) || [];
         orders.push(order);
         localStorage.setItem('luxe_orders', JSON.stringify(orders));
+
+        // Sync order to Firestore collection 'orders'
+        try {
+            const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+            const configModule = await import('./firebase-config.js');
+            const { doc, setDoc, serverTimestamp } = firestoreModule;
+            const { db } = configModule;
+            await setDoc(doc(db, 'orders', order.orderId), {
+                ...order,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            }, { merge: true });
+        } catch (firestoreErr) {
+            console.warn('Firestore order sync fallback:', firestoreErr);
+        }
 
         // Update User History if logged in
         const currentUser = typeof getCurrentUser === 'function' ? getCurrentUser() : JSON.parse(localStorage.getItem('currentUser') || 'null');

@@ -73,6 +73,7 @@ const normalizeProduct = (product) => {
         price: details.salePrice || product.price || 0,
         savings: details.savings,
         discountPercent: details.discountPercent,
+        hasDiscount: details.savings > 0 && details.discountPercent > 0,
         image: product.image || './images/slider 1.jpeg',
         barcode: product.barcode || ''
     };
@@ -446,6 +447,20 @@ const getDefaultStoreSettings = () => ({
     supportEmail: 'concierge@kokoshop.com',
     supportPhone: '+20 100 000 0000',
     freeShippingThreshold: 500,
+    socials: {
+        facebook: 'https://facebook.com',
+        tiktok: 'https://tiktok.com',
+        instagram: 'https://instagram.com',
+        whatsapp: '+201000000000'
+    },
+    gift: {
+        enabled: true,
+        minSpend: 500,
+        name: { en: 'Mini Splash Khamrah', ar: 'ميني سبلاش خمرة' },
+        originalPrice: 122.50,
+        image: './images/slider 1.jpeg',
+        timerMinutes: 30
+    },
     homepage: {
         philosophyBadge: { en: 'The Clean Philosophy', ar: 'فلسفة النقاء والجمال' },
         philosophyTitle: { en: 'Nourish Your Skin With Pure Botanical Actives', ar: 'غذّي بشرتكِ بخلاصات نباتية نقية وفعالة' },
@@ -506,6 +521,10 @@ const saveStoreSettings = async (settingsData) => {
     }
 
     localStorage.setItem('luxe_settings', JSON.stringify(settingsData));
+    try {
+        localStorage.setItem('luxe_settings_updated', Date.now());
+        window.dispatchEvent(new CustomEvent('settings-updated', { detail: { settings: settingsData } }));
+    } catch (e) {}
 };
 
 // ============================================
@@ -560,6 +579,9 @@ const showTab = (tabName) => {
         case 'users':
             loadUsersTable();
             break;
+        case 'inbox':
+            loadInboxTab();
+            break;
         case 'settings':
             loadStoreSettingsForm();
             break;
@@ -601,7 +623,13 @@ const createRecentOrderRow = (order) => {
 
 // Product Table Row Builder
 const createProductTableRow = (product) => {
-    const { id, name = '', image = './images/slider 1.jpeg', price = 0, originalPrice = 0, category = 'Skincare', stock = 0, hasDiscount = false, discountPercent = 0 } = product;
+    const { id, name = '', image = './images/slider 1.jpeg', price = 0, originalPrice = 0, salePrice = 0, category = 'Skincare', stock = 0, hasDiscount = false, discountPercent = 0, savings = 0 } = product;
+
+    const currentPrice = Number(salePrice || price || 0);
+    const origPrice = Number(originalPrice || currentPrice);
+    const calculatedSavings = savings || Math.max(origPrice - currentPrice, 0);
+    const isDiscounted = hasDiscount || (calculatedSavings > 0);
+    const savingsFormatted = calculatedSavings % 1 === 0 ? calculatedSavings.toFixed(0) : calculatedSavings.toFixed(2);
 
     return `
         <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
@@ -610,11 +638,21 @@ const createProductTableRow = (product) => {
             </td>
             <td class="px-5 py-3">
                 <h4 class="font-semibold text-gray-900 dark:text-white line-clamp-1">${name}</h4>
-                ${hasDiscount ? `<span class="text-[10px] text-pink-600 font-bold">-${discountPercent}% Discount</span>` : ''}
+                ${isDiscounted ? `
+                    <div class="flex items-center gap-1.5 mt-1">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300">
+                            <i class="fas fa-tag text-[8px]"></i>
+                            <span>وفرت ${savingsFormatted} ج.م</span>
+                        </span>
+                        <span class="text-[10px] text-pink-500 font-semibold">(-${discountPercent}%)</span>
+                    </div>
+                ` : ''}
             </td>
             <td class="px-5 py-3">
-                <span class="font-bold text-pink-600">EGP ${Number(price).toFixed(2)}</span>
-                ${hasDiscount && originalPrice > price ? `<span class="text-[10px] text-gray-400 line-through block">EGP ${Number(originalPrice).toFixed(2)}</span>` : ''}
+                <div class="flex flex-col">
+                    <span class="font-bold text-pink-600">EGP ${currentPrice.toFixed(2)}</span>
+                    ${isDiscounted && origPrice > currentPrice ? `<span class="text-[10px] text-gray-400 line-through">EGP ${origPrice.toFixed(2)}</span>` : ''}
+                </div>
             </td>
             <td class="hidden md:table-cell px-5 py-3 text-gray-500 font-medium">${category}</td>
             <td class="hidden md:table-cell px-5 py-3">
@@ -624,10 +662,10 @@ const createProductTableRow = (product) => {
             </td>
             <td class="px-5 py-3 text-right">
                 <div class="flex items-center justify-end space-x-2">
-                    <button onclick="editProduct(${id})" class="w-7 h-7 rounded-full bg-pink-50 text-pink-600 hover:bg-pink-100 flex items-center justify-center transition" title="Edit Formula">
+                    <button onclick="editProduct('${id}')" class="w-7 h-7 rounded-full bg-pink-50 text-pink-600 hover:bg-pink-100 flex items-center justify-center transition" title="Edit Formula">
                         <i class="fas fa-edit text-xs"></i>
                     </button>
-                    <button onclick="deleteProduct(${id})" class="w-7 h-7 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition" title="Delete Formula">
+                    <button onclick="deleteProduct('${id}')" class="w-7 h-7 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition" title="Delete Formula">
                         <i class="fas fa-trash text-xs"></i>
                     </button>
                 </div>
@@ -925,11 +963,33 @@ const loadReviewsTable = async () => {
     tableBody.innerHTML = reviews.map(createReviewTableRow).join('');
 };
 
-const loadOrdersTable = () => {
+const loadOrdersTable = async () => {
     const tableBody = document.getElementById('ordersTableBody');
     if (!tableBody) return;
 
-    const orders = getOrders();
+    let orders = getOrders();
+    try {
+        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        const configModule = await import('./firebase-config.js');
+        const { collection, getDocs, query, orderBy } = firestoreModule;
+        const { db } = configModule;
+
+        const snap = await getDocs(query(collection(db, 'orders'), orderBy('createdAt', 'desc')));
+        if (!snap.empty) {
+            const fsOrders = snap.docs.map((docItem) => ({ id: docItem.id, ...docItem.data() }));
+            const mergedMap = new Map();
+            orders.forEach((o) => mergedMap.set(o.orderId || o.id, o));
+            fsOrders.forEach((o) => {
+                const key = o.orderId || o.id;
+                mergedMap.set(key, { ...mergedMap.get(key), ...o });
+            });
+            orders = Array.from(mergedMap.values()).sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            saveOrders(orders);
+        }
+    } catch (err) {
+        console.warn('Firestore orders fetch fallback:', err);
+    }
+
     if (!orders.length) {
         tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No orders found</td></tr>';
         return;
@@ -955,7 +1015,112 @@ const loadUsersTable = async () => {
 // CRUD ACTIONS & EVENT HANDLERS
 // ============================================
 
-// Product Actions
+// Product Actions & Firestore Integration
+const fetchProducts = async () => {
+    try {
+        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        const configModule = await import('./firebase-config.js');
+        const { collection, getDocs } = firestoreModule;
+        const { db } = configModule;
+
+        const snapshot = await getDocs(collection(db, 'products'));
+        if (!snapshot.empty) {
+            const firestoreProducts = snapshot.docs.map((docItem) => {
+                const data = docItem.data();
+                return {
+                    id: data.id || docItem.id,
+                    ...data
+                };
+            });
+            if (firestoreProducts.length > 0) {
+                saveProducts(firestoreProducts);
+                loadProductsTable();
+                loadDashboardOverview();
+                return firestoreProducts;
+            }
+        }
+    } catch (err) {
+        console.warn('Firestore products fetch notice in admin (using local storage):', err);
+    }
+    return getProducts();
+};
+
+const addProduct = async (productData) => {
+    const newId = String(productData.id || Date.now());
+    const normalized = normalizeProduct({
+        ...productData,
+        id: newId
+    });
+
+    let products = getProducts();
+    products.unshift(normalized);
+    saveProducts(products);
+
+    try {
+        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        const configModule = await import('./firebase-config.js');
+        const { doc, setDoc, serverTimestamp } = firestoreModule;
+        const { db } = configModule;
+
+        await setDoc(doc(db, 'products', newId), {
+            ...normalized,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+        }, { merge: true });
+    } catch (err) {
+        console.warn('Firestore addProduct fallback:', err);
+    }
+
+    try {
+        localStorage.setItem('luxe_products_updated', Date.now());
+        window.dispatchEvent(new CustomEvent('products-updated', { detail: { products } }));
+    } catch (e) {}
+
+    loadProductsTable();
+    loadDashboardOverview();
+    return normalized;
+};
+
+const updateProduct = async (productId, productData) => {
+    const targetId = String(productId);
+    const normalized = normalizeProduct({
+        ...productData,
+        id: targetId
+    });
+
+    let products = getProducts();
+    const idx = products.findIndex((p) => String(p.id) === targetId);
+    if (idx > -1) {
+        products[idx] = { ...products[idx], ...normalized };
+    } else {
+        products.unshift(normalized);
+    }
+    saveProducts(products);
+
+    try {
+        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        const configModule = await import('./firebase-config.js');
+        const { doc, setDoc, serverTimestamp } = firestoreModule;
+        const { db } = configModule;
+
+        await setDoc(doc(db, 'products', targetId), {
+            ...normalized,
+            updatedAt: serverTimestamp()
+        }, { merge: true });
+    } catch (err) {
+        console.warn('Firestore updateProduct fallback:', err);
+    }
+
+    try {
+        localStorage.setItem('luxe_products_updated', Date.now());
+        window.dispatchEvent(new CustomEvent('products-updated', { detail: { products } }));
+    } catch (e) {}
+
+    loadProductsTable();
+    loadDashboardOverview();
+    return normalized;
+};
+
 const showAddProductModal = () => {
     const modal = document.getElementById('productModal');
     const title = document.getElementById('productModalTitle');
@@ -964,10 +1129,14 @@ const showAddProductModal = () => {
     if (!modal) return;
 
     if (title) title.textContent = 'Add New Product Formula';
+    const submitBtn = document.getElementById('saveProductBtn') || document.querySelector('#productForm button[type="submit"]');
+    if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-save mr-1.5"></i><span>Save Product Formula</span>';
+
     if (form) form.reset();
 
     document.getElementById('productId').value = '';
     loadCategoriesTable();
+    updateDiscountLabels();
 
     modal.classList.remove('hidden');
     modal.classList.add('flex');
@@ -983,14 +1152,18 @@ const closeProductModal = () => {
 };
 
 const editProduct = (productId) => {
+    const targetId = String(productId);
     const products = getProducts();
-    const product = products.find((p) => p.id === productId);
+    const product = products.find((p) => String(p.id) === targetId);
     if (!product) return;
 
     showAddProductModal();
 
     const title = document.getElementById('productModalTitle');
     if (title) title.textContent = 'Edit Product Formula';
+
+    const submitBtn = document.getElementById('saveProductBtn') || document.querySelector('#productForm button[type="submit"]');
+    if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-save mr-1.5"></i><span>Update Product Formula</span>';
 
     document.getElementById('productId').value = product.id;
     document.getElementById('productName').value = product.name || '';
@@ -1001,17 +1174,35 @@ const editProduct = (productId) => {
     document.getElementById('productDescription').value = product.description || '';
     document.getElementById('productRating').value = product.rating || 5;
     document.getElementById('productStock').value = product.stock || 50;
-    document.getElementById('productCategory').value = product.category || 'Serum';
+    document.getElementById('productCategory').value = typeof product.category === 'object' ? (product.category.en || product.category.ar) : (product.category || 'Serum');
 
     updateDiscountLabels();
 };
 
-const deleteProduct = (productId) => {
-    if (confirm('Delete this product formula?')) {
+const deleteProduct = async (productId) => {
+    const targetId = String(productId);
+    const isAr = window.i18n?.currentLang === 'ar';
+    if (confirm(isAr ? 'هل أنت متأكد من حذف هذا الصنف نهائياً؟' : 'Delete this product formula?')) {
         let products = getProducts();
-        products = products.filter((p) => p.id !== productId);
+        products = products.filter((p) => String(p.id) !== targetId);
         saveProducts(products);
-        showToast('Product deleted');
+
+        try {
+            const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+            const configModule = await import('./firebase-config.js');
+            const { doc, deleteDoc } = firestoreModule;
+            const { db } = configModule;
+            await deleteDoc(doc(db, 'products', targetId));
+        } catch (err) {
+            console.warn('Firestore deleteProduct notice:', err);
+        }
+
+        try {
+            localStorage.setItem('luxe_products_updated', Date.now());
+            window.dispatchEvent(new CustomEvent('products-updated', { detail: { products } }));
+        } catch (e) {}
+
+        showToast(isAr ? 'تم حذف المنتج بنجاح' : 'Product deleted successfully');
         loadProductsTable();
         loadDashboardOverview();
     }
@@ -1024,9 +1215,25 @@ const updateDiscountLabels = () => {
 
     const discEl = document.getElementById('productDiscountLabel');
     const saveEl = document.getElementById('productSavingsLabel');
+    const badgePreviewEl = document.getElementById('productBadgePreview');
 
-    if (discEl) discEl.textContent = `${details.discountPercent}% OFF`;
-    if (saveEl) saveEl.textContent = `EGP ${details.savings.toFixed(2)}`;
+    const isAr = (window.i18n?.currentLang === 'ar' || localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+
+    if (discEl) {
+        discEl.textContent = isAr ? `خصم ${details.discountPercent}%` : `${details.discountPercent}% OFF`;
+    }
+    if (saveEl) {
+        saveEl.textContent = isAr ? `وفرت ${details.savings.toFixed(2)} ج.م` : `EGP ${details.savings.toFixed(2)}`;
+    }
+    if (badgePreviewEl) {
+        if (details.savings > 0) {
+            badgePreviewEl.classList.remove('hidden');
+            const savingsFormatted = details.savings % 1 === 0 ? details.savings.toFixed(0) : details.savings.toFixed(2);
+            badgePreviewEl.innerHTML = `<i class="fas fa-tag text-[9px]"></i><span>${isAr ? `وفرت ${savingsFormatted} ج.م` : `Save EGP ${savingsFormatted}`}</span>`;
+        } else {
+            badgePreviewEl.classList.add('hidden');
+        }
+    }
 };
 
 // Category Actions
@@ -1192,12 +1399,15 @@ const deleteReview = async (reviewId) => {
 };
 
 // Order Actions
-const updateOrderStatus = (orderId, newStatus) => {
+const updateOrderStatus = async (orderId, newStatus) => {
     const orders = getOrders();
     const order = orders.find((o) => o.orderId === orderId);
 
     if (order) {
         order.status = newStatus;
+        if (newStatus === 'delivered' && typeof order.isRated === 'undefined') {
+            order.isRated = false;
+        }
         order.updatedAt = new Date().toISOString();
         order.statusHistory = order.statusHistory || [];
         order.statusHistory.push({
@@ -1207,6 +1417,26 @@ const updateOrderStatus = (orderId, newStatus) => {
         });
 
         saveOrders(orders);
+
+        // Sync order status to Firestore collection 'orders'
+        try {
+            const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+            const configModule = await import('./firebase-config.js');
+            const { doc, setDoc } = firestoreModule;
+            const { db } = configModule;
+            await setDoc(doc(db, 'orders', orderId), {
+                ...order,
+                updatedAt: new Date().toISOString()
+            }, { merge: true });
+        } catch (err) {
+            console.warn('Firestore order status update fallback:', err);
+        }
+
+        try {
+            localStorage.setItem('luxe_orders_updated', Date.now());
+            window.dispatchEvent(new CustomEvent('orders-updated'));
+        } catch (e) {}
+
         showToast(`Order status updated to ${newStatus}`);
     }
 };
@@ -1495,6 +1725,22 @@ const loadStoreSettingsForm = async () => {
     setVal('footerAboutAr', ft.about?.ar || '');
     setVal('footerCopyrightEn', ft.copyright?.en || ft.copyright || '');
     setVal('footerCopyrightAr', ft.copyright?.ar || '');
+
+    const sc = settings.socials || {};
+    setVal('socialFacebook', sc.facebook || '');
+    setVal('socialTiktok', sc.tiktok || '');
+    setVal('socialInstagram', sc.instagram || '');
+    setVal('socialWhatsapp', sc.whatsapp || '');
+
+    const gf = settings.gift || {};
+    const giftCheckbox = document.getElementById('giftEnabled');
+    if (giftCheckbox) giftCheckbox.checked = gf.enabled !== false;
+    setVal('giftMinSpend', gf.minSpend ?? 500);
+    setVal('giftNameEn', gf.name?.en || (typeof gf.name === 'string' ? gf.name : 'Mini Splash Khamrah'));
+    setVal('giftNameAr', gf.name?.ar || 'ميني سبلاش خمرة');
+    setVal('giftOriginalPrice', gf.originalPrice ?? 122.50);
+    setVal('giftImage', gf.image || './images/slider 1.jpeg');
+    setVal('giftTimerMinutes', gf.timerMinutes ?? 30);
 };
 
 // Notification Helpers
@@ -1582,7 +1828,9 @@ const showToast = (message, type = 'success') => {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadDashboardOverview();
+    loadProductsTable();
     loadCategoriesTable();
+    fetchProducts();
 
     // Discount calculator inputs
     const origInput = document.getElementById('productOriginalPrice');
@@ -1595,15 +1843,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Product Form
     const productForm = document.getElementById('productForm');
     if (productForm) {
-        productForm.addEventListener('submit', (e) => {
+        productForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const productId = document.getElementById('productId').value;
+            const productId = document.getElementById('productId').value.trim();
             const originalPrice = parseFloat(document.getElementById('productOriginalPrice').value) || 0;
             const salePrice = parseFloat(document.getElementById('productSalePrice').value) || originalPrice;
 
-            const newProduct = {
-                id: productId ? parseInt(productId, 10) : Date.now(),
+            const productData = {
                 name: document.getElementById('productName').value.trim(),
                 barcode: document.getElementById('productBarcode').value.trim(),
                 category: document.getElementById('productCategory').value,
@@ -1616,19 +1863,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 stock: parseInt(document.getElementById('productStock').value, 10) || 50
             };
 
-            let products = getProducts();
+            const isAr = window.i18n?.currentLang === 'ar';
             if (productId) {
-                const idx = products.findIndex((p) => p.id === parseInt(productId, 10));
-                if (idx > -1) products[idx] = newProduct;
+                // UPDATE existing product
+                productData.id = productId;
+                await updateProduct(productId, productData);
+                showToast(isAr ? 'تم تحديث بيانات المنتج بنجاح' : 'Product formula updated successfully');
             } else {
-                products.push(newProduct);
+                // ADD new product
+                await addProduct(productData);
+                showToast(isAr ? 'تمت إضافة المنتج الجديد بنجاح' : 'New product formula added successfully');
             }
 
-            saveProducts(products);
             closeProductModal();
-            showToast('Product saved successfully');
-            loadProductsTable();
-            loadDashboardOverview();
         });
     }
 
@@ -1835,6 +2082,23 @@ document.addEventListener('DOMContentLoaded', () => {
                         en: document.getElementById('footerCopyrightEn')?.value.trim() || '© 2026 Koko Shop. All botanical clinical formulations preserved.',
                         ar: document.getElementById('footerCopyrightAr')?.value.trim() || '© 2026 كوكو شوب. جميع التركيبات النباتية والسريرية محفوظة ومحمية.'
                     }
+                },
+                socials: {
+                    facebook: document.getElementById('socialFacebook')?.value.trim() || '',
+                    tiktok: document.getElementById('socialTiktok')?.value.trim() || '',
+                    instagram: document.getElementById('socialInstagram')?.value.trim() || '',
+                    whatsapp: document.getElementById('socialWhatsapp')?.value.trim() || ''
+                },
+                gift: {
+                    enabled: document.getElementById('giftEnabled')?.checked ?? true,
+                    minSpend: Number(document.getElementById('giftMinSpend')?.value) || 500,
+                    name: {
+                        en: document.getElementById('giftNameEn')?.value.trim() || 'Mini Splash Khamrah',
+                        ar: document.getElementById('giftNameAr')?.value.trim() || 'ميني سبلاش خمرة'
+                    },
+                    originalPrice: Number(document.getElementById('giftOriginalPrice')?.value) || 122.50,
+                    image: document.getElementById('giftImage')?.value.trim() || './images/slider 1.jpeg',
+                    timerMinutes: Number(document.getElementById('giftTimerMinutes')?.value) || 30
                 }
             };
 
@@ -1866,6 +2130,11 @@ window.initMockData = initMockData;
 window.showToast = showToast;
 
 // Products
+window.addProduct = addProduct;
+window.updateProduct = updateProduct;
+window.fetchProducts = fetchProducts;
+window.getProducts = getProducts;
+window.saveProducts = saveProducts;
 window.showAddProductModal = showAddProductModal;
 window.closeProductModal = closeProductModal;
 window.editProduct = editProduct;
@@ -1921,6 +2190,393 @@ window.saveStoreSettings = saveStoreSettings;
 
 // Dashboard
 window.loadDashboardOverview = loadDashboardOverview;
+
+// ============================================
+// LIVE CHAT INBOX SYSTEM (PHASE 5)
+// ============================================
+let _activeInboxChatId = null;
+let _inboxChatsCache = [];
+let _inboxUnsubscribe = null;
+let _activeChatUnsubscribe = null;
+
+const getChats = () => JSON.parse(localStorage.getItem('luxe_chats')) || [];
+const saveChats = (chats) => localStorage.setItem('luxe_chats', JSON.stringify(chats));
+
+const loadInboxTab = async () => {
+    const threadsContainer = document.getElementById('inboxThreadsList');
+    if (!threadsContainer) return;
+
+    threadsContainer.innerHTML = '<div class="text-center py-16 text-gray-400 text-xs"><i class="fas fa-spinner fa-spin text-xl mb-2 text-pink-400"></i><p>Loading conversations...</p></div>';
+
+    try {
+        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        const configModule = await import('./firebase-config.js');
+        const { collection, onSnapshot, query, orderBy } = firestoreModule;
+        const { db } = configModule;
+
+        if (_inboxUnsubscribe) _inboxUnsubscribe();
+
+        // Listen in real time to all chats
+        const q = query(collection(db, 'chats'), orderBy('updatedAt', 'desc'));
+        _inboxUnsubscribe = onSnapshot(q, (snapshot) => {
+            const chats = snapshot.docs.map((docItem) => ({
+                id: docItem.id,
+                ...docItem.data()
+            }));
+
+            // Merge with local fallback
+            const localChats = getChats();
+            const mergedMap = new Map();
+            localChats.forEach((c) => mergedMap.set(c.id, c));
+            chats.forEach((c) => mergedMap.set(c.id, { ...mergedMap.get(c.id), ...c }));
+            _inboxChatsCache = Array.from(mergedMap.values()).sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
+            saveChats(_inboxChatsCache);
+
+            renderInboxThreads(_inboxChatsCache);
+            updateInboxUnreadBadge();
+
+            // If an active thread is selected, refresh its view
+            if (_activeInboxChatId) {
+                const currentChat = _inboxChatsCache.find((c) => c.id === _activeInboxChatId);
+                if (currentChat) {
+                    renderInboxActiveMessages(currentChat);
+                }
+            } else if (_inboxChatsCache.length > 0) {
+                if (window.innerWidth >= 768) {
+                    selectInboxThread(_inboxChatsCache[0].id);
+                }
+            }
+        }, (err) => {
+            console.warn('Realtime inbox snapshot notice:', err);
+            _inboxChatsCache = getChats();
+            renderInboxThreads(_inboxChatsCache);
+            updateInboxUnreadBadge();
+        });
+    } catch (err) {
+        console.warn('Load inbox fallback:', err);
+        _inboxChatsCache = getChats();
+        renderInboxThreads(_inboxChatsCache);
+        updateInboxUnreadBadge();
+    }
+};
+
+const updateInboxUnreadBadge = () => {
+    const badge = document.getElementById('inboxUnreadBadge');
+    if (!badge) return;
+    const unreadCount = _inboxChatsCache.filter((c) => c.unreadByAdmin).length;
+    if (unreadCount > 0) {
+        badge.textContent = unreadCount;
+        badge.classList.remove('hidden');
+    } else {
+        badge.classList.add('hidden');
+    }
+};
+
+const renderInboxThreads = (threads) => {
+    const listEl = document.getElementById('inboxThreadsList');
+    if (!listEl) return;
+
+    if (!threads || threads.length === 0) {
+        listEl.innerHTML = `
+            <div class="text-center py-16 text-gray-400 text-xs p-4">
+                <i class="fas fa-inbox text-3xl mb-2 text-pink-200"></i>
+                <p class="font-semibold text-gray-600 dark:text-gray-300">لا توجد محادثات حتى الآن</p>
+                <p class="mt-1 text-gray-400">ستظهر رسائل واستفسارات العملاء هنا فور إرسالها من المتجر.</p>
+            </div>
+        `;
+        return;
+    }
+
+    listEl.innerHTML = threads.map((chat) => {
+        const isActive = chat.id === _activeInboxChatId;
+        const name = chat.customerName || chat.customerEmail || 'Client';
+        const initials = name.slice(0, 2).toUpperCase();
+        const lastMsg = chat.lastMessage || 'بدأت محادثة جديدة';
+        const isUnread = !!chat.unreadByAdmin;
+        const timeStr = chat.updatedAt ? formatChatTime(chat.updatedAt) : 'الآن';
+        const isResolved = chat.status === 'resolved';
+
+        return `
+            <div onclick="selectInboxThread('${chat.id}')" 
+                class="p-3.5 flex items-start gap-3 cursor-pointer transition ${isActive ? 'bg-pink-50/80 dark:bg-slate-700/60 border-l-4 border-pink-500' : 'hover:bg-pink-50/30 dark:hover:bg-slate-700/30'}">
+                <div class="w-10 h-10 rounded-full ${isActive ? 'bg-pink-500 text-white' : 'bg-pink-100 dark:bg-slate-700 text-pink-600 dark:text-pink-400'} flex items-center justify-center font-bold text-xs shrink-0 relative">
+                    ${initials}
+                    ${isUnread ? '<span class="absolute -top-0.5 -right-0.5 w-3 h-3 bg-rose-500 border-2 border-white dark:border-slate-800 rounded-full"></span>' : ''}
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center justify-between gap-1 mb-0.5">
+                        <h4 class="text-xs font-bold ${isUnread ? 'text-gray-900 dark:text-white font-extrabold' : 'text-gray-700 dark:text-gray-300'} truncate">${name}</h4>
+                        <span class="text-[10px] text-gray-400 shrink-0 font-mono">${timeStr}</span>
+                    </div>
+                    <p class="text-[11px] ${isUnread ? 'text-pink-600 dark:text-pink-400 font-semibold' : 'text-gray-400'} truncate">${lastMsg}</p>
+                    <div class="flex items-center gap-1.5 mt-1">
+                        <span class="text-[9px] px-1.5 py-0.2 rounded font-medium ${isResolved ? 'bg-gray-100 text-gray-500 dark:bg-slate-800 dark:text-gray-400' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400'}">
+                            ${isResolved ? 'تم الحل' : 'مفتوحة'}
+                        </span>
+                        ${chat.customerEmail ? `<span class="text-[9px] text-gray-400 truncate max-w-[120px] font-mono">${chat.customerEmail}</span>` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+};
+
+const selectInboxThread = async (chatId) => {
+    _activeInboxChatId = chatId;
+    const chat = _inboxChatsCache.find((c) => c.id === chatId);
+    if (!chat) return;
+
+    renderInboxThreads(_inboxChatsCache);
+
+    const name = chat.customerName || chat.customerEmail || 'Client';
+    const email = chat.customerEmail || 'Guest Client';
+
+    const nameEl = document.getElementById('inboxActiveName');
+    const emailEl = document.getElementById('inboxActiveEmail');
+    const avatarEl = document.getElementById('inboxActiveAvatar');
+    const actionsEl = document.getElementById('inboxActiveActions');
+    const replyContainer = document.getElementById('inboxReplyContainer');
+    const statusBadge = document.getElementById('inboxActiveStatusBadge');
+
+    if (nameEl) nameEl.textContent = name;
+    if (emailEl) emailEl.textContent = email;
+    if (avatarEl) avatarEl.textContent = name.slice(0, 2).toUpperCase();
+    if (actionsEl) actionsEl.classList.remove('hidden');
+    if (replyContainer) replyContainer.classList.remove('hidden');
+
+    if (statusBadge) {
+        if (chat.status === 'resolved') {
+            statusBadge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-gray-300';
+            statusBadge.textContent = 'Resolved';
+        } else {
+            statusBadge.className = 'text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600';
+            statusBadge.textContent = 'Active';
+        }
+    }
+
+    renderInboxActiveMessages(chat);
+
+    // Mark as read by admin in Firestore & local
+    if (chat.unreadByAdmin) {
+        chat.unreadByAdmin = false;
+        saveChats(_inboxChatsCache);
+        updateInboxUnreadBadge();
+
+        try {
+            const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+            const configModule = await import('./firebase-config.js');
+            const { doc, updateDoc } = firestoreModule;
+            const { db } = configModule;
+            await updateDoc(doc(db, 'chats', chatId), {
+                unreadByAdmin: false
+            });
+        } catch (e) {}
+    }
+
+    // Real-time listener on active chat document
+    try {
+        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        const configModule = await import('./firebase-config.js');
+        const { doc, onSnapshot } = firestoreModule;
+        const { db } = configModule;
+
+        if (_activeChatUnsubscribe) _activeChatUnsubscribe();
+        _activeChatUnsubscribe = onSnapshot(doc(db, 'chats', chatId), (docSnap) => {
+            if (docSnap.exists()) {
+                const freshData = { id: docSnap.id, ...docSnap.data() };
+                renderInboxActiveMessages(freshData);
+            }
+        });
+    } catch (e) {}
+};
+
+const renderInboxActiveMessages = (chat) => {
+    const stream = document.getElementById('inboxMessagesStream');
+    if (!stream) return;
+
+    const messages = chat.messages || [];
+    if (messages.length === 0) {
+        stream.innerHTML = `
+            <div class="text-center py-16 text-gray-400 text-xs">
+                <i class="fas fa-comment-dots text-3xl mb-2 text-pink-300"></i>
+                <p>لا توجد رسائل سابقة في هذه المحادثة.</p>
+                <p class="text-[11px] mt-1 text-gray-400">يمكنك كتابة رسالة أدناه لبدء التواصل مع العميل.</p>
+            </div>
+        `;
+        return;
+    }
+
+    stream.innerHTML = messages.map((msg) => {
+        const isAdmin = msg.sender === 'admin';
+        const time = msg.timestamp ? formatChatTime(msg.timestamp) : '';
+        const senderLabel = isAdmin ? 'Koko Support (أنت)' : (msg.senderName || chat.customerName || 'العميل');
+
+        if (isAdmin) {
+            return `
+                <div class="flex flex-col items-end">
+                    <div class="text-[10px] text-gray-400 mb-1 flex items-center gap-1.5">
+                        <span>${time}</span>
+                        <span class="font-bold text-pink-500">${senderLabel}</span>
+                    </div>
+                    <div class="max-w-[78%] bg-gradient-to-r from-pink-500 to-rose-500 text-white p-3 rounded-2xl rounded-tr-xs shadow-sm text-xs leading-relaxed">
+                        ${escapeHtml(msg.text)}
+                    </div>
+                </div>
+            `;
+        } else {
+            return `
+                <div class="flex flex-col items-start">
+                    <div class="text-[10px] text-gray-400 mb-1 flex items-center gap-1.5">
+                        <span class="font-bold text-gray-700 dark:text-gray-300">${senderLabel}</span>
+                        <span>${time}</span>
+                    </div>
+                    <div class="max-w-[78%] bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-200 p-3 rounded-2xl rounded-tl-xs shadow-sm border border-pink-100/60 dark:border-slate-700 text-xs leading-relaxed">
+                        ${escapeHtml(msg.text)}
+                    </div>
+                </div>
+            `;
+        }
+    }).join('');
+
+    stream.scrollTop = stream.scrollHeight;
+};
+
+const sendAdminReply = async (event) => {
+    if (event) event.preventDefault();
+    if (!_activeInboxChatId) {
+        showToast('يرجى اختيار محادثة أولاً', 'error');
+        return;
+    }
+
+    const input = document.getElementById('inboxReplyInput');
+    if (!input || !input.value.trim()) return;
+
+    const replyText = input.value.trim();
+    input.value = '';
+
+    const newMsg = {
+        id: 'msg_' + Date.now(),
+        sender: 'admin',
+        senderName: 'Koko Support / خدمة العملاء',
+        text: replyText,
+        timestamp: new Date().toISOString()
+    };
+
+    const chatIndex = _inboxChatsCache.findIndex((c) => c.id === _activeInboxChatId);
+    let chat = null;
+    if (chatIndex > -1) {
+        chat = _inboxChatsCache[chatIndex];
+        chat.messages = chat.messages || [];
+        chat.messages.push(newMsg);
+        chat.lastMessage = replyText;
+        chat.lastSender = 'admin';
+        chat.unreadByCustomer = true;
+        chat.unreadByAdmin = false;
+        chat.status = 'open';
+        chat.updatedAt = new Date().toISOString();
+        saveChats(_inboxChatsCache);
+        renderInboxActiveMessages(chat);
+        renderInboxThreads(_inboxChatsCache);
+    }
+
+    try {
+        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        const configModule = await import('./firebase-config.js');
+        const { doc, setDoc, arrayUnion } = firestoreModule;
+        const { db } = configModule;
+
+        await setDoc(doc(db, 'chats', _activeInboxChatId), {
+            id: _activeInboxChatId,
+            customerEmail: chat?.customerEmail || '',
+            customerName: chat?.customerName || 'Client',
+            lastMessage: replyText,
+            lastSender: 'admin',
+            unreadByCustomer: true,
+            unreadByAdmin: false,
+            status: 'open',
+            updatedAt: new Date().toISOString(),
+            messages: arrayUnion(newMsg)
+        }, { merge: true });
+
+        localStorage.setItem('luxe_chats_updated', Date.now());
+    } catch (err) {
+        console.warn('Send admin reply Firestore fallback:', err);
+    }
+};
+
+const toggleThreadResolved = async () => {
+    if (!_activeInboxChatId) return;
+    const chat = _inboxChatsCache.find((c) => c.id === _activeInboxChatId);
+    if (!chat) return;
+
+    const newStatus = chat.status === 'resolved' ? 'open' : 'resolved';
+    chat.status = newStatus;
+    chat.updatedAt = new Date().toISOString();
+    saveChats(_inboxChatsCache);
+    selectInboxThread(_activeInboxChatId);
+
+    try {
+        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        const configModule = await import('./firebase-config.js');
+        const { doc, updateDoc } = firestoreModule;
+        const { db } = configModule;
+        await updateDoc(doc(db, 'chats', _activeInboxChatId), {
+            status: newStatus,
+            updatedAt: new Date().toISOString()
+        });
+    } catch (e) {}
+
+    showToast(newStatus === 'resolved' ? 'تم تحديد المحادثة كمكتملة' : 'تم إعادة فتح المحادثة');
+};
+
+const filterInboxThreads = (query) => {
+    const q = (query || '').toLowerCase().trim();
+    if (!q) {
+        renderInboxThreads(_inboxChatsCache);
+        return;
+    }
+    const filtered = _inboxChatsCache.filter((c) => 
+        (c.customerName && c.customerName.toLowerCase().includes(q)) ||
+        (c.customerEmail && c.customerEmail.toLowerCase().includes(q)) ||
+        (c.lastMessage && c.lastMessage.toLowerCase().includes(q))
+    );
+    renderInboxThreads(filtered);
+};
+
+const formatChatTime = (isoString) => {
+    try {
+        const d = new Date(isoString);
+        const now = new Date();
+        const diffMs = now - d;
+        const diffMins = Math.floor(diffMs / 60000);
+        if (diffMins < 1) return 'الآن';
+        if (diffMins < 60) return `${diffMins} د`;
+        const diffHours = Math.floor(diffMins / 60);
+        if (diffHours < 24) return `${diffHours} س`;
+        return d.toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
+    } catch (e) {
+        return '';
+    }
+};
+
+const escapeHtml = (unsafe) => {
+    return String(unsafe || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+};
+
+// Export Inbox to window
+window.loadInboxTab = loadInboxTab;
+window.renderInboxThreads = renderInboxThreads;
+window.selectInboxThread = selectInboxThread;
+window.sendAdminReply = sendAdminReply;
+window.toggleThreadResolved = toggleThreadResolved;
+window.filterInboxThreads = filterInboxThreads;
+window.getChats = getChats;
+window.saveChats = saveChats;
 
 // Language Change Re-render Listener
 window.addEventListener('languageChanged', async () => {

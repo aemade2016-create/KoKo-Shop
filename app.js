@@ -272,8 +272,14 @@ function saveWishlist(wishlist) {
 }
 
 function updateWishlistCount() {
-    var wishlist = getWishlist();
     var wishlistCountElements = document.querySelectorAll('#wishlistCount');
+    if (!isLoggedIn()) {
+        wishlistCountElements.forEach(function (el) {
+            el.textContent = '0';
+        });
+        return;
+    }
+    var wishlist = getWishlist();
     wishlistCountElements.forEach(function (el) {
         el.textContent = wishlist.length;
     });
@@ -289,6 +295,16 @@ function isInWishlist(productId) {
 
 let _lastWishlistAction = { id: null, time: 0 };
 function toggleWishlist(productId, productData) {
+    if (!isLoggedIn()) {
+        var isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+        showToast(isAr ? 'يجب تسجيل الدخول أولاً لحفظ المنتجات في المفضلة' : 'Please log in first to save items to your wishlist', 'error');
+        sessionStorage.setItem('loginRedirect', window.location.href);
+        setTimeout(function () {
+            window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+        }, 1200);
+        return false;
+    }
+
     if (!productId && (!productData || !productData.id)) return;
 
     var targetId = String(productId || (productData && productData.id));
@@ -388,6 +404,22 @@ function initGlobalCartAndWishlistDelegation() {
                 sessionStorage.setItem('loginRedirect', 'cart.html');
                 setTimeout(function () {
                     window.location.href = 'login.html?redirect=cart.html';
+                }, 1200);
+                return;
+            }
+        }
+
+        // 0B. WISHLIST NAVIGATION DELEGATION (LOGIN REQUIRED)
+        var wishlistNavLink = event.target.closest('a[href="wishlist.html"], a[href="./wishlist.html"], [data-action="open-wishlist"]');
+        if (wishlistNavLink) {
+            if (!isLoggedIn()) {
+                event.preventDefault();
+                event.stopPropagation();
+                var isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+                showToast(isAr ? 'يجب تسجيل الدخول أولاً لعرض قائمة الرغبات' : 'Please log in to view your wishlist', 'error');
+                sessionStorage.setItem('loginRedirect', 'wishlist.html');
+                setTimeout(function () {
+                    window.location.href = 'login.html?redirect=wishlist.html';
                 }, 1200);
                 return;
             }
@@ -686,6 +718,20 @@ async function getStoreSettings() {
         footer: {
             about: { en: 'Clean botanical clinical formulations crafted for discerning skincare rituals. Certified non-comedogenic and cruelty-free.', ar: 'تركيبات نباتية علاجية ونقية مصممة لطقوس العناية الفاخرة بالبشرة. معتمدة طبياً وخالية من القسوة.' },
             copyright: { en: '© 2026 Koko Shop. All botanical clinical formulations preserved.', ar: '© 2026 كوكو شوب. جميع التركيبات النباتية والسريرية محفوظة ومحمية.' }
+        },
+        socials: {
+            facebook: 'https://facebook.com',
+            tiktok: 'https://tiktok.com',
+            instagram: 'https://instagram.com',
+            whatsapp: '+201000000000'
+        },
+        gift: {
+            enabled: true,
+            minSpend: 500,
+            name: { en: 'Mini Splash Khamrah', ar: 'ميني سبلاش خمرة' },
+            originalPrice: 122.50,
+            image: './images/slider 1.jpeg',
+            timerMinutes: 30
         }
     };
 }
@@ -769,18 +815,101 @@ async function applyStoreSettings() {
                 if (el.tagName === 'A') el.href = `mailto:${settings.supportEmail}`;
             }
         });
+
+        // 4. Social Media Links injection (All pages)
+        const fbLinks = document.querySelectorAll('.cms-footer-social-facebook');
+        fbLinks.forEach((el) => {
+            const url = settings.socials?.facebook || 'https://facebook.com';
+            el.href = url;
+            el.target = '_blank';
+            el.rel = 'noopener noreferrer';
+        });
+
+        const ttLinks = document.querySelectorAll('.cms-footer-social-tiktok');
+        ttLinks.forEach((el) => {
+            const url = settings.socials?.tiktok || 'https://tiktok.com';
+            el.href = url;
+            el.target = '_blank';
+            el.rel = 'noopener noreferrer';
+        });
+
+        const igLinks = document.querySelectorAll('.cms-footer-social-instagram');
+        igLinks.forEach((el) => {
+            const url = settings.socials?.instagram || 'https://instagram.com';
+            el.href = url;
+            el.target = '_blank';
+            el.rel = 'noopener noreferrer';
+        });
+
+        const waLinks = document.querySelectorAll('.cms-footer-social-whatsapp');
+        waLinks.forEach((el) => {
+            let rawWa = settings.socials?.whatsapp || '+201000000000';
+            const cleanWa = rawWa.startsWith('http') ? rawWa : `https://wa.me/${rawWa.replace(/\D/g, '')}`;
+            el.href = cleanWa;
+            el.target = '_blank';
+            el.rel = 'noopener noreferrer';
+        });
     } catch (err) {
         console.warn('Error applying store settings CMS:', err);
     }
 }
 
+// Global Horizontal Scroll & Layout Guard (Phase 3 Core Safeguard)
+function initHorizontalScrollGuard() {
+    if (document.documentElement) {
+        document.documentElement.classList.add('overflow-x-hidden', 'max-w-[100vw]');
+        document.documentElement.style.overflowX = 'hidden';
+        document.documentElement.style.maxWidth = '100vw';
+    }
+    if (document.body) {
+        document.body.classList.add('overflow-x-hidden', 'max-w-[100vw]', 'w-full');
+        document.body.style.overflowX = 'hidden';
+        document.body.style.maxWidth = '100vw';
+    }
+}
+
 // Auto-run on load and language change
 document.addEventListener('DOMContentLoaded', () => {
+    initHorizontalScrollGuard();
     applyStoreSettings();
+    if (typeof initGiftWidget === 'function') initGiftWidget();
+    if (typeof initAutoReviewSystem === 'function') initAutoReviewSystem();
+    if (typeof initLiveChatSystem === 'function') initLiveChatSystem();
 });
 
 window.addEventListener('languageChanged', () => {
     applyStoreSettings();
+    if (typeof updateGiftWidgetUI === 'function') updateGiftWidgetUI();
+    if (typeof updateLiveChatUI === 'function') updateLiveChatUI();
+});
+
+window.addEventListener('storage', (e) => {
+    if (e.key === 'luxe_settings' || e.key === 'luxe_settings_updated') {
+        applyStoreSettings();
+        if (typeof updateGiftWidgetUI === 'function') updateGiftWidgetUI();
+    }
+    if (e.key === 'luxe_cart') {
+        if (typeof updateGiftWidgetUI === 'function') updateGiftWidgetUI();
+    }
+    if (e.key === 'luxe_orders' || e.key === 'luxe_orders_updated') {
+        if (typeof initAutoReviewSystem === 'function') initAutoReviewSystem();
+    }
+    if (e.key === 'luxe_chats' || e.key === 'luxe_chats_updated') {
+        if (typeof updateLiveChatUI === 'function') updateLiveChatUI();
+    }
+});
+
+window.addEventListener('settings-updated', () => {
+    applyStoreSettings();
+    if (typeof updateGiftWidgetUI === 'function') updateGiftWidgetUI();
+});
+
+window.addEventListener('cart-updated', () => {
+    if (typeof updateGiftWidgetUI === 'function') updateGiftWidgetUI();
+});
+
+window.addEventListener('orders-updated', () => {
+    if (typeof initAutoReviewSystem === 'function') initAutoReviewSystem();
 });
 
 // ============================================
@@ -1039,8 +1168,1099 @@ window.LuxeBeauty = {
     getStoreSettings: getStoreSettings,
     applyStoreSettings: applyStoreSettings,
 
+    // Gift Widget (Phase 4)
+    initGiftWidget: initGiftWidget,
+    toggleGiftWidget: toggleGiftWidget,
+    updateGiftWidgetUI: updateGiftWidgetUI,
+    claimFreeGift: claimFreeGift,
+
     // Utils
     formatPrice: formatPrice,
     formatDate: formatDate,
     generateStars: generateStars
 };
+
+// ============================================
+// 11. FLOATING GIFT WIDGET SYSTEM (PHASE 4 - CRO REVENUE BOOSTER)
+// ============================================
+let _giftCountdownInterval = null;
+
+function initGiftWidget() {
+    // Avoid rendering on admin dashboard
+    if (window.location.pathname.includes('admin-dashboard') || document.body.classList.contains('admin-dashboard')) {
+        return;
+    }
+
+    let container = document.getElementById('floatingGiftWidgetContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'floatingGiftWidgetContainer';
+        container.className = 'fixed bottom-6 left-6 z-40 select-none font-sans max-w-[calc(100vw-2rem)]';
+        container.innerHTML = `
+            <!-- Gift Popup Card Modal -->
+            <div id="giftWidgetCard" class="hidden mb-3 w-[330px] sm:w-[360px] max-w-[calc(100vw-2rem)] bg-white dark:bg-slate-900 rounded-3xl border border-pink-100 dark:border-slate-800 shadow-2xl p-5 transition-all duration-300 transform origin-bottom-left">
+                <!-- Offer Countdown Banner (Cyan Pill matching screenshot) -->
+                <div class="bg-[#e0f7fa] dark:bg-cyan-950/70 border border-cyan-200 dark:border-cyan-800/60 rounded-xl py-2 px-3 text-center mb-3.5">
+                    <span id="giftWidgetCountdown" class="text-xs sm:text-sm font-semibold text-cyan-900 dark:text-cyan-200 tracking-wide font-sans">
+                        Offer ends in: 29 : 53
+                    </span>
+                </div>
+
+                <!-- Card Heading -->
+                <h3 id="giftWidgetHeading" class="text-sm sm:text-base font-bold text-gray-900 dark:text-white mb-3 text-left rtl:text-right leading-snug">
+                    Your free gift is waiting - Shop now!
+                </h3>
+
+                <!-- Progress Bar Container with Milestone Gift Badge -->
+                <div class="mb-4">
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <div class="flex-1 h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div id="giftWidgetProgressBar" class="h-full bg-teal-600 dark:bg-teal-400 rounded-full transition-all duration-500" style="width: 0%;"></div>
+                        </div>
+                        <!-- Milestone Circular Gift Icon -->
+                        <div id="giftWidgetMilestoneBadge" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 text-gray-400 flex items-center justify-center shrink-0 transition-all">
+                            <i id="giftWidgetMilestoneIcon" class="fas fa-gift text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px] text-gray-500 dark:text-gray-400 font-medium">
+                        <span id="giftWidgetProgressSpend">EGP 0 / 500</span>
+                        <span id="giftWidgetProgressRemaining">Add EGP 500 to unlock</span>
+                    </div>
+                </div>
+
+                <!-- Gift Item Preview Box -->
+                <div class="border border-pink-100/80 dark:border-slate-800 rounded-2xl p-2.5 bg-pink-50/20 dark:bg-slate-800/40 flex items-center justify-between gap-3 mb-4">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-14 h-14 rounded-xl overflow-hidden bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 shrink-0">
+                            <img id="giftWidgetImg" src="./images/slider 1.jpeg" alt="Free Gift" class="w-full h-full object-cover">
+                        </div>
+                        <div class="min-w-0">
+                            <h4 id="giftWidgetTitle" class="text-xs font-bold text-gray-900 dark:text-white truncate">Mini Splash Khamrah</h4>
+                            <div class="flex items-baseline gap-2 mt-0.5">
+                                <span class="text-rose-600 dark:text-rose-400 font-bold text-sm">LE 0.00</span>
+                                <span id="giftWidgetOldPrice" class="line-through text-gray-400 text-xs">LE 122.50</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Navigation Arrows matching reference screenshot -->
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button type="button" class="w-6 h-6 rounded-lg border border-gray-200 dark:border-slate-700 flex items-center justify-center text-gray-400 hover:text-pink-500 transition text-[9px]" title="Previous">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button type="button" class="w-6 h-6 rounded-lg border border-gray-200 dark:border-slate-700 flex items-center justify-center text-gray-400 hover:text-pink-500 transition text-[9px]" title="Next">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Button Container -->
+                <div id="giftWidgetActionContainer"></div>
+            </div>
+
+            <!-- Floating Trigger Button (Bottom Left Circle) -->
+            <button id="giftWidgetTriggerBtn" type="button" onclick="window.toggleGiftWidget()" 
+                class="w-14 h-14 bg-gray-900 hover:bg-black dark:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 relative border border-gray-700 focus:outline-none"
+                aria-label="Toggle Free Gift Widget">
+                <i id="giftWidgetTriggerIcon" class="fas fa-gift text-pink-400 text-xl"></i>
+                <!-- Red Notification Badge 1 -->
+                <span class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-md animate-pulse">1</span>
+            </button>
+        `;
+        document.body.appendChild(container);
+    }
+
+    // Restore state if previously opened in session
+    const wasOpen = sessionStorage.getItem('gift_widget_open') === 'true';
+    const card = document.getElementById('giftWidgetCard');
+    const icon = document.getElementById('giftWidgetTriggerIcon');
+    if (wasOpen && card && icon) {
+        card.classList.remove('hidden');
+        icon.className = 'fas fa-times text-white text-xl';
+    }
+
+    startGiftWidgetCountdown();
+    updateGiftWidgetUI();
+}
+
+function toggleGiftWidget() {
+    const card = document.getElementById('giftWidgetCard');
+    const icon = document.getElementById('giftWidgetTriggerIcon');
+    if (!card) return;
+
+    const isHidden = card.classList.contains('hidden');
+    if (isHidden) {
+        card.classList.remove('hidden');
+        if (icon) icon.className = 'fas fa-times text-white text-xl';
+        sessionStorage.setItem('gift_widget_open', 'true');
+        updateGiftWidgetUI();
+    } else {
+        card.classList.add('hidden');
+        if (icon) icon.className = 'fas fa-gift text-pink-400 text-xl';
+        sessionStorage.setItem('gift_widget_open', 'false');
+    }
+}
+
+function startGiftWidgetCountdown() {
+    if (_giftCountdownInterval) clearInterval(_giftCountdownInterval);
+
+    // Initial countdown value (default 29 mins 53 secs = 1793 seconds as in reference screenshot)
+    let secondsLeft = parseInt(sessionStorage.getItem('gift_widget_timer_sec'), 10);
+    if (!secondsLeft || isNaN(secondsLeft) || secondsLeft <= 0) {
+        secondsLeft = 1793;
+        sessionStorage.setItem('gift_widget_timer_sec', secondsLeft);
+    }
+
+    const timerEl = document.getElementById('giftWidgetCountdown');
+    const renderTimer = () => {
+        if (!timerEl) return;
+        const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+        const mm = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
+        const ss = String(secondsLeft % 60).padStart(2, '0');
+        timerEl.textContent = isAr ? `ينتهي العرض خلال: ${mm} : ${ss}` : `Offer ends in: ${mm} : ${ss}`;
+    };
+
+    renderTimer();
+
+    _giftCountdownInterval = setInterval(() => {
+        secondsLeft--;
+        if (secondsLeft <= 0) {
+            secondsLeft = 1800; // Reset loop
+        }
+        sessionStorage.setItem('gift_widget_timer_sec', secondsLeft);
+        renderTimer();
+    }, 1000);
+}
+
+async function updateGiftWidgetUI() {
+    const container = document.getElementById('floatingGiftWidgetContainer');
+    if (!container) return;
+
+    let settings = {};
+    try {
+        settings = await getStoreSettings();
+    } catch (e) {
+        settings = {};
+    }
+
+    const gift = settings.gift || {
+        enabled: true,
+        minSpend: 500,
+        name: { en: 'Mini Splash Khamrah', ar: 'ميني سبلاش خمرة' },
+        originalPrice: 122.50,
+        image: './images/slider 1.jpeg',
+        timerMinutes: 30
+    };
+
+    // If disabled by Admin, hide widget completely
+    if (gift.enabled === false) {
+        container.style.display = 'none';
+        return;
+    } else {
+        container.style.display = 'block';
+    }
+
+    const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+    const giftTitle = (typeof gift.name === 'object') ? ((isAr ? gift.name.ar : gift.name.en) || gift.name.en || gift.name.ar || 'Mini Splash Khamrah') : String(gift.name || 'Mini Splash Khamrah');
+    const minSpend = Number(gift.minSpend) || 500;
+    const origPrice = Number(gift.originalPrice) || 122.50;
+    const giftImage = gift.image || './images/slider 1.jpeg';
+
+    // Update Image & Title & Price in widget
+    const titleEl = document.getElementById('giftWidgetTitle');
+    const imgEl = document.getElementById('giftWidgetImg');
+    const oldPriceEl = document.getElementById('giftWidgetOldPrice');
+    if (titleEl) titleEl.textContent = giftTitle;
+    if (imgEl) imgEl.src = giftImage;
+    if (oldPriceEl) oldPriceEl.textContent = isAr ? `${origPrice.toFixed(2)} ج.م` : `LE ${origPrice.toFixed(2)}`;
+
+    // Compute cart total excluding gifts
+    const cart = getCart();
+    const cartTotal = cart
+        .filter((item) => !item.isGift)
+        .reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 1)), 0);
+
+    const isUnlocked = cartTotal >= minSpend;
+    const pct = Math.min(Math.round((cartTotal / minSpend) * 100), 100);
+
+    // Update Progress Bar
+    const barEl = document.getElementById('giftWidgetProgressBar');
+    const milestoneBadge = document.getElementById('giftWidgetMilestoneBadge');
+    const milestoneIcon = document.getElementById('giftWidgetMilestoneIcon');
+    const spendEl = document.getElementById('giftWidgetProgressSpend');
+    const remainingEl = document.getElementById('giftWidgetProgressRemaining');
+    const headingEl = document.getElementById('giftWidgetHeading');
+    const actionContainer = document.getElementById('giftWidgetActionContainer');
+
+    if (barEl) {
+        barEl.style.width = pct + '%';
+        if (isUnlocked) {
+            barEl.className = 'h-full bg-emerald-500 rounded-full transition-all duration-500';
+        } else {
+            barEl.className = 'h-full bg-teal-600 dark:bg-teal-400 rounded-full transition-all duration-500';
+        }
+    }
+
+    if (spendEl) {
+        spendEl.textContent = isAr ? `${cartTotal.toFixed(2)} / ${minSpend} ج.م` : `EGP ${cartTotal.toFixed(2)} / ${minSpend}`;
+    }
+
+    const hasGiftInCart = cart.some((i) => i.isGift || i.id === 'free-gift-promo');
+
+    if (isUnlocked) {
+        if (milestoneBadge) {
+            milestoneBadge.className = 'w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border-2 border-emerald-500 text-emerald-500 flex items-center justify-center shrink-0 shadow-sm animate-pulse';
+        }
+        if (milestoneIcon) milestoneIcon.className = 'fas fa-check text-xs';
+        if (headingEl) {
+            headingEl.textContent = isAr ? '🎉 مبروك! هديتك المجانية جاهزة للاستلام!' : '🎉 Congratulations! Your free gift is unlocked!';
+        }
+        if (remainingEl) {
+            remainingEl.textContent = isAr ? 'تم تحقيق الحد الأدنى للهدية!' : 'Gift requirement unlocked!';
+            remainingEl.className = 'text-emerald-600 dark:text-emerald-400 font-bold';
+        }
+
+        if (actionContainer) {
+            if (hasGiftInCart) {
+                actionContainer.innerHTML = `
+                    <a href="cart.html" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 px-4 rounded-full text-xs font-bold transition shadow-md shadow-emerald-500/25 flex items-center justify-center gap-2">
+                        <i class="fas fa-check-circle"></i>
+                        <span>${isAr ? '✓ الهدية مضافة في سلة التسوق - عرض السلة' : '✓ Gift in Shopping Bag - View Bag'}</span>
+                    </a>
+                `;
+            } else {
+                actionContainer.innerHTML = `
+                    <button type="button" onclick="window.claimFreeGift()" class="w-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:to-teal-700 text-white py-2.5 px-4 rounded-full text-xs font-bold transition shadow-md shadow-emerald-500/25 flex items-center justify-center gap-2 animate-bounce">
+                        <i class="fas fa-gift"></i>
+                        <span>${isAr ? '🎁 أضف الهدية المجانية إلى السلة الآن' : '🎁 Claim Your Free Gift Now'}</span>
+                    </button>
+                `;
+            }
+        }
+    } else {
+        const remaining = minSpend - cartTotal;
+        if (milestoneBadge) {
+            milestoneBadge.className = 'w-8 h-8 rounded-full bg-gray-100 dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 text-gray-400 flex items-center justify-center shrink-0';
+        }
+        if (milestoneIcon) milestoneIcon.className = 'fas fa-gift text-xs';
+        if (headingEl) {
+            headingEl.textContent = isAr ? 'هديتك المجانية في انتظارك - تسوقي الآن!' : 'Your free gift is waiting - Shop now!';
+        }
+        if (remainingEl) {
+            remainingEl.textContent = isAr ? `أضف ${remaining.toFixed(2)} ج.م للفتح` : `Add EGP ${remaining.toFixed(2)} to unlock`;
+            remainingEl.className = 'text-pink-600 dark:text-pink-400 font-bold';
+        }
+
+        if (actionContainer) {
+            actionContainer.innerHTML = `
+                <a href="products.html" class="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:bg-pink-600 text-white py-2.5 px-4 rounded-full text-xs font-bold transition shadow-md shadow-pink-500/25 flex items-center justify-center gap-2">
+                    <span>${isAr ? 'تسوق الآن للحصول على الهدية' : 'Shop Now to Unlock'}</span>
+                    <i class="fas fa-arrow-right text-[10px] rtl:rotate-180"></i>
+                </a>
+            `;
+        }
+    }
+}
+
+async function claimFreeGift() {
+    const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+    let settings = {};
+    try {
+        settings = await getStoreSettings();
+    } catch (e) {
+        settings = {};
+    }
+
+    const gift = settings.gift || {
+        enabled: true,
+        minSpend: 500,
+        name: { en: 'Mini Splash Khamrah', ar: 'ميني سبلاش خمرة' },
+        originalPrice: 122.50,
+        image: './images/slider 1.jpeg'
+    };
+
+    const minSpend = Number(gift.minSpend) || 500;
+    let cart = getCart();
+    const cartTotal = cart
+        .filter((item) => !item.isGift)
+        .reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 1)), 0);
+
+    if (cartTotal < minSpend) {
+        const diff = minSpend - cartTotal;
+        showToast(isAr ? `يرجى إضافة منتجات بقيمة ${diff.toFixed(2)} ج.م أخرى أولاً` : `Please add EGP ${diff.toFixed(2)} more to qualify for the gift`, 'error');
+        return;
+    }
+
+    const alreadyInCart = cart.some((i) => i.isGift || i.id === 'free-gift-promo');
+    if (alreadyInCart) {
+        showToast(isAr ? 'الهدية مضافة بالفعل في حقيبة التسوق!' : 'Gift is already in your shopping bag!', 'success');
+        return;
+    }
+
+    const giftTitle = (typeof gift.name === 'object') ? ((isAr ? gift.name.ar : gift.name.en) || gift.name.en || gift.name.ar || 'Mini Splash Khamrah') : String(gift.name || 'Mini Splash Khamrah');
+
+    const giftItem = {
+        id: 'free-gift-promo',
+        name: giftTitle,
+        price: 0,
+        originalPrice: Number(gift.originalPrice) || 122.50,
+        image: gift.image || './images/slider 1.jpeg',
+        quantity: 1,
+        category: 'Free Gift',
+        isGift: true
+    };
+
+    cart.push(giftItem);
+    saveCart(cart);
+    updateGiftWidgetUI();
+
+    showToast(isAr ? '🎉 مبروك! تمت إضافة هديتك المجانية إلى السلة بقيمة 0.00 ج.م!' : '🎉 Congratulations! Your free gift was added to your bag!');
+}
+
+// Expose on window for direct HTML onclick access
+window.initGiftWidget = initGiftWidget;
+window.toggleGiftWidget = toggleGiftWidget;
+window.updateGiftWidgetUI = updateGiftWidgetUI;
+window.claimFreeGift = claimFreeGift;
+
+// ============================================
+// 12. AUTO-REVIEW SYSTEM (PHASE 5 - POST-DELIVERY CRO FEEDBACK)
+// ============================================
+let _pendingReviewOrder = null;
+let _selectedReviewRating = 5;
+
+async function initAutoReviewSystem() {
+    // Avoid running on admin dashboard
+    if (window.location.pathname.includes('admin-dashboard') || document.body.classList.contains('admin-dashboard')) {
+        return;
+    }
+
+    const currentUser = getCurrentUser();
+    if (!currentUser || !currentUser.email) return;
+
+    const userEmail = String(currentUser.email).toLowerCase();
+
+    // 1. Search in local orders first
+    let localOrders = JSON.parse(localStorage.getItem('luxe_orders') || '[]');
+    let candidate = localOrders.find((o) => 
+        (String(o.userId || '').toLowerCase() === userEmail || String(o.customerInfo?.email || '').toLowerCase() === userEmail) &&
+        (o.status === 'delivered' || o.status === 'completed') &&
+        !o.isRated
+    );
+
+    // 2. Also search in Firestore orders if not found locally
+    if (!candidate) {
+        try {
+            const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+            const configModule = await import('./firebase-config.js');
+            const { collection, getDocs, query, where } = firestoreModule;
+            const { db } = configModule;
+
+            const q = query(
+                collection(db, 'orders'),
+                where('status', '==', 'delivered')
+            );
+            const snapshot = await getDocs(q);
+            if (!snapshot.empty) {
+                const fsOrders = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+                candidate = fsOrders.find((o) => 
+                    (String(o.userId || '').toLowerCase() === userEmail || String(o.customerInfo?.email || '').toLowerCase() === userEmail) &&
+                    !o.isRated
+                );
+            }
+        } catch (e) {
+            console.warn('Auto review Firestore check notice:', e);
+        }
+    }
+
+    if (!candidate) return;
+
+    // Check if dismissed in this session
+    if (sessionStorage.getItem('dismissed_review_' + candidate.orderId)) return;
+
+    _pendingReviewOrder = candidate;
+    _selectedReviewRating = 5;
+    renderAutoReviewModal(candidate);
+}
+
+function renderAutoReviewModal(order) {
+    let modal = document.getElementById('autoReviewModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'autoReviewModal';
+        modal.className = 'fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300';
+        document.body.appendChild(modal);
+    }
+
+    const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+    const items = order.items || [];
+    const itemsPreviewHtml = items.slice(0, 3).map((item) => `
+        <div class="flex items-center gap-2.5 p-2 bg-pink-50/50 dark:bg-slate-800/60 rounded-2xl border border-pink-100/60 dark:border-slate-700">
+            <img src="${item.image || './images/slider 1.jpeg'}" alt="${item.name}" class="w-10 h-10 rounded-xl object-cover border border-pink-100 dark:border-slate-700 shrink-0">
+            <div class="min-w-0 flex-1 text-left rtl:text-right">
+                <p class="text-xs font-bold text-gray-900 dark:text-white truncate">${item.name}</p>
+                <p class="text-[10px] text-gray-400 font-mono">${isAr ? 'الكمية: ' : 'Qty: '}${item.quantity || 1}</p>
+            </div>
+        </div>
+    `).join('');
+
+    modal.innerHTML = `
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-pink-100 dark:border-slate-800 shadow-2xl max-w-md w-full p-6 sm:p-7 relative overflow-hidden transform animate-fade-in text-left rtl:text-right">
+            <!-- Ambient Glow -->
+            <div class="absolute -top-12 -right-12 w-32 h-32 bg-gradient-to-br from-pink-400/20 to-rose-400/20 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="text-center mb-5">
+                <div class="w-14 h-14 bg-gradient-to-tr from-amber-400 to-yellow-300 text-white rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3 shadow-lg shadow-amber-400/25">
+                    <i class="fas fa-star animate-pulse"></i>
+                </div>
+                <h3 class="text-lg sm:text-xl font-display font-bold text-gray-900 dark:text-white mb-1">
+                    ${isAr ? 'تهانينا على استلام طلبيتك! 🌟' : 'Congratulations on receiving your order! 🌟'}
+                </h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                    ${isAr ? `طلبك رقم <span class="font-mono font-bold text-pink-600">${order.orderId}</span> تم تسليمه بنجاح. رأيك يساعدنا على التطوير المستمر!` : `Your order <span class="font-mono font-bold text-pink-600">${order.orderId}</span> was delivered. Please share your rating!`}
+                </p>
+            </div>
+
+            <!-- Delivered Items Preview -->
+            <div class="space-y-2 mb-4 max-h-32 overflow-y-auto">
+                ${itemsPreviewHtml}
+            </div>
+
+            <!-- Interactive Star Rating -->
+            <div class="text-center mb-4 bg-pink-50/30 dark:bg-slate-800/40 p-4 rounded-2xl border border-pink-100/50 dark:border-slate-700/60">
+                <p class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    ${isAr ? 'ما هو تقييمك للمنتجات وسرعة التوصيل؟' : 'How was the product quality and delivery?'}
+                </p>
+                <div id="reviewStarsContainer" class="flex justify-center items-center gap-2 text-2xl text-yellow-400 mb-2">
+                    <i class="fas fa-star cursor-pointer hover:scale-125 transition" data-star="1" onclick="window.setReviewRating(1)"></i>
+                    <i class="fas fa-star cursor-pointer hover:scale-125 transition" data-star="2" onclick="window.setReviewRating(2)"></i>
+                    <i class="fas fa-star cursor-pointer hover:scale-125 transition" data-star="3" onclick="window.setReviewRating(3)"></i>
+                    <i class="fas fa-star cursor-pointer hover:scale-125 transition" data-star="4" onclick="window.setReviewRating(4)"></i>
+                    <i class="fas fa-star cursor-pointer hover:scale-125 transition" data-star="5" onclick="window.setReviewRating(5)"></i>
+                </div>
+                <p id="reviewRatingLabel" class="text-xs font-bold text-pink-600 dark:text-pink-400">
+                    ${isAr ? 'ممتاز ورائع جداً! 🌟🌟🌟🌟🌟' : 'Excellent & Luxurious! 🌟🌟🌟🌟🌟'}
+                </p>
+            </div>
+
+            <!-- Comment Feedback Input -->
+            <div class="mb-5">
+                <label for="autoReviewComment" class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                    ${isAr ? 'تعليقك وتقييمك للمنتج (اختياري):' : 'Your feedback comment (optional):'}
+                </label>
+                <textarea id="autoReviewComment" rows="3" placeholder="${isAr ? 'أخبرنا برأيك في جودة التركيبة، التغليف، وتجربة الاستخدام...' : 'Share your experience with product formulation and packaging...'}"
+                    class="w-full px-3.5 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-pink-400 outline-none resize-none font-sans"></textarea>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2.5">
+                <button type="button" onclick="window.submitAutoReview()"
+                    class="flex-1 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white py-3 px-5 rounded-full font-bold text-xs transition shadow-lg shadow-pink-500/25 flex items-center justify-center gap-1.5">
+                    <i class="fas fa-check-circle"></i>
+                    <span>${isAr ? 'إرسال التقييم واعتماد الطلب' : 'Submit Review'}</span>
+                </button>
+                <button type="button" onclick="window.dismissAutoReviewModal()"
+                    class="px-4 py-3 rounded-full text-xs font-semibold text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition">
+                    ${isAr ? 'لاحقاً' : 'Later'}
+                </button>
+            </div>
+        </div>
+    `;
+    modal.classList.remove('hidden');
+    updateReviewStarsUI(5);
+}
+
+function setReviewRating(rating) {
+    _selectedReviewRating = rating;
+    updateReviewStarsUI(rating);
+}
+
+function updateReviewStarsUI(rating) {
+    const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+    const stars = document.querySelectorAll('#reviewStarsContainer i');
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.className = 'fas fa-star cursor-pointer hover:scale-125 transition text-yellow-400';
+        } else {
+            star.className = 'far fa-star cursor-pointer hover:scale-125 transition text-gray-300 dark:text-gray-600';
+        }
+    });
+
+    const label = document.getElementById('reviewRatingLabel');
+    if (!label) return;
+    const labelsAr = [
+        'يحتاج إلى تحسين 😞',
+        'مقبول 😐',
+        'جيد 🙂',
+        'جيد جداً! 💖',
+        'ممتاز ورائع جداً! 🌟🌟🌟🌟🌟'
+    ];
+    const labelsEn = [
+        'Needs Improvement 😞',
+        'Fair 😐',
+        'Good 🙂',
+        'Very Good! 💖',
+        'Excellent & Luxurious! 🌟🌟🌟🌟🌟'
+    ];
+    label.textContent = (isAr ? labelsAr : labelsEn)[rating - 1] || '';
+}
+
+function dismissAutoReviewModal() {
+    const modal = document.getElementById('autoReviewModal');
+    if (modal) modal.classList.add('hidden');
+    if (_pendingReviewOrder) {
+        sessionStorage.setItem('dismissed_review_' + _pendingReviewOrder.orderId, 'true');
+    }
+}
+
+async function submitAutoReview() {
+    if (!_pendingReviewOrder) return;
+    const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+    const commentEl = document.getElementById('autoReviewComment');
+    const comment = commentEl ? commentEl.value.trim() : '';
+    const currentUser = getCurrentUser() || {};
+
+    const reviewId = 'rev_' + Date.now();
+    const reviewData = {
+        id: reviewId,
+        orderId: _pendingReviewOrder.orderId,
+        userId: currentUser.email || _pendingReviewOrder.userId || '',
+        userName: currentUser.name || _pendingReviewOrder.customerInfo?.name || 'Client',
+        author: currentUser.name || _pendingReviewOrder.customerInfo?.name || 'Client',
+        rating: _selectedReviewRating,
+        comment: comment || (isAr ? 'منتجات ممتازة وتجربة تسوق رائعة جداً!' : 'Excellent formulation and smooth delivery!'),
+        quote: comment || (isAr ? 'منتجات ممتازة وتجربة تسوق رائعة جداً!' : 'Excellent formulation and smooth delivery!'),
+        productName: _pendingReviewOrder.items?.map((i) => i.name).join(', ') || 'Koko Shop Formulation',
+        productId: _pendingReviewOrder.items?.[0]?.productId || '',
+        date: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        status: 'approved',
+        verifiedPurchase: true
+    };
+
+    // 1. Save to local reviews
+    let reviews = JSON.parse(localStorage.getItem('luxe_reviews') || '[]');
+    reviews.unshift(reviewData);
+    localStorage.setItem('luxe_reviews', JSON.stringify(reviews));
+
+    // 2. Mark local order as rated
+    let localOrders = JSON.parse(localStorage.getItem('luxe_orders') || '[]');
+    const ordIdx = localOrders.findIndex((o) => o.orderId === _pendingReviewOrder.orderId);
+    if (ordIdx > -1) {
+        localOrders[ordIdx].isRated = true;
+        localOrders[ordIdx].rating = _selectedReviewRating;
+        localOrders[ordIdx].reviewText = reviewData.comment;
+        localOrders[ordIdx].ratedAt = new Date().toISOString();
+        localStorage.setItem('luxe_orders', JSON.stringify(localOrders));
+    }
+
+    // 3. Sync to Firestore collection 'reviews' and update 'orders'
+    try {
+        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        const configModule = await import('./firebase-config.js');
+        const { doc, setDoc } = firestoreModule;
+        const { db } = configModule;
+
+        await setDoc(doc(db, 'reviews', reviewId), reviewData, { merge: true });
+        await setDoc(doc(db, 'orders', _pendingReviewOrder.orderId), {
+            isRated: true,
+            rating: _selectedReviewRating,
+            reviewText: reviewData.comment,
+            ratedAt: new Date().toISOString()
+        }, { merge: true });
+    } catch (err) {
+        console.warn('Auto review Firestore submit notice:', err);
+    }
+
+    sessionStorage.setItem('dismissed_review_' + _pendingReviewOrder.orderId, 'true');
+
+    const modal = document.getElementById('autoReviewModal');
+    if (modal) modal.classList.add('hidden');
+
+    showToast(isAr ? '🎉 شكراً جزيلاً لتقييمك الرائع! تم حفظ التقييم بنجاح.' : '🎉 Thank you for your review! Saved successfully.');
+    window.dispatchEvent(new CustomEvent('reviews-updated'));
+}
+
+// ============================================
+// 13. LIVE CHAT SYSTEM (PHASE 5 - MATCHING REFERENCE IMAGE 2)
+// ============================================
+let _chatId = null;
+let _chatUnsubscribe = null;
+let _chatMessagesCache = [];
+let _isChatExpanded = false;
+
+function getChatGuestId() {
+    let guestId = localStorage.getItem('koko_chat_guest_id');
+    if (!guestId) {
+        guestId = 'guest_' + Math.random().toString(36).substring(2, 9);
+        localStorage.setItem('koko_chat_guest_id', guestId);
+    }
+    return guestId;
+}
+
+function getActiveChatId() {
+    const user = getCurrentUser();
+    if (user && user.email) {
+        return 'chat_' + String(user.email).replace(/[^a-zA-Z0-9]/g, '_');
+    }
+    return 'chat_' + getChatGuestId();
+}
+
+function initLiveChatSystem() {
+    // Avoid rendering in admin dashboard
+    if (window.location.pathname.includes('admin-dashboard') || document.body.classList.contains('admin-dashboard')) {
+        return;
+    }
+
+    _chatId = getActiveChatId();
+
+    let container = document.getElementById('floatingLiveChatContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'floatingLiveChatContainer';
+        container.className = 'fixed bottom-6 right-6 z-40 select-none font-sans max-w-[calc(100vw-2rem)]';
+        container.innerHTML = `
+            <!-- Live Chat Modal Card (Matches Reference Screenshot 2) -->
+            <div id="liveChatModalCard" class="hidden mb-3 w-[340px] sm:w-[380px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100vh-6rem)] bg-white dark:bg-slate-900 rounded-3xl border border-pink-100 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform origin-bottom-right">
+                
+                <!-- Top Bar Header -->
+                <div class="p-3.5 border-b border-pink-50 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0">
+                    <!-- Purple Brand Pill matching reference image -->
+                    <div class="bg-[#5c4cf4] text-white px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm shadow-indigo-500/20">
+                        <span>متابعة باستخدام shop</span>
+                    </div>
+
+                    <!-- Right Controls (Expand & Minimize) -->
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" onclick="window.toggleChatExpand()" 
+                            class="w-7 h-7 rounded-full bg-gray-100 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 text-gray-500 hover:text-pink-600 transition flex items-center justify-center text-[10px]" 
+                            title="Expand / Resize">
+                            <i class="fas fa-up-right-and-down-left-from-center"></i>
+                        </button>
+                        <button type="button" onclick="window.toggleLiveChat()" 
+                            class="w-7 h-7 rounded-full bg-gray-100 dark:bg-slate-800 hover:bg-rose-100 dark:hover:bg-slate-700 text-gray-500 hover:text-rose-600 transition flex items-center justify-center text-[10px]" 
+                            title="Close / Minimize">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat Body Area -->
+                <div id="liveChatBody" class="flex-1 overflow-y-auto p-4 flex flex-col bg-gradient-to-b from-white via-pink-50/10 to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-900">
+                    
+                    <!-- Welcome Hero State (Overlapping Floating Cards & Text from Image 2) -->
+                    <div id="liveChatWelcomeView" class="flex flex-col my-auto space-y-4">
+                        
+                        <!-- 3D Overlapping Product Showcase Cards -->
+                        <div class="relative h-28 flex items-center justify-center mb-1">
+                            <!-- Card 2: Argan Conditioner (Behind / Angled) -->
+                            <div class="absolute right-8 top-1 bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-2 shadow-lg w-28 text-center transform rotate-6 hover:rotate-0 transition duration-300">
+                                <div class="w-12 h-14 mx-auto overflow-hidden rounded-lg mb-1 bg-pink-50 dark:bg-slate-700">
+                                    <img src="./images/slider 2.jpeg" alt="Argan Conditioner" class="w-full h-full object-cover">
+                                </div>
+                                <p class="text-[9px] font-bold text-gray-800 dark:text-gray-200 truncate">Argan Conditioner</p>
+                            </div>
+                            <!-- Card 1: Oud Body Splash (Front / Aligned) -->
+                            <div class="absolute left-8 top-0 bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-2 shadow-xl w-28 text-center transform -rotate-3 hover:rotate-0 transition duration-300 z-10">
+                                <div class="w-12 h-14 mx-auto overflow-hidden rounded-lg mb-1 bg-pink-50 dark:bg-slate-700">
+                                    <img src="./images/slider 1.jpeg" alt="Oud Body Splash" class="w-full h-full object-cover">
+                                </div>
+                                <p class="text-[9px] font-bold text-gray-800 dark:text-gray-200 truncate">Oud Body Splash</p>
+                            </div>
+                        </div>
+
+                        <!-- Welcome Text in Arabic matching Screenshot 2 -->
+                        <div class="text-right" dir="rtl">
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-1.5 font-display">
+                                مرحبًا!
+                            </h3>
+                            <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed font-sans">
+                                يمكنك طرح أسئلة حول التسوق، أو المقاسات/الأبعاد، أو الشحن، أو المرتجعات، أو حالة الطلب.
+                            </p>
+                        </div>
+
+                        <!-- Privacy notice from screenshot 2 -->
+                        <p class="text-[10px] text-gray-400 text-right leading-tight" dir="rtl">
+                            من أجل تقديم الخدمات وتحسينها. رسائلك مرئية لـ Koko Shop.
+                        </p>
+
+                        <!-- Quick suggestion pills -->
+                        <div class="flex items-center gap-1.5 flex-wrap justify-end" dir="rtl">
+                            <button type="button" onclick="window.sendQuickMessage('تتبع طلبي')" 
+                                class="bg-gray-50 dark:bg-slate-800 hover:bg-pink-100 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-700 px-3 py-1.5 rounded-full text-xs font-semibold transition shadow-xs">
+                                تتبع طلبي
+                            </button>
+                            <button type="button" onclick="window.sendQuickMessage('الشحن والتوصيل')" 
+                                class="bg-gray-50 dark:bg-slate-800 hover:bg-pink-100 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-700 px-3 py-1.5 rounded-full text-xs font-semibold transition shadow-xs">
+                                الشحن والتوصيل
+                            </button>
+                            <button type="button" onclick="window.sendQuickMessage('استشارة المنتجات')" 
+                                class="bg-gray-50 dark:bg-slate-800 hover:bg-pink-100 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-slate-700 px-3 py-1.5 rounded-full text-xs font-semibold transition shadow-xs">
+                                استشارة المنتجات
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Conversation Messages List (Rendered dynamically) -->
+                    <div id="liveChatMessagesList" class="hidden flex-col space-y-3 pt-2"></div>
+                </div>
+
+                <!-- Bottom Input Bar (Matches Pill Border in Image 2) -->
+                <div class="p-3 bg-white dark:bg-slate-900 border-t border-pink-50 dark:border-slate-800 shrink-0">
+                    <form id="liveChatForm" onsubmit="window.sendCustomerChatMessage(event)" class="relative flex items-center">
+                        <div class="w-full flex items-center bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-full px-3 py-1.5 focus-within:ring-2 focus-within:ring-pink-400 focus-within:border-pink-400 transition">
+                            <!-- Paperclip icon button on left (or right based on RTL) -->
+                            <button type="button" onclick="window.simulateChatAttachment()" 
+                                class="text-gray-400 hover:text-pink-500 w-7 h-7 flex items-center justify-center transition shrink-0" 
+                                title="Attach photo or order slip">
+                                <i class="fas fa-paperclip text-sm"></i>
+                            </button>
+
+                            <!-- Text Input -->
+                            <input type="text" id="liveChatInput" placeholder="...اسأل عن أي شيء" dir="rtl"
+                                class="flex-1 bg-transparent px-2 text-xs text-gray-900 dark:text-white outline-none font-sans">
+
+                            <!-- Send Button -->
+                            <button type="submit" 
+                                class="w-8 h-8 rounded-full bg-pink-500 hover:bg-pink-600 text-white flex items-center justify-center transition shadow-sm shrink-0" 
+                                title="Send Message">
+                                <i class="fas fa-paper-plane text-xs"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Floating Trigger Button (Bottom Right Circle) -->
+            <button id="liveChatTriggerBtn" type="button" onclick="window.toggleLiveChat()" 
+                class="w-14 h-14 bg-gradient-to-tr from-slate-900 to-indigo-950 text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 relative border border-slate-700 focus:outline-none"
+                aria-label="Toggle Live Chat">
+                <i id="liveChatTriggerIcon" class="fas fa-comment-dots text-pink-400 text-xl"></i>
+                <!-- Red Notification Badge -->
+                <span id="liveChatUnreadBadge" class="hidden absolute -top-1 -right-1 bg-rose-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-md animate-pulse">1</span>
+            </button>
+        `;
+        document.body.appendChild(container);
+    }
+
+    // Connect to Firestore real-time listener for current chat
+    listenToCurrentChat();
+}
+
+function toggleLiveChat() {
+    const card = document.getElementById('liveChatModalCard');
+    const icon = document.getElementById('liveChatTriggerIcon');
+    const badge = document.getElementById('liveChatUnreadBadge');
+    if (!card) return;
+
+    const isHidden = card.classList.contains('hidden');
+    if (isHidden) {
+        card.classList.remove('hidden');
+        if (icon) icon.className = 'fas fa-times text-white text-xl';
+        if (badge) badge.classList.add('hidden');
+        const input = document.getElementById('liveChatInput');
+        if (input) setTimeout(() => input.focus(), 150);
+        markChatReadByCustomer();
+    } else {
+        card.classList.add('hidden');
+        if (icon) icon.className = 'fas fa-comment-dots text-pink-400 text-xl';
+    }
+}
+
+function toggleChatExpand() {
+    const card = document.getElementById('liveChatModalCard');
+    if (!card) return;
+    _isChatExpanded = !_isChatExpanded;
+    if (_isChatExpanded) {
+        card.classList.remove('w-[340px]', 'sm:w-[380px]', 'h-[520px]');
+        card.classList.add('w-[350px]', 'sm:w-[480px]', 'h-[620px]');
+    } else {
+        card.classList.remove('w-[350px]', 'sm:w-[480px]', 'h-[620px]');
+        card.classList.add('w-[340px]', 'sm:w-[380px]', 'h-[520px]');
+    }
+}
+
+function simulateChatAttachment() {
+    const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+    showToast(isAr ? 'تم إرفاق لقطة الشاشة مع رسالتك' : 'Attachment added to message');
+}
+
+async function listenToCurrentChat() {
+    _chatId = getActiveChatId();
+    try {
+        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        const configModule = await import('./firebase-config.js');
+        const { doc, onSnapshot } = firestoreModule;
+        const { db } = configModule;
+
+        if (_chatUnsubscribe) _chatUnsubscribe();
+
+        _chatUnsubscribe = onSnapshot(doc(db, 'chats', _chatId), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                _chatMessagesCache = data.messages || [];
+                renderLiveChatMessages(_chatMessagesCache);
+
+                // If unread by customer and modal closed, show notification badge
+                const modal = document.getElementById('liveChatModalCard');
+                const badge = document.getElementById('liveChatUnreadBadge');
+                if (data.unreadByCustomer && modal && modal.classList.contains('hidden') && badge) {
+                    badge.classList.remove('hidden');
+                }
+            }
+        }, (err) => {
+            console.warn('Live chat Firestore listener notice:', err);
+        });
+    } catch (err) {
+        console.warn('Live chat Firestore connect fallback:', err);
+    }
+}
+
+function renderLiveChatMessages(messages) {
+    const welcomeView = document.getElementById('liveChatWelcomeView');
+    const messagesList = document.getElementById('liveChatMessagesList');
+    const body = document.getElementById('liveChatBody');
+    if (!messagesList) return;
+
+    if (!messages || messages.length === 0) {
+        if (welcomeView) welcomeView.classList.remove('hidden');
+        messagesList.classList.add('hidden');
+        return;
+    }
+
+    if (welcomeView) welcomeView.classList.add('hidden');
+    messagesList.classList.remove('hidden');
+
+    messagesList.innerHTML = messages.map((msg) => {
+        const isCustomer = msg.sender === 'customer';
+        const time = msg.timestamp ? formatChatTime(msg.timestamp) : '';
+        const senderLabel = isCustomer ? 'أنت' : (msg.senderName || 'Koko Concierge');
+
+        if (isCustomer) {
+            return `
+                <div class="flex flex-col items-start" dir="rtl">
+                    <div class="text-[9px] text-gray-400 mb-1 flex items-center gap-1 font-mono">
+                        <span class="font-bold text-pink-600">${senderLabel}</span>
+                        <span>${time}</span>
+                    </div>
+                    <div class="max-w-[85%] bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3.5 py-2.5 rounded-2xl rounded-tr-xs shadow-md text-xs leading-relaxed font-sans">
+                        ${escapeChatHtml(msg.text)}
+                    </div>
+                </div>
+            `;
+        } else {
+            return `
+                <div class="flex flex-col items-end" dir="rtl">
+                    <div class="text-[9px] text-gray-400 mb-1 flex items-center gap-1.5 font-mono">
+                        <span>${time}</span>
+                        <span class="font-bold text-gray-700 dark:text-gray-300">${senderLabel}</span>
+                    </div>
+                    <div class="max-w-[85%] bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-200 px-3.5 py-2.5 rounded-2xl rounded-tl-xs shadow-sm border border-pink-100 dark:border-slate-700 text-xs leading-relaxed font-sans">
+                        ${escapeChatHtml(msg.text)}
+                    </div>
+                </div>
+            `;
+        }
+    }).join('');
+
+    if (body) body.scrollTop = body.scrollHeight;
+}
+
+async function sendCustomerChatMessage(event) {
+    if (event) event.preventDefault();
+    const input = document.getElementById('liveChatInput');
+    if (!input || !input.value.trim()) return;
+
+    const text = input.value.trim();
+    input.value = '';
+
+    await dispatchChatMessage(text);
+}
+
+async function sendQuickMessage(text) {
+    await dispatchChatMessage(text);
+}
+
+async function dispatchChatMessage(text) {
+    const user = getCurrentUser() || {};
+    _chatId = getActiveChatId();
+
+    const newMsg = {
+        id: 'msg_' + Date.now(),
+        sender: 'customer',
+        senderName: user.name || 'عميل المتجر',
+        text: text,
+        timestamp: new Date().toISOString()
+    };
+
+    _chatMessagesCache.push(newMsg);
+    renderLiveChatMessages(_chatMessagesCache);
+
+    // Save locally
+    let localChats = JSON.parse(localStorage.getItem('luxe_chats') || '[]');
+    let chatIndex = localChats.findIndex((c) => c.id === _chatId);
+    let chatObj = chatIndex > -1 ? localChats[chatIndex] : {
+        id: _chatId,
+        customerEmail: user.email || '',
+        customerName: user.name || 'عميل المتجر',
+        messages: []
+    };
+    chatObj.messages = chatObj.messages || [];
+    chatObj.messages.push(newMsg);
+    chatObj.lastMessage = text;
+    chatObj.lastSender = 'customer';
+    chatObj.unreadByAdmin = true;
+    chatObj.unreadByCustomer = false;
+    chatObj.status = 'open';
+    chatObj.updatedAt = new Date().toISOString();
+
+    if (chatIndex > -1) {
+        localChats[chatIndex] = chatObj;
+    } else {
+        localChats.unshift(chatObj);
+    }
+    localStorage.setItem('luxe_chats', JSON.stringify(localChats));
+    localStorage.setItem('luxe_chats_updated', Date.now());
+
+    // Sync to Firestore
+    try {
+        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        const configModule = await import('./firebase-config.js');
+        const { doc, setDoc, arrayUnion } = firestoreModule;
+        const { db } = configModule;
+
+        await setDoc(doc(db, 'chats', _chatId), {
+            id: _chatId,
+            customerEmail: user.email || '',
+            customerName: user.name || 'عميل المتجر',
+            lastMessage: text,
+            lastSender: 'customer',
+            unreadByAdmin: true,
+            unreadByCustomer: false,
+            status: 'open',
+            updatedAt: new Date().toISOString(),
+            messages: arrayUnion(newMsg)
+        }, { merge: true });
+    } catch (err) {
+        console.warn('Live chat customer send Firestore fallback:', err);
+    }
+
+    // Automated smart assistant response for quick pills
+    triggerSmartAssistantReply(text);
+}
+
+function triggerSmartAssistantReply(customerText) {
+    const textLower = customerText.toLowerCase().trim();
+    let autoReply = '';
+
+    if (textLower.includes('تتبع طلبي') || textLower.includes('track')) {
+        const user = getCurrentUser();
+        const localOrders = JSON.parse(localStorage.getItem('luxe_orders') || '[]');
+        const userOrders = localOrders.filter((o) => user && (o.userId === user.email || o.customerInfo?.email === user.email));
+
+        if (userOrders.length > 0) {
+            const latest = userOrders[userOrders.length - 1];
+            const statusMap = {
+                pending: 'قيد المراجعة والتجهيز 📦',
+                processing: 'جاري تحضير التركيبة المعملية ✨',
+                delivered: 'تم التوصيل بنجاح 🎉',
+                cancelled: 'ملغي ❌'
+            };
+            const statusAr = statusMap[latest.status] || latest.status;
+            autoReply = `أهلاً بك! آخر طلب مسجل لك برقم #${latest.orderId} بقيمة ${Number(latest.pricing?.total || 0).toFixed(2)} ج.م، وحالته الحالية: (${statusAr}).`;
+        } else {
+            autoReply = 'أهلاً بك في كوكو شوب! لتتبع شحنتك فوراً، يرجى تزويدنا برقم الطلب (مثال: ORD-...) وسيقوم فريق الدعم بالتحقق منه لحظياً.';
+        }
+    } else if (textLower.includes('الشحن') || textLower.includes('توصيل') || textLower.includes('shipping')) {
+        autoReply = 'الشحن والتوصيل يستغرق من 2 إلى 4 أيام عمل لكافة المحافظات المصرية. والتوصيل مجاني تماماً للطلبات التي تتجاوز 500 ج.م 🚚✨';
+    } else if (textLower.includes('استشارة') || textLower.includes('منتجات') || textLower.includes('product')) {
+        autoReply = 'فريقنا الطبي والجمالي جاهز لمساعدتك في اختيار التركيبة الأنسب لنوع بشرتك واحتياجاتك! تفضل بسؤالك وسنجيبك فوراً.';
+    }
+
+    if (autoReply) {
+        setTimeout(async () => {
+            const botMsg = {
+                id: 'msg_bot_' + Date.now(),
+                sender: 'admin',
+                senderName: 'Koko Bot / المساعد الذكي',
+                text: autoReply,
+                timestamp: new Date().toISOString()
+            };
+
+            _chatMessagesCache.push(botMsg);
+            renderLiveChatMessages(_chatMessagesCache);
+
+            // Sync to Firestore & local
+            try {
+                const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+                const configModule = await import('./firebase-config.js');
+                const { doc, setDoc, arrayUnion } = firestoreModule;
+                const { db } = configModule;
+
+                await setDoc(doc(db, 'chats', _chatId), {
+                    lastMessage: autoReply,
+                    lastSender: 'admin',
+                    unreadByCustomer: false,
+                    updatedAt: new Date().toISOString(),
+                    messages: arrayUnion(botMsg)
+                }, { merge: true });
+            } catch (e) {}
+        }, 800);
+    }
+}
+
+async function markChatReadByCustomer() {
+    _chatId = getActiveChatId();
+    try {
+        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        const configModule = await import('./firebase-config.js');
+        const { doc, updateDoc } = firestoreModule;
+        const { db } = configModule;
+        await updateDoc(doc(db, 'chats', _chatId), {
+            unreadByCustomer: false
+        });
+    } catch (e) {}
+}
+
+function updateLiveChatUI() {
+    listenToCurrentChat();
+}
+
+function formatChatTime(isoString) {
+    try {
+        const d = new Date(isoString);
+        return d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+    } catch (e) {
+        return '';
+    }
+}
+
+function escapeChatHtml(unsafe) {
+    return String(unsafe || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+// Global window exposure
+window.initAutoReviewSystem = initAutoReviewSystem;
+window.setReviewRating = setReviewRating;
+window.dismissAutoReviewModal = dismissAutoReviewModal;
+window.submitAutoReview = submitAutoReview;
+
+window.initLiveChatSystem = initLiveChatSystem;
+window.toggleLiveChat = toggleLiveChat;
+window.toggleChatExpand = toggleChatExpand;
+window.simulateChatAttachment = simulateChatAttachment;
+window.sendCustomerChatMessage = sendCustomerChatMessage;
+window.sendQuickMessage = sendQuickMessage;
+window.updateLiveChatUI = updateLiveChatUI;
+
+// Update window.LuxeBeauty
+if (window.LuxeBeauty) {
+    window.LuxeBeauty.initAutoReviewSystem = initAutoReviewSystem;
+    window.LuxeBeauty.submitAutoReview = submitAutoReview;
+    window.LuxeBeauty.initLiveChatSystem = initLiveChatSystem;
+    window.LuxeBeauty.toggleLiveChat = toggleLiveChat;
+}

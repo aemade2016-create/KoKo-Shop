@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth overflow-x-hidden max-w-[100vw]">
 
 <head>
     <meta charset="UTF-8">
@@ -51,7 +51,7 @@
     </script>
 </head>
 
-<body class="bg-[#fdf8fa] dark:bg-[#0f172a] text-gray-800 dark:text-gray-100 transition-colors duration-300 antialiased selection:bg-pink-100 selection:text-pink-600 min-h-screen flex flex-col">
+<body class="bg-[#fdf8fa] dark:bg-[#0f172a] text-gray-800 dark:text-gray-100 transition-colors duration-300 antialiased selection:bg-pink-100 selection:text-pink-600 min-h-screen flex flex-col overflow-x-hidden max-w-[100vw] w-full">
 
     <!-- Top Announcement Bar -->
     <aside aria-label="Announcement" class="bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white text-xs font-medium py-2.5 px-4">
@@ -234,10 +234,63 @@
     </div>
 
     <!-- Luxury Dark Footer -->
-    <footer class="bg-slate-900 text-gray-300 pt-16 pb-12 mt-auto border-t border-pink-900/20">
+    <footer class="bg-slate-900 text-gray-300 pt-16 pb-12 mt-auto border-t border-pink-900/20 overflow-x-hidden max-w-[100vw]">
         <div class="container mx-auto px-4 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+                <!-- Brand Info -->
+                <div class="md:col-span-1">
+                    <a href="index.html" class="flex items-center space-x-2.5 mb-4 group" title="Return to Home">
+                        <div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
+                            <i class="fa-brands fa-shopify text-base"></i>
+                        </div>
+                        <span class="text-2xl font-display font-bold text-white tracking-tight">KoKo <span class="italic font-normal text-pink-400">Shop</span></span>
+                    </a>
+                    <p class="cms-footer-about text-xs text-gray-400 leading-relaxed mb-6">
+                        Clean botanical clinical formulations crafted for discerning skincare rituals. Certified non-comedogenic and cruelty-free.
+                    </p>
+                    <div class="flex space-x-3 text-sm text-gray-400">
+                        <a href="#" class="cms-footer-social-instagram w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-white hover:bg-pink-500 transition" aria-label="Instagram" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="cms-footer-social-facebook w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-white hover:bg-pink-500 transition" aria-label="Facebook" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="cms-footer-social-tiktok w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-white hover:bg-pink-500 transition" aria-label="TikTok" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" class="cms-footer-social-whatsapp w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-white hover:bg-pink-500 transition" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+
+                <!-- Ritual Protocols -->
+                <div>
+                    <h3 class="text-white font-display font-semibold text-sm mb-4 tracking-wider uppercase text-pink-400">Shop by Ritual</h3>
+                    <ul class="space-y-2.5 text-xs text-gray-400">
+                        <li><a href="products.html" class="hover:text-pink-400 transition">All Formulations</a></li>
+                        <li><a href="products.html?category=Serum" class="hover:text-pink-400 transition">Serums & Elixirs</a></li>
+                        <li><a href="products.html?category=Moisturizer" class="hover:text-pink-400 transition">Barrier Creams</a></li>
+                        <li><a href="index.html#skin-quiz" class="hover:text-pink-400 transition">Diagnostic Skin Quiz</a></li>
+                    </ul>
+                </div>
+
+                <!-- Client Concierge -->
+                <div>
+                    <h3 class="text-white font-display font-semibold text-sm mb-4 tracking-wider uppercase text-pink-400">Concierge</h3>
+                    <ul class="space-y-2.5 text-xs text-gray-400">
+                        <li><a href="about.html" class="hover:text-pink-400 transition">About Our Clean Ethos</a></li>
+                        <li><a href="wishlist.html" class="hover:text-pink-400 transition">My Saved Rituals</a></li>
+                        <li><a href="cart.html" class="hover:text-pink-400 transition">Shopping Bag & Checkout</a></li>
+                        <li><a href="profile.html" class="hover:text-pink-400 transition">Order Tracking & History</a></li>
+                    </ul>
+                </div>
+
+                <!-- Guarantee & Contact -->
+                <div>
+                    <h3 class="text-white font-display font-semibold text-sm mb-4 tracking-wider uppercase text-pink-400">Clinical Assurance</h3>
+                    <ul class="space-y-2.5 text-xs text-gray-400">
+                        <li class="flex items-center"><i class="fas fa-check text-pink-500 mr-2"></i> 30-Day Money-Back Guarantee</li>
+                        <li class="flex items-center"><i class="fas fa-check text-pink-500 mr-2"></i> Free Carbon-Neutral Delivery</li>
+                        <li class="flex items-center"><i class="fas fa-envelope text-pink-500 mr-2"></i> <span class="cms-footer-email">concierge@kokoshop.com</span></li>
+                    </ul>
+                </div>
+            </div>
+
             <div class="border-t border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
-                <p class="cms-footer-copyright">&copy; 2026 Koko Shop. All botanical clinical formulations preserved.</p>
+                <p class="cms-footer-copyright">&copy; 2026 KoKo Shop. All botanical clinical formulations preserved.</p>
                 <div class="flex items-center space-x-4 text-gray-400">
                     <span class="flex items-center"><i class="fab fa-cc-visa text-lg mr-2"></i> Visa</span>
                     <span class="flex items-center"><i class="fab fa-cc-mastercard text-lg mr-2"></i> Mastercard</span>
@@ -261,7 +314,19 @@
                 image = './images/slider 1.jpeg'
             } = item;
 
-            const unitPrice = parseFloat(price) || 0;
+            // Look up product in catalog if available to get full discount details
+            let allProds = [];
+            try {
+                allProds = JSON.parse(localStorage.getItem('luxe_products')) || [];
+            } catch (e) {}
+            const fullProd = allProds.find((p) => String(p.id) === String(id)) || {};
+
+            const origPrice = Number(item.originalPrice || fullProd.originalPrice || fullProd.price || price || 0);
+            const currentPrice = Number(item.salePrice || fullProd.salePrice || price || origPrice);
+            const calculatedSavings = Number(fullProd.savings) || Math.max(origPrice - currentPrice, 0);
+            const isDiscounted = (calculatedSavings > 0) || (origPrice > currentPrice);
+            const savingsFormatted = calculatedSavings % 1 === 0 ? calculatedSavings.toFixed(0) : calculatedSavings.toFixed(2);
+
             const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
             const displayName = window.i18n ? window.i18n.translateText(name) : name;
             const catMap = {
@@ -274,7 +339,9 @@
                 'Mask': 'قناع'
             };
             const displayCategory = isAr ? (catMap[category] || (window.i18n ? window.i18n.translateText(category) : category)) : category;
-            const priceFormatted = isAr ? `${unitPrice.toFixed(2)} ج.م` : `EGP ${unitPrice.toFixed(2)}`;
+            const priceFormatted = isAr ? `${currentPrice.toFixed(2)} ج.م` : `EGP ${currentPrice.toFixed(2)}`;
+            const oldPriceFormatted = isAr ? `${origPrice.toFixed(2)} ج.م` : `EGP ${origPrice.toFixed(2)}`;
+            const badgeText = isAr ? `وفرت ${savingsFormatted} ج.م` : `Save EGP ${savingsFormatted}`;
             const moveBtnText = isAr ? 'نقل إلى الحقيبة' : 'Move to Bag';
             const removeTitle = isAr ? 'حذف من المفضلة' : 'Remove from wishlist';
 
@@ -289,6 +356,14 @@
                             title="${removeTitle}" aria-label="${removeTitle}">
                             <i class="fas fa-heart text-xs"></i>
                         </button>
+
+                        <!-- Dynamic Discount Badge (وفرت X) -->
+                        ${isDiscounted ? `
+                            <span class="absolute top-2.5 left-2.5 z-10 bg-gradient-to-r from-pink-600 to-rose-500 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+                                <i class="fas fa-tag text-[9px]"></i>
+                                <span>${badgeText}</span>
+                            </span>
+                        ` : ''}
                     </div>
 
                     <!-- Details -->
@@ -300,8 +375,11 @@
 
                         <!-- Price & Action -->
                         <div class="pt-2 border-t border-pink-50 dark:border-slate-700/60">
-                            <div class="mb-3">
+                            <div class="flex items-baseline gap-2 mb-3 flex-wrap">
                                 <span class="text-base font-bold font-display text-pink-600">${priceFormatted}</span>
+                                ${isDiscounted && origPrice > currentPrice ? `
+                                    <span class="text-xs text-gray-400 line-through decoration-pink-400 font-medium">${oldPriceFormatted}</span>
+                                ` : ''}
                             </div>
 
                             <button data-action="add-to-cart" data-product-id="${id}" onclick="moveToCart('${id}')" 
@@ -422,6 +500,17 @@
 
         // DOM Ready
         document.addEventListener('DOMContentLoaded', () => {
+            const isUserAuth = (typeof isLoggedIn === 'function' ? isLoggedIn() : (!!localStorage.getItem('currentUser') || !!localStorage.getItem('luxe_currentUser')));
+            if (!isUserAuth) {
+                sessionStorage.setItem('loginRedirect', 'wishlist.html');
+                const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+                showToast(isAr ? 'يجب تسجيل الدخول أولاً لعرض قائمة الرغبات' : 'Please log in to access your wishlist');
+                setTimeout(() => {
+                    window.location.replace('login.html?redirect=wishlist.html');
+                }, 1200);
+                return;
+            }
+
             loadWishlist();
 
             // Check Admin Crown Icon
