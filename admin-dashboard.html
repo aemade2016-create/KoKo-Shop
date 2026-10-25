@@ -70,7 +70,7 @@
         <div class="px-6 py-3.5">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3 sm:space-x-4">
-                    <button id="sidebarToggle" class="lg:hidden w-9 h-9 rounded-full bg-pink-50 dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:text-pink-600 flex items-center justify-center transition">
+                    <button id="sidebarToggle" onclick="toggleMobileSidebar()" class="lg:hidden w-9 h-9 rounded-full bg-pink-50 dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:text-pink-600 flex items-center justify-center transition" title="القائمة الجانبية / Toggle Menu">
                         <i class="fas fa-bars text-sm"></i>
                     </button>
                     <a href="index.html" class="flex items-center space-x-2.5 group" title="Return to Storefront">
@@ -111,7 +111,10 @@
         </div>
     </header>
 
-    <div class="flex flex-1">
+    <div class="flex flex-1 relative">
+        <!-- Mobile Sidebar Backdrop (tap outside to close / النقر خارج القائمة للإغلاق) -->
+        <div id="sidebarBackdrop" onclick="closeMobileSidebar()" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 hidden lg:hidden transition-opacity duration-300"></div>
+
         <!-- Sidebar Navigation -->
         <aside id="sidebar"
             class="fixed lg:static inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 w-64 bg-white dark:bg-slate-800 border-r border-pink-100/80 dark:border-slate-700/80 z-40 mt-16 lg:mt-0 flex flex-col justify-between p-4 sm:p-5">
@@ -264,10 +267,17 @@
                         <h1 class="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white">Products Management</h1>
                         <p class="text-xs text-gray-500 dark:text-gray-400">Curate and update botanical formulations</p>
                     </div>
-                    <button onclick="showAddProductModal()"
-                        class="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2.5 rounded-full font-semibold text-xs shadow-md shadow-pink-500/25 transition">
-                        <i class="fas fa-plus mr-1.5"></i>Add New Product
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="toggleAllTableDetails('products')"
+                            class="bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 text-pink-600 dark:text-pink-400 border border-pink-200 dark:border-slate-700 px-4 py-2.5 rounded-full font-semibold text-xs transition flex items-center shadow-sm"
+                            title="إظهار / إخفاء كافة البيانات المخفية على الموبايل">
+                            <i class="fas fa-eye mr-1.5 text-xs"></i><span>إظهار الكل / Toggle All</span>
+                        </button>
+                        <button onclick="showAddProductModal()"
+                            class="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2.5 rounded-full font-semibold text-xs shadow-md shadow-pink-500/25 transition">
+                            <i class="fas fa-plus mr-1.5"></i>Add New Product
+                        </button>
+                    </div>
                 </div>
 
                 <div class="bg-white dark:bg-slate-800 rounded-3xl border border-pink-100/80 dark:border-slate-700/80 shadow-sm overflow-hidden">
@@ -275,17 +285,22 @@
                         <table class="w-full text-left products-table">
                             <thead class="bg-pink-50/70 dark:bg-slate-800/90 text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                 <tr>
-                                    <th class="px-5 py-3.5">Image</th>
-                                    <th class="px-5 py-3.5">Formula Name</th>
-                                    <th class="px-5 py-3.5">Price</th>
-                                    <th class="hidden md:table-cell px-5 py-3.5">Category</th>
-                                    <th class="hidden md:table-cell px-5 py-3.5">Stock</th>
-                                    <th class="px-5 py-3.5 text-right">Actions</th>
+                                    <th class="w-10 px-2 py-3.5 text-center" title="الأيقونة الصغيرة لإظهار وإخفاء البيانات">
+                                        <button type="button" onclick="toggleAllTableDetails('products')" title="إظهار / إخفاء الكل" class="w-6 h-6 rounded-full bg-pink-100 dark:bg-slate-700 text-pink-600 dark:text-pink-400 hover:bg-pink-500 hover:text-white flex items-center justify-center transition mx-auto text-[10px]">
+                                            <i class="fas fa-arrows-up-down"></i>
+                                        </button>
+                                    </th>
+                                    <th class="px-4 py-3.5">Image</th>
+                                    <th class="px-4 py-3.5">Formula Name</th>
+                                    <th class="px-4 py-3.5">Price</th>
+                                    <th class="hidden md:table-cell px-4 py-3.5">Category</th>
+                                    <th class="hidden md:table-cell px-4 py-3.5">Stock</th>
+                                    <th class="hidden md:table-cell px-4 py-3.5 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="productsTableBody" class="divide-y divide-pink-50 dark:divide-slate-700/60 text-xs">
                                 <tr>
-                                    <td colspan="6" class="px-6 py-8 text-center text-gray-400">No products found</td>
+                                    <td colspan="7" class="px-6 py-8 text-center text-gray-400">No products found</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -590,29 +605,39 @@
 
             <!-- 6. ORDERS TAB -->
             <div id="ordersTab" class="tab-content space-y-6">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
                         <h1 class="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white">Orders Management</h1>
                         <p class="text-xs text-gray-500 dark:text-gray-400">Monitor status, fulfillment, and customer invoices</p>
                     </div>
+                    <button type="button" onclick="toggleAllTableDetails('orders')"
+                        class="bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 text-pink-600 dark:text-pink-400 border border-pink-200 dark:border-slate-700 px-4 py-2.5 rounded-full font-semibold text-xs transition flex items-center shadow-sm"
+                        title="إظهار / إخفاء كافة البيانات المخفية على الموبايل">
+                        <i class="fas fa-eye mr-1.5 text-xs"></i><span>إظهار الكل / Toggle All</span>
+                    </button>
                 </div>
 
                 <div class="bg-white dark:bg-slate-800 rounded-3xl border border-pink-100/80 dark:border-slate-700/80 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[700px] text-left">
+                        <table class="w-full text-left">
                             <thead class="bg-pink-50/70 dark:bg-slate-800/90 text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                 <tr>
-                                    <th class="px-5 py-3.5">Order ID</th>
-                                    <th class="px-5 py-3.5">Date</th>
-                                    <th class="px-5 py-3.5">Customer</th>
-                                    <th class="px-5 py-3.5">Total Amount</th>
-                                    <th class="px-5 py-3.5">Status</th>
-                                    <th class="px-5 py-3.5 text-right">Actions</th>
+                                    <th class="w-10 px-2 py-3.5 text-center" title="الأيقونة الصغيرة لإظهار وإخفاء البيانات">
+                                        <button type="button" onclick="toggleAllTableDetails('orders')" title="إظهار / إخفاء الكل" class="w-6 h-6 rounded-full bg-pink-100 dark:bg-slate-700 text-pink-600 dark:text-pink-400 hover:bg-pink-500 hover:text-white flex items-center justify-center transition mx-auto text-[10px]">
+                                            <i class="fas fa-arrows-up-down"></i>
+                                        </button>
+                                    </th>
+                                    <th class="px-4 py-3.5">Order ID</th>
+                                    <th class="px-4 py-3.5">Date</th>
+                                    <th class="hidden md:table-cell px-4 py-3.5">Customer</th>
+                                    <th class="hidden md:table-cell px-4 py-3.5">Total Amount</th>
+                                    <th class="hidden md:table-cell px-4 py-3.5">Status</th>
+                                    <th class="hidden md:table-cell px-4 py-3.5 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="ordersTableBody" class="divide-y divide-pink-50 dark:divide-slate-700/60 text-xs">
                                 <tr>
-                                    <td colspan="6" class="px-6 py-8 text-center text-gray-400">No orders recorded</td>
+                                    <td colspan="7" class="px-6 py-8 text-center text-gray-400">No orders recorded</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -653,10 +678,17 @@
                         <h1 class="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white">Customers Management</h1>
                         <p class="text-xs text-gray-500 dark:text-gray-400">View and manage registered clients</p>
                     </div>
-                    <button onclick="showAddUserForm()"
-                        class="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2.5 rounded-full font-semibold text-xs shadow-md shadow-pink-500/25 transition">
-                        <i class="fas fa-user-plus mr-1.5"></i>Add Customer
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="toggleAllTableDetails('users')"
+                            class="bg-pink-50 dark:bg-slate-800 hover:bg-pink-100 dark:hover:bg-slate-700 text-pink-600 dark:text-pink-400 border border-pink-200 dark:border-slate-700 px-4 py-2.5 rounded-full font-semibold text-xs transition flex items-center shadow-sm"
+                            title="إظهار / إخفاء كافة البيانات المخفية على الموبايل">
+                            <i class="fas fa-eye mr-1.5 text-xs"></i><span>إظهار الكل / Toggle All</span>
+                        </button>
+                        <button onclick="showAddUserForm()"
+                            class="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2.5 rounded-full font-semibold text-xs shadow-md shadow-pink-500/25 transition">
+                            <i class="fas fa-user-plus mr-1.5"></i>Add Customer
+                        </button>
+                    </div>
                 </div>
 
                 <div id="addUserFormCard" class="hidden bg-white dark:bg-slate-800 rounded-3xl p-6 border border-pink-100/80 dark:border-slate-700/80 shadow-sm mb-6">
@@ -698,17 +730,22 @@
                         <table class="w-full text-left">
                             <thead class="bg-pink-50/70 dark:bg-slate-800/90 text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                 <tr>
-                                    <th class="px-5 py-3.5">Customer</th>
-                                    <th class="px-5 py-3.5">Email</th>
-                                    <th class="px-5 py-3.5">Role</th>
-                                    <th class="px-5 py-3.5">Orders</th>
-                                    <th class="px-5 py-3.5">Status</th>
-                                    <th class="px-5 py-3.5 text-right">Actions</th>
+                                    <th class="w-10 px-2 py-3.5 text-center" title="الأيقونة الصغيرة لإظهار وإخفاء البيانات">
+                                        <button type="button" onclick="toggleAllTableDetails('users')" title="إظهار / إخفاء الكل" class="w-6 h-6 rounded-full bg-pink-100 dark:bg-slate-700 text-pink-600 dark:text-pink-400 hover:bg-pink-500 hover:text-white flex items-center justify-center transition mx-auto text-[10px]">
+                                            <i class="fas fa-arrows-up-down"></i>
+                                        </button>
+                                    </th>
+                                    <th class="px-4 py-3.5">Customer</th>
+                                    <th class="px-4 py-3.5">Email</th>
+                                    <th class="hidden md:table-cell px-4 py-3.5">Role</th>
+                                    <th class="hidden md:table-cell px-4 py-3.5">Orders</th>
+                                    <th class="hidden md:table-cell px-4 py-3.5">Status</th>
+                                    <th class="hidden md:table-cell px-4 py-3.5 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="usersTableBody" class="divide-y divide-pink-50 dark:divide-slate-700/60 text-xs">
                                 <tr>
-                                    <td colspan="6" class="px-6 py-8 text-center text-gray-400">No users found</td>
+                                    <td colspan="7" class="px-6 py-8 text-center text-gray-400">No users found</td>
                                 </tr>
                             </tbody>
                         </table>

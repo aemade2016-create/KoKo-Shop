@@ -528,10 +528,65 @@ const saveStoreSettings = async (settingsData) => {
 };
 
 // ============================================
+// RESPONSIVE SIDEBAR MOBILE CONTROLS
+// ============================================
+const closeMobileSidebar = () => {
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('sidebarBackdrop');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const toggleIcon = sidebarToggle ? sidebarToggle.querySelector('i') : null;
+
+    if (sidebar && !sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.add('-translate-x-full');
+    }
+    if (backdrop) {
+        backdrop.classList.add('hidden');
+    }
+    if (toggleIcon) {
+        toggleIcon.className = 'fas fa-bars text-sm';
+    }
+};
+
+const openMobileSidebar = () => {
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('sidebarBackdrop');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const toggleIcon = sidebarToggle ? sidebarToggle.querySelector('i') : null;
+
+    if (sidebar) {
+        sidebar.classList.remove('-translate-x-full');
+    }
+    if (backdrop) {
+        backdrop.classList.remove('hidden');
+    }
+    if (toggleIcon) {
+        toggleIcon.className = 'fas fa-xmark text-sm';
+    }
+};
+
+const toggleMobileSidebar = () => {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+    const isClosed = sidebar.classList.contains('-translate-x-full');
+    if (isClosed) {
+        openMobileSidebar();
+    } else {
+        closeMobileSidebar();
+    }
+};
+
+window.closeMobileSidebar = closeMobileSidebar;
+window.openMobileSidebar = openMobileSidebar;
+window.toggleMobileSidebar = toggleMobileSidebar;
+
+// ============================================
 // NAVIGATION & TABS
 // ============================================
 
 const showTab = (tabName) => {
+    // Automatically close sidebar on mobile when navigating so selected tab is immediately visible
+    closeMobileSidebar();
+
     document.querySelectorAll('.tab-content').forEach((tab) => {
         tab.classList.remove('active');
         tab.style.display = 'none';
@@ -622,7 +677,7 @@ const createRecentOrderRow = (order) => {
 };
 
 // Product Table Row Builder
-const createProductTableRow = (product) => {
+const createProductTableRow = (product, index = 0) => {
     const { id, name = '', image = './images/slider 1.jpeg', price = 0, originalPrice = 0, salePrice = 0, category = 'Skincare', stock = 0, hasDiscount = false, discountPercent = 0, savings = 0 } = product;
 
     const currentPrice = Number(salePrice || price || 0);
@@ -630,13 +685,23 @@ const createProductTableRow = (product) => {
     const calculatedSavings = savings || Math.max(origPrice - currentPrice, 0);
     const isDiscounted = hasDiscount || (calculatedSavings > 0);
     const savingsFormatted = calculatedSavings % 1 === 0 ? calculatedSavings.toFixed(0) : calculatedSavings.toFixed(2);
+    const detailsId = `product-details-${index}-${String(id).replace(/[^a-zA-Z0-9]/g, '_')}`;
+    const isAr = window.i18n?.currentLang === 'ar';
 
     return `
+        <!-- Main Product Row -->
         <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
-            <td class="px-5 py-3">
+            <td class="w-10 px-2 py-3 text-center">
+                <button type="button" onclick="toggleTableRowDetails('${detailsId}', this)"
+                    class="w-7 h-7 rounded-full bg-pink-50 hover:bg-pink-500 text-pink-600 hover:text-white dark:bg-slate-700 dark:text-pink-400 dark:hover:bg-pink-500 dark:hover:text-white flex items-center justify-center transition shadow-xs text-[10px] mx-auto"
+                    title="${isAr ? 'عرض البيانات والإجراءات المخفية' : 'Show hidden details'}">
+                    <i class="fas fa-plus transition-transform duration-200"></i>
+                </button>
+            </td>
+            <td class="px-4 py-3">
                 <img src="${image}" alt="${name}" class="w-11 h-11 rounded-xl object-cover border border-pink-100 dark:border-slate-700">
             </td>
-            <td class="px-5 py-3">
+            <td class="px-4 py-3">
                 <h4 class="font-semibold text-gray-900 dark:text-white line-clamp-1">${name}</h4>
                 ${isDiscounted ? `
                     <div class="flex items-center gap-1.5 mt-1">
@@ -648,19 +713,19 @@ const createProductTableRow = (product) => {
                     </div>
                 ` : ''}
             </td>
-            <td class="px-5 py-3">
+            <td class="px-4 py-3">
                 <div class="flex flex-col">
                     <span class="font-bold text-pink-600">EGP ${currentPrice.toFixed(2)}</span>
                     ${isDiscounted && origPrice > currentPrice ? `<span class="text-[10px] text-gray-400 line-through">EGP ${origPrice.toFixed(2)}</span>` : ''}
                 </div>
             </td>
-            <td class="hidden md:table-cell px-5 py-3 text-gray-500 font-medium">${category}</td>
-            <td class="hidden md:table-cell px-5 py-3">
+            <td class="hidden md:table-cell px-4 py-3 text-gray-500 font-medium">${category}</td>
+            <td class="hidden md:table-cell px-4 py-3">
                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${stock > 10 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">
                     ${stock} in stock
                 </span>
             </td>
-            <td class="px-5 py-3 text-right">
+            <td class="hidden md:table-cell px-4 py-3 text-right">
                 <div class="flex items-center justify-end space-x-2">
                     <button onclick="editProduct('${id}')" class="w-7 h-7 rounded-full bg-pink-50 text-pink-600 hover:bg-pink-100 flex items-center justify-center transition" title="Edit Formula">
                         <i class="fas fa-edit text-xs"></i>
@@ -668,6 +733,43 @@ const createProductTableRow = (product) => {
                     <button onclick="deleteProduct('${id}')" class="w-7 h-7 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition" title="Delete Formula">
                         <i class="fas fa-trash text-xs"></i>
                     </button>
+                </div>
+            </td>
+        </tr>
+
+        <!-- Product Collapsible Details (Hidden Things) -->
+        <tr id="${detailsId}" class="hidden bg-pink-50/20 dark:bg-slate-800/60 border-y border-pink-100/70 dark:border-slate-700/60">
+            <td colspan="7" class="p-3 sm:p-4">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-pink-100 dark:border-slate-700 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between pb-2 border-b border-pink-50 dark:border-slate-800 text-[11px] text-gray-500 font-bold uppercase tracking-wider">
+                        <span class="flex items-center gap-1.5"><i class="fas fa-circle-info text-pink-500"></i>${isAr ? 'بيانات وإجراءات المنتج المخفية' : 'Hidden Product Details'}</span>
+                        <span class="text-pink-600 font-mono">${name}</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                        <div class="bg-pink-50/30 dark:bg-slate-800/40 p-2.5 rounded-xl border border-pink-50 dark:border-slate-700">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">${isAr ? 'القسم:' : 'Category:'}</label>
+                            <span class="font-bold text-gray-800 dark:text-gray-200">${category}</span>
+                        </div>
+                        <div class="bg-pink-50/30 dark:bg-slate-800/40 p-2.5 rounded-xl border border-pink-50 dark:border-slate-700">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">${isAr ? 'المخزون المتوفر:' : 'Stock:'}</label>
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${stock > 10 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">
+                                ${stock} ${isAr ? 'قطعة' : 'in stock'}
+                            </span>
+                        </div>
+                        <div class="bg-pink-50/30 dark:bg-slate-800/40 p-2.5 rounded-xl border border-pink-50 dark:border-slate-700 col-span-2 sm:col-span-1">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">${isAr ? 'السعر الصافي:' : 'Net Price:'}</label>
+                            <span class="font-bold text-pink-600">EGP ${currentPrice.toFixed(2)}</span>
+                            ${isDiscounted && origPrice > currentPrice ? `<span class="text-[10px] text-gray-400 line-through ml-2">EGP ${origPrice.toFixed(2)}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="pt-2 flex items-center justify-end gap-2 border-t border-pink-50 dark:border-slate-800">
+                        <button onclick="editProduct('${id}')" class="text-xs px-3.5 py-1.5 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-600 font-semibold transition flex items-center gap-1.5">
+                            <i class="fas fa-edit text-xs"></i><span>${isAr ? 'تعديل المنتج' : 'Edit'}</span>
+                        </button>
+                        <button onclick="deleteProduct('${id}')" class="text-xs px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold transition flex items-center gap-1.5">
+                            <i class="fas fa-trash text-xs"></i><span>${isAr ? 'حذف المنتج' : 'Delete'}</span>
+                        </button>
+                    </div>
                 </div>
             </td>
         </tr>
@@ -757,25 +859,35 @@ const createReviewTableRow = (review) => {
 };
 
 // Order Table Row Builder
-const createOrderTableRow = (order) => {
+const createOrderTableRow = (order, index = 0) => {
     const { orderId = 'ORD-00', createdAt, customerInfo = {}, pricing = {}, status = 'pending' } = order;
     const dateStr = createdAt ? new Date(createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent';
     const total = Number(pricing.total || 0).toFixed(2);
+    const detailsId = `order-details-row-${index}-${orderId.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    const isAr = window.i18n?.currentLang === 'ar';
 
     let statusClass = 'bg-amber-50 text-amber-600';
     if (status === 'delivered' || status === 'completed') statusClass = 'bg-emerald-50 text-emerald-600';
     if (status === 'cancelled') statusClass = 'bg-rose-50 text-rose-600';
 
     return `
+        <!-- Main Order Row -->
         <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
-            <td class="px-5 py-3 font-mono font-bold text-gray-900 dark:text-white">${orderId}</td>
-            <td class="px-5 py-3 text-gray-400">${dateStr}</td>
-            <td class="px-5 py-3">
+            <td class="w-10 px-2 py-3 text-center">
+                <button type="button" onclick="toggleTableRowDetails('${detailsId}', this)" 
+                    class="w-7 h-7 rounded-full bg-pink-50 hover:bg-pink-500 text-pink-600 hover:text-white dark:bg-slate-700 dark:text-pink-400 dark:hover:bg-pink-500 dark:hover:text-white flex items-center justify-center transition shadow-xs text-[10px] mx-auto" 
+                    title="${isAr ? 'عرض البيانات المخفية للطلب' : 'Show hidden order details'}">
+                    <i class="fas fa-plus transition-transform duration-200"></i>
+                </button>
+            </td>
+            <td class="px-4 py-3 font-mono font-bold text-gray-900 dark:text-white">${orderId}</td>
+            <td class="px-4 py-3 text-gray-400 text-xs">${dateStr}</td>
+            <td class="hidden md:table-cell px-4 py-3">
                 <div class="font-semibold text-gray-900 dark:text-white">${customerInfo.name || 'Client'}</div>
                 <div class="text-[11px] text-gray-400 font-mono">${customerInfo.email || ''}</div>
             </td>
-            <td class="px-5 py-3 font-bold text-pink-600">EGP ${total}</td>
-            <td class="px-5 py-3">
+            <td class="hidden md:table-cell px-4 py-3 font-bold text-pink-600">EGP ${total}</td>
+            <td class="hidden md:table-cell px-4 py-3">
                 <select onchange="updateOrderStatus('${orderId}', this.value)" class="text-[11px] font-bold rounded-full px-2.5 py-1 ${statusClass} border-none outline-none cursor-pointer">
                     <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending</option>
                     <option value="processing" ${status === 'processing' ? 'selected' : ''}>Processing</option>
@@ -783,17 +895,58 @@ const createOrderTableRow = (order) => {
                     <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
                 </select>
             </td>
-            <td class="px-5 py-3 text-right">
+            <td class="hidden md:table-cell px-4 py-3 text-right">
                 <button onclick="viewOrderDetails('${orderId}')" class="w-7 h-7 rounded-full bg-pink-50 text-pink-600 hover:bg-pink-100 flex items-center justify-center ml-auto transition" title="View Order">
                     <i class="fas fa-eye text-xs"></i>
                 </button>
+            </td>
+        </tr>
+
+        <!-- Order Collapsible Details (Hidden Things) -->
+        <tr id="${detailsId}" class="hidden bg-pink-50/20 dark:bg-slate-800/60 border-y border-pink-100/70 dark:border-slate-700/60">
+            <td colspan="7" class="p-3 sm:p-4">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-pink-100 dark:border-slate-700 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between pb-2 border-b border-pink-50 dark:border-slate-800 text-[11px] text-gray-500 font-bold uppercase tracking-wider">
+                        <span class="flex items-center gap-1.5"><i class="fas fa-circle-info text-pink-500"></i>${isAr ? 'بيانات الطلب المخفية على الموبايل' : 'Hidden Order Details'}</span>
+                        <span class="text-pink-600 font-mono font-bold">${orderId}</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <div class="bg-pink-50/30 dark:bg-slate-800/40 p-2.5 rounded-xl border border-pink-50 dark:border-slate-700">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">${isAr ? 'العميل:' : 'Customer:'}</label>
+                            <div class="font-bold text-gray-900 dark:text-white">${customerInfo.name || 'Client'}</div>
+                            <div class="text-[10px] text-gray-400 font-mono truncate">${customerInfo.email || ''}</div>
+                        </div>
+
+                        <div class="bg-pink-50/30 dark:bg-slate-800/40 p-2.5 rounded-xl border border-pink-50 dark:border-slate-700">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">${isAr ? 'إجمالي الفاتورة:' : 'Total Amount:'}</label>
+                            <div class="font-bold text-pink-600 text-sm">EGP ${total}</div>
+                        </div>
+
+                        <div class="bg-pink-50/30 dark:bg-slate-800/40 p-2.5 rounded-xl border border-pink-50 dark:border-slate-700">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">${isAr ? 'تحديث حالة الشحن:' : 'Order Status:'}</label>
+                            <select onchange="updateOrderStatus('${orderId}', this.value)" class="w-full text-xs font-bold rounded-lg px-2.5 py-1.5 ${statusClass} border border-pink-100 dark:border-slate-700 outline-none cursor-pointer">
+                                <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending (قيد الانتظار)</option>
+                                <option value="processing" ${status === 'processing' ? 'selected' : ''}>Processing (جاري التجهيز)</option>
+                                <option value="delivered" ${status === 'delivered' ? 'selected' : ''}>Delivered (تم التوصيل)</option>
+                                <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>Cancelled (ملغي)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 flex items-center justify-end gap-2 border-t border-pink-50 dark:border-slate-800">
+                        <button onclick="viewOrderDetails('${orderId}')" class="text-xs px-3.5 py-1.5 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-600 font-semibold transition flex items-center gap-1.5">
+                            <i class="fas fa-file-invoice text-xs"></i><span>${isAr ? 'عرض الفاتورة والمنتجات' : 'View Full Invoice'}</span>
+                        </button>
+                    </div>
+                </div>
             </td>
         </tr>
     `;
 };
 
 // User Table Row Builder
-const createUserTableRow = (user) => {
+const createUserTableRow = (user, index = 0) => {
     const {
         id,
         name = 'Client',
@@ -808,14 +961,24 @@ const createUserTableRow = (user) => {
     const isAr = window.i18n?.currentLang === 'ar';
     const ordersCount = Array.isArray(orders) ? orders.length : 0;
     const userIdentifier = String(id || email);
+    const detailsId = `user-details-${index}-${userIdentifier.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
     let roleBadgeClass = 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-300';
     if (role === 'admin') roleBadgeClass = 'bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-300 font-bold';
     if (role === 'moderator') roleBadgeClass = 'bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-300';
 
     return `
+        <!-- Main Customer Row -->
         <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
-            <td class="px-5 py-3">
+            <td class="w-10 px-2 py-3 text-center">
+                <!-- Small Icon to reveal hidden things (الأيقونة الصغيرة لإظهار العناصر المخفية) -->
+                <button type="button" onclick="toggleTableRowDetails('${detailsId}', this)" 
+                    class="w-7 h-7 rounded-full bg-pink-50 hover:bg-pink-500 text-pink-600 hover:text-white dark:bg-slate-700 dark:text-pink-400 dark:hover:bg-pink-500 dark:hover:text-white flex items-center justify-center transition shadow-xs text-[10px] mx-auto" 
+                    title="${isAr ? 'عرض البيانات والإجراءات المخفية' : 'Show hidden details'}">
+                    <i class="fas fa-plus transition-transform duration-200"></i>
+                </button>
+            </td>
+            <td class="px-4 py-3">
                 <div class="flex items-center space-x-2.5">
                     <div class="w-8 h-8 rounded-full bg-pink-100 dark:bg-pink-950/60 text-pink-600 dark:text-pink-400 font-bold flex items-center justify-center text-xs shrink-0">
                         ${name.charAt(0).toUpperCase()}
@@ -826,8 +989,8 @@ const createUserTableRow = (user) => {
                     </div>
                 </div>
             </td>
-            <td class="px-5 py-3 text-gray-500 dark:text-gray-400 font-mono text-[11px]">${email}</td>
-            <td class="px-5 py-3">
+            <td class="px-4 py-3 text-gray-500 dark:text-gray-400 font-mono text-[11px]">${email}</td>
+            <td class="hidden md:table-cell px-4 py-3">
                 <select onchange="updateUserRole('${userIdentifier}', this.value)"
                     class="text-[11px] font-semibold rounded-full px-2.5 py-1 ${roleBadgeClass} border-none outline-none cursor-pointer">
                     <option value="customer" ${role === 'customer' ? 'selected' : ''}>${isAr ? 'عميل (Customer)' : 'Customer'}</option>
@@ -835,13 +998,13 @@ const createUserTableRow = (user) => {
                     <option value="admin" ${role === 'admin' ? 'selected' : ''}>${isAr ? 'مدير (Admin)' : 'Admin'}</option>
                 </select>
             </td>
-            <td class="px-5 py-3 font-bold text-pink-600">${ordersCount} ${isAr ? 'طلبات' : 'orders'}</td>
-            <td class="px-5 py-3">
+            <td class="hidden md:table-cell px-4 py-3 font-bold text-pink-600">${ordersCount} ${isAr ? 'طلبات' : 'orders'}</td>
+            <td class="hidden md:table-cell px-4 py-3">
                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${isBlocked ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400'}">
                     ${isBlocked ? (isAr ? 'محظور' : 'Blocked') : (isAr ? 'نشط' : 'Active')}
                 </span>
             </td>
-            <td class="px-5 py-3 text-right">
+            <td class="hidden md:table-cell px-4 py-3 text-right">
                 <div class="flex items-center justify-end space-x-1.5">
                     <button onclick="openPermissionsModal('${userIdentifier}')"
                         class="w-7 h-7 rounded-full bg-pink-50 text-pink-600 hover:bg-pink-100 flex items-center justify-center transition"
@@ -858,6 +1021,67 @@ const createUserTableRow = (user) => {
                         title="${isAr ? 'حذف العميل' : 'Delete Customer'}">
                         <i class="fas fa-trash text-xs"></i>
                     </button>
+                </div>
+            </td>
+        </tr>
+
+        <!-- Collapsible Responsive Details Drawer for Hidden Things (تظهر عند النقر على الأيقونة الصغيرة) -->
+        <tr id="${detailsId}" class="hidden bg-pink-50/20 dark:bg-slate-800/60 border-y border-pink-100/70 dark:border-slate-700/60">
+            <td colspan="7" class="p-3 sm:p-4">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-pink-100 dark:border-slate-700 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between pb-2 border-b border-pink-50 dark:border-slate-800 text-[11px] text-gray-500 font-bold uppercase tracking-wider">
+                        <span class="flex items-center gap-1.5"><i class="fas fa-circle-info text-pink-500"></i>${isAr ? 'البيانات والإجراءات المخفية على الموبايل' : 'Hidden Details & Actions'}</span>
+                        <span class="text-pink-600 font-mono">${email}</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <!-- Role -->
+                        <div class="bg-pink-50/30 dark:bg-slate-800/40 p-2.5 rounded-xl border border-pink-50 dark:border-slate-700">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">${isAr ? 'الدور والصلاحية:' : 'Role:'}</label>
+                            <select onchange="updateUserRole('${userIdentifier}', this.value)"
+                                class="w-full text-xs font-semibold rounded-lg px-2.5 py-1.5 ${roleBadgeClass} border border-pink-100 dark:border-slate-700 outline-none cursor-pointer">
+                                <option value="customer" ${role === 'customer' ? 'selected' : ''}>${isAr ? 'عميل (Customer)' : 'Customer'}</option>
+                                <option value="moderator" ${role === 'moderator' ? 'selected' : ''}>${isAr ? 'مشرف (Moderator)' : 'Moderator'}</option>
+                                <option value="admin" ${role === 'admin' ? 'selected' : ''}>${isAr ? 'مدير (Admin)' : 'Admin'}</option>
+                            </select>
+                        </div>
+
+                        <!-- Orders Count -->
+                        <div class="bg-pink-50/30 dark:bg-slate-800/40 p-2.5 rounded-xl border border-pink-50 dark:border-slate-700">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">${isAr ? 'إجمالي الطلبات:' : 'Total Orders:'}</label>
+                            <div class="font-bold text-pink-600 text-sm flex items-center gap-1.5">
+                                <i class="fas fa-bag-shopping text-xs"></i>
+                                <span>${ordersCount} ${isAr ? 'طلبات مسجلة' : 'orders placed'}</span>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="bg-pink-50/30 dark:bg-slate-800/40 p-2.5 rounded-xl border border-pink-50 dark:border-slate-700">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">${isAr ? 'حالة الحساب:' : 'Account Status:'}</label>
+                            <span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${isBlocked ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400'}">
+                                ${isBlocked ? (isAr ? 'محظور من الطلب' : 'Blocked') : (isAr ? 'حساب نشط' : 'Active')}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Actions Bar in details drawer -->
+                    <div class="pt-2 flex items-center justify-end gap-2 flex-wrap border-t border-pink-50 dark:border-slate-800">
+                        <button onclick="openPermissionsModal('${userIdentifier}')"
+                            class="text-xs px-3.5 py-1.5 rounded-xl bg-pink-50 hover:bg-pink-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-pink-600 font-semibold transition flex items-center gap-1.5">
+                            <i class="fas fa-shield-halved text-xs"></i>
+                            <span>${isAr ? 'تعديل الصلاحيات' : 'Custom Permissions'}</span>
+                        </button>
+                        <button onclick="toggleUserBlock('${userIdentifier}')"
+                            class="text-xs px-3.5 py-1.5 rounded-xl font-semibold transition flex items-center gap-1.5 ${isBlocked ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' : 'bg-amber-50 text-amber-600 hover:bg-amber-100'}">
+                            <i class="fas ${isBlocked ? 'fa-unlock' : 'fa-ban'}"></i>
+                            <span>${isBlocked ? (isAr ? 'إلغاء الحظر' : 'Unblock') : (isAr ? 'حظر الحساب' : 'Block User')}</span>
+                        </button>
+                        <button onclick="deleteUser('${userIdentifier}')"
+                            class="text-xs px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/50 text-rose-600 font-semibold transition flex items-center gap-1.5">
+                            <i class="fas fa-trash text-xs"></i>
+                            <span>${isAr ? 'حذف العميل' : 'Delete'}</span>
+                        </button>
+                    </div>
                 </div>
             </td>
         </tr>
@@ -905,11 +1129,11 @@ const loadProductsTable = () => {
 
     const products = getProducts();
     if (!products.length) {
-        tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No products found</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-400">No products found</td></tr>';
         return;
     }
 
-    tableBody.innerHTML = products.map(createProductTableRow).join('');
+    tableBody.innerHTML = products.map((p, idx) => createProductTableRow(p, idx)).join('');
 };
 
 const loadCategoriesTable = async () => {
@@ -991,11 +1215,11 @@ const loadOrdersTable = async () => {
     }
 
     if (!orders.length) {
-        tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No orders found</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-400">No orders found</td></tr>';
         return;
     }
 
-    tableBody.innerHTML = orders.map(createOrderTableRow).join('');
+    tableBody.innerHTML = orders.map((o, idx) => createOrderTableRow(o, idx)).join('');
 };
 
 const loadUsersTable = async () => {
@@ -1004,12 +1228,80 @@ const loadUsersTable = async () => {
 
     const users = await getUsers();
     if (!users.length) {
-        tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No customers registered yet</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-400">No customers registered yet</td></tr>';
         return;
     }
 
-    tableBody.innerHTML = users.map(createUserTableRow).join('');
+    tableBody.innerHTML = users.map((u, idx) => createUserTableRow(u, idx)).join('');
 };
+
+// ============================================
+// RESPONSIVE TABLE ROW EXPANDER (SHOW/HIDE HIDDEN THINGS)
+// ============================================
+const toggleTableRowDetails = (detailsRowId, triggerBtn) => {
+    const detailsRow = document.getElementById(detailsRowId);
+    if (!detailsRow) return;
+
+    const isHidden = detailsRow.classList.contains('hidden');
+    const icon = triggerBtn ? triggerBtn.querySelector('i') : null;
+
+    if (isHidden) {
+        detailsRow.classList.remove('hidden');
+        if (icon) {
+            icon.className = 'fas fa-minus text-[10px] transition-transform duration-200';
+        }
+        if (triggerBtn) {
+            triggerBtn.classList.add('bg-pink-500', 'text-white');
+            triggerBtn.classList.remove('bg-pink-50', 'text-pink-600', 'dark:bg-slate-700', 'dark:text-pink-400');
+        }
+    } else {
+        detailsRow.classList.add('hidden');
+        if (icon) {
+            icon.className = 'fas fa-plus text-[10px] transition-transform duration-200';
+        }
+        if (triggerBtn) {
+            triggerBtn.classList.remove('bg-pink-500', 'text-white');
+            triggerBtn.classList.add('bg-pink-50', 'text-pink-600', 'dark:bg-slate-700', 'dark:text-pink-400');
+        }
+    }
+};
+
+const toggleAllTableDetails = (tableType) => {
+    let selector = '';
+    if (tableType === 'users') selector = '#usersTableBody tr[id^="user-details-"]';
+    if (tableType === 'orders') selector = '#ordersTableBody tr[id^="order-details-row-"]';
+    if (tableType === 'products') selector = '#productsTableBody tr[id^="product-details-"]';
+
+    const detailRows = document.querySelectorAll(selector);
+    if (!detailRows.length) return;
+
+    const hasAnyHidden = Array.from(detailRows).some((r) => r.classList.contains('hidden'));
+
+    detailRows.forEach((row) => {
+        const id = row.id;
+        const triggerBtn = document.querySelector(`button[onclick*="'${id}'"]`);
+        const icon = triggerBtn ? triggerBtn.querySelector('i') : null;
+
+        if (hasAnyHidden) {
+            row.classList.remove('hidden');
+            if (icon) icon.className = 'fas fa-minus text-[10px]';
+            if (triggerBtn) {
+                triggerBtn.classList.add('bg-pink-500', 'text-white');
+                triggerBtn.classList.remove('bg-pink-50', 'text-pink-600', 'dark:bg-slate-700', 'dark:text-pink-400');
+            }
+        } else {
+            row.classList.add('hidden');
+            if (icon) icon.className = 'fas fa-plus text-[10px]';
+            if (triggerBtn) {
+                triggerBtn.classList.remove('bg-pink-500', 'text-white');
+                triggerBtn.classList.add('bg-pink-50', 'text-pink-600', 'dark:bg-slate-700', 'dark:text-pink-400');
+            }
+        }
+    });
+};
+
+window.toggleTableRowDetails = toggleTableRowDetails;
+window.toggleAllTableDetails = toggleAllTableDetails;
 
 // ============================================
 // CRUD ACTIONS & EVENT HANDLERS
@@ -2107,14 +2399,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Sidebar Mobile Toggle
+    // Sidebar Mobile Toggle & Backdrop listeners
     const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.getElementById('sidebar');
-    if (sidebarToggle && sidebar) {
-        sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('-translate-x-full');
-        });
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+    if (sidebarToggle) {
+        sidebarToggle.onclick = (e) => {
+            e.preventDefault();
+            toggleMobileSidebar();
+        };
     }
+    if (sidebarBackdrop) {
+        sidebarBackdrop.onclick = () => {
+            closeMobileSidebar();
+        };
+    }
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeMobileSidebar();
+        }
+    });
 
     // Load initial settings and users
     loadStoreSettingsForm();
