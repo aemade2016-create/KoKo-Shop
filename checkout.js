@@ -2,13 +2,23 @@
 // CHECKOUT SYSTEM - KOKO SHOP (MODERN ES6+)
 // ============================================
 
+const escapeHtml = (unsafe) => {
+    if (unsafe === null || unsafe === undefined) return '';
+    return String(unsafe)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+};
+
 let selectedPaymentMethod = null;
 
 // ============================================
 // MODULAR ORDER SUMMARY RENDERER
 // ============================================
 
-const createOrderItemRow = ({ name = 'Ritual Item', price = 0, quantity = 1, image = './images/slider 1.jpeg', isGift = false, id = '' }) => {
+const createOrderItemRow = ({ name = 'Ritual Item', price = 0, quantity = 1, image = './images/slider-1.jpeg', isGift = false, id = '' }) => {
     const giftFlag = Boolean(isGift || id === 'free-gift-promo');
     const itemPrice = giftFlag ? 0 : (parseFloat(price) || 0);
     const itemQty = parseInt(quantity, 10) || 1;
@@ -22,7 +32,7 @@ const createOrderItemRow = ({ name = 'Ritual Item', price = 0, quantity = 1, ima
     return `
         <div class="flex items-center space-x-3 pt-3.5 first:pt-0">
             <div class="w-14 h-14 rounded-xl overflow-hidden bg-pink-50 dark:bg-slate-900 border border-pink-100 dark:border-slate-700 flex-shrink-0 relative">
-                <img src="${image}" alt="${name}" class="w-full h-full object-cover">
+                <img src="${escapeHtml(image)}" alt="${escapeHtml(name)}" class="w-full h-full object-cover">
                 ${giftFlag ? `
                     <span class="absolute top-1 left-1 bg-pink-500 text-white text-[8px] font-bold p-0.5 rounded-full flex items-center justify-center">
                         <i class="fas fa-gift text-[7px]"></i>
@@ -31,7 +41,7 @@ const createOrderItemRow = ({ name = 'Ritual Item', price = 0, quantity = 1, ima
             </div>
             <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-1.5">
-                    <h4 class="font-display font-semibold text-xs text-gray-900 dark:text-white truncate">${name}</h4>
+                    <h4 class="font-display font-semibold text-xs text-gray-900 dark:text-white truncate">${escapeHtml(name)}</h4>
                     ${giftFlag ? `
                         <span class="text-[9px] bg-pink-100 text-pink-600 dark:bg-pink-950 dark:text-pink-300 px-1.5 py-0.5 rounded font-bold">
                             ${isAr ? 'هدية مجانية' : 'Free Gift'}
@@ -171,53 +181,135 @@ const togglePasswordVisibility = () => {
 };
 
 // ============================================
-// CREATE & SAVE ORDER (MODERN ES6+)
+// FIREBASE AUTH & USER HELPERS
 // ============================================
 
-const createOrderObject = (formData) => {
-    const cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
-    let subtotal = 0;
+const getFirebaseAuthUser = async () => {
+    try {
+        const configModule = await import('./firebase-config.js');
+        const { auth } = configModule;
+        if (auth && auth.currentUser) return auth.currentUser;
+        const { onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js');
+        return new Promise((resolve) => {
+            const unsubscribe = onAuthStateChanged(auth, (user) => {
+                unsubscribe();
+                resolve(user);
+            });
+        });
+    } catch (e) {
+        console.warn('Firebase auth resolution notice:', e);
+        return null;
+    }
+};
 
-    cart.forEach((item) => {
-        const price = parseFloat(item.price) || 0;
+const checkUserBlocked = async (uid) => {
+    if (!uid) return false;
+    try {
+        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        const configModule = await import('./firebase-config.js');
+        const { doc, getDoc } = firestoreModule;
+        const { db } = configModule;
+        const userSnap = await getDoc(doc(db, 'users', uid));
+        if (userSnap.exists()) {
+            const uData = userSnap.data();
+            return uData.isBlocked === true || uData.status === 'Blocked';
+        }
+    } catch (err) {
+        console.warn('Firestore blocked user verification notice:', err);
+    }
+    return false;
+};
+
+// ============================================
+// SERVER-SIDE PRICE VERIFICATION (FIRESTORE)
+// ============================================
+
+const verifyCartPricesAndCalculateTotals = async (cart) => {
+    const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+    const configModule = await import('./firebase-config.js');
+    const { doc, getDoc } = firestoreModule;
+    const { db } = configModule;
+
+    let subtotal = 0;
+    const verifiedItems = [];
+
+    for (const item of cart) {
+        const isGift = Boolean(item.isGift || item.id === 'free-gift-promo');
         const quantity = parseInt(item.quantity, 10) || 1;
-        subtotal += price * quantity;
-    });
+        let unitPrice = 0;
+
+        if (!isGift) {
+            try {
+                const prodSnap = await getDoc(doc(db, 'products', String(item.id)));
+                if (prodSnap.exists()) {
+                    const pData = prodSnap.data();
+                    const sale = parseFloat(pData.salePrice);
+                    const regular = parseFloat(pData.price);
+                    if (!isNaN(sale) && sale > 0) {
+                        unitPrice = sale;
+                    } else if (!isNaN(regular) && regular >= 0) {
+                        unitPrice = regular;
+                    } else {
+                        unitPrice = parseFloat(item.price) || 0;
+                    }
+                } else {
+                    unitPrice = parseFloat(item.price) || 0;
+                }
+            } catch (err) {
+                console.warn(`Firestore price lookup fallback for item ${item.id}:`, err);
+                unitPrice = parseFloat(item.price) || 0;
+            }
+        }
+
+        const itemTotal = unitPrice * quantity;
+        subtotal += itemTotal;
+
+        verifiedItems.push({
+            productId: String(item.id),
+            name: item.name || 'Ritual Item',
+            price: unitPrice,
+            quantity: quantity,
+            image: item.image || './images/slider-1.jpeg',
+            isGift: isGift
+        });
+    }
 
     const shipping = (subtotal > 500 || subtotal === 0) ? 0 : 49.00;
     const tax = subtotal * 0.10;
     const total = subtotal + shipping + tax;
 
-    const currentUser = typeof getCurrentUser === 'function' ? getCurrentUser() : JSON.parse(localStorage.getItem('currentUser') || 'null');
-    const userId = currentUser?.email || formData.email;
+    return {
+        items: verifiedItems,
+        pricing: {
+            subtotal,
+            shipping,
+            tax,
+            total
+        }
+    };
+};
 
+// ============================================
+// CREATE & SAVE ORDER (MODERN ES6+)
+// ============================================
+
+const createOrderObject = (formData, userUid, verifiedData) => {
     return {
         orderId: `ORD-${Date.now()}`,
-        userId,
+        userId: userUid,
         customerInfo: {
             name: formData.fullName,
             email: formData.email,
             phone: formData.phone,
             address: formData.address
         },
-        items: cart.map((item) => ({
-            productId: item.id,
-            name: item.name,
-            price: parseFloat(item.price) || 0,
-            quantity: parseInt(item.quantity, 10) || 1,
-            image: item.image
-        })),
+        items: verifiedData.items,
         payment: {
             method: selectedPaymentMethod,
             status: selectedPaymentMethod === 'cod' ? 'pending' : 'completed',
             transactionId: `TXN-${Date.now()}`
         },
-        pricing: {
-            subtotal,
-            shipping,
-            tax,
-            total
-        },
+        pricing: verifiedData.pricing,
         status: 'pending',
         isRated: false,
         statusHistory: [
@@ -233,31 +325,29 @@ const createOrderObject = (formData) => {
 };
 
 const saveOrder = async (order) => {
+    // 1. Sync order to Firestore collection 'orders' (Must throw if Firestore fails)
+    const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+    const configModule = await import('./firebase-config.js');
+    const { doc, setDoc, serverTimestamp } = firestoreModule;
+    const { db } = configModule;
+
+    await setDoc(doc(db, 'orders', order.orderId), {
+        ...order,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+    }, { merge: true });
+
+    // 2. Cache in localStorage only after Firestore write succeeds
     try {
         const orders = JSON.parse(localStorage.getItem('luxe_orders')) || [];
         orders.push(order);
         localStorage.setItem('luxe_orders', JSON.stringify(orders));
 
-        // Sync order to Firestore collection 'orders'
-        try {
-            const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
-            const configModule = await import('./firebase-config.js');
-            const { doc, setDoc, serverTimestamp } = firestoreModule;
-            const { db } = configModule;
-            await setDoc(doc(db, 'orders', order.orderId), {
-                ...order,
-                createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp()
-            }, { merge: true });
-        } catch (firestoreErr) {
-            console.warn('Firestore order sync fallback:', firestoreErr);
-        }
-
-        // Update User History if logged in
+        // Update User History in localStorage
         const currentUser = typeof getCurrentUser === 'function' ? getCurrentUser() : JSON.parse(localStorage.getItem('currentUser') || 'null');
         if (currentUser) {
             const users = JSON.parse(localStorage.getItem('luxe_users')) || [];
-            const userIndex = users.findIndex((u) => u.email === currentUser.email);
+            const userIndex = users.findIndex((u) => u.email === currentUser.email || u.uid === order.userId);
 
             if (userIndex > -1) {
                 users[userIndex].orders = users[userIndex].orders || [];
@@ -272,34 +362,37 @@ const saveOrder = async (order) => {
                 localStorage.setItem('luxe_currentUser', JSON.stringify(currentUser));
             }
         }
-    } catch (error) {
-        console.error('Error saving order:', error);
+    } catch (localErr) {
+        console.warn('Local cache history update warning:', localErr);
     }
 };
 
-const createUserAccount = (name, email, password) => {
-    try {
-        const users = JSON.parse(localStorage.getItem('luxe_users')) || [];
-        const exists = users.some((u) => u.email?.toLowerCase() === email?.toLowerCase());
-        if (exists) return;
+const registerUserFromCheckout = async (name, email, password) => {
+    const { createUserWithEmailAndPassword, updateProfile } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js');
+    const { doc, setDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+    const { auth, db } = await import('./firebase-config.js');
 
-        const newUser = {
-            id: Date.now(),
-            name,
-            email,
-            password,
-            createdAt: new Date().toISOString(),
-            orders: [],
-            totalSpent: 0
-        };
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    await updateProfile(cred.user, { displayName: name });
+    await setDoc(doc(db, 'users', cred.user.uid), {
+        uid: cred.user.uid,
+        name: name,
+        email: email,
+        createdAt: serverTimestamp(),
+        orders: [],
+        wishlist: []
+    });
 
-        users.push(newUser);
-        localStorage.setItem('luxe_users', JSON.stringify(users));
-        localStorage.setItem('currentUser', JSON.stringify(newUser));
-        localStorage.setItem('luxe_currentUser', JSON.stringify(newUser));
-    } catch (error) {
-        console.error('Error creating user account:', error);
-    }
+    const userData = {
+        uid: cred.user.uid,
+        email: email,
+        name: name,
+        isAdmin: false,
+        createdAt: new Date().toISOString()
+    };
+    localStorage.setItem('currentUser', JSON.stringify(userData));
+    localStorage.setItem('luxe_currentUser', JSON.stringify(userData));
+    return cred.user;
 };
 
 // ============================================
@@ -313,9 +406,18 @@ const isUserLoggedIn = () => {
 };
 
 const processCheckout = async () => {
+    const checkoutForm = document.getElementById('checkoutForm');
+    const submitBtn = checkoutForm?.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+    const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+
     try {
-        if (!isUserLoggedIn()) {
-            const isAr = window.i18n?.currentLang === 'ar';
+        // Resolve authenticated user from Firebase Auth
+        const authUser = await getFirebaseAuthUser();
+        const localUser = typeof getCurrentUser === 'function' ? getCurrentUser() : JSON.parse(localStorage.getItem('currentUser') || 'null');
+        let currentUid = authUser?.uid || localUser?.uid;
+
+        if (!authUser && !isUserLoggedIn()) {
             showToast(isAr ? 'يرجى تسجيل الدخول أولاً لإتمام الشراء' : 'Please log in to complete your purchase', 'error');
             sessionStorage.setItem('loginRedirect', 'checkout.html');
             setTimeout(() => {
@@ -325,91 +427,121 @@ const processCheckout = async () => {
         }
 
         if (!selectedPaymentMethod) {
-            showToast('Please select a payment method', 'error');
+            showToast(isAr ? 'يرجى اختيار طريقة الدفع' : 'Please select a payment method', 'error');
             return;
         }
 
         const formData = {
-            email: document.getElementById('email')?.value.trim(),
-            phone: document.getElementById('phone')?.value.trim(),
-            fullName: document.getElementById('fullName')?.value.trim(),
+            email: document.getElementById('email')?.value.trim() || authUser?.email || localUser?.email || '',
+            phone: document.getElementById('phone')?.value.trim() || '',
+            fullName: document.getElementById('fullName')?.value.trim() || authUser?.displayName || localUser?.name || 'Client',
             address: {
-                street: document.getElementById('street')?.value.trim(),
-                apartment: document.getElementById('apartment')?.value.trim(),
-                city: document.getElementById('city')?.value.trim(),
-                state: document.getElementById('state')?.value.trim(),
-                zip: document.getElementById('zip')?.value.trim(),
-                country: document.getElementById('country')?.value
+                street: document.getElementById('street')?.value.trim() || '',
+                apartment: document.getElementById('apartment')?.value.trim() || '',
+                city: document.getElementById('city')?.value.trim() || '',
+                state: document.getElementById('state')?.value.trim() || '',
+                zip: document.getElementById('zip')?.value.trim() || '',
+                country: document.getElementById('country')?.value || 'EG'
             }
         };
 
-        // Check if customer is blocked
-        const users = JSON.parse(localStorage.getItem('luxe_users')) || [];
-        const blockedUser = users.find((user) => 
-            String(user.email || '').toLowerCase() === String(formData.email || '').toLowerCase() &&
-            (user.isBlocked || user.status === 'Blocked')
-        );
-        const activeUser = typeof getCurrentUser === 'function' ? getCurrentUser() : JSON.parse(localStorage.getItem('currentUser') || 'null');
-
-        if (blockedUser || activeUser?.isBlocked) {
-            const isAr = window.i18n?.currentLang === 'ar';
+        // Check if customer is blocked directly from Firestore users/{uid}
+        const isBlocked = await checkUserBlocked(currentUid);
+        if (isBlocked) {
             showToast(isAr ? 'تم إيقاف هذا الحساب من إتمام الطلبات. يُرجى التواصل مع إدارة المتجر.' : 'This customer account is blocked and cannot place orders.', 'error');
             return;
         }
 
-        // Validate Card Details
+        // Validate Card Details if card method selected
         if (selectedPaymentMethod === 'card') {
             const cardNumber = (document.getElementById('cardNumber')?.value || '').replace(/\s/g, '');
             const cardExpiry = document.getElementById('cardExpiry')?.value || '';
             const cardCVV = document.getElementById('cardCVV')?.value || '';
 
             if (cardNumber.length < 13 || cardNumber.length > 19) {
-                showToast('Invalid card number', 'error');
+                showToast(isAr ? 'رقم البطاقة غير صحيح' : 'Invalid card number', 'error');
                 return;
             }
 
             if (!/^\d{2}\/\d{2}$/.test(cardExpiry)) {
-                showToast('Invalid expiry date (MM/YY)', 'error');
+                showToast(isAr ? 'تاريخ انتهاء البطاقة غير صحيح (MM/YY)' : 'Invalid expiry date (MM/YY)', 'error');
                 return;
             }
 
             if (cardCVV.length < 3 || cardCVV.length > 4) {
-                showToast('Invalid CVV', 'error');
+                showToast(isAr ? 'رمز الأمان CVV غير صحيح' : 'Invalid CVV', 'error');
                 return;
             }
         }
 
-        // Account Creation
+        // Account Creation handler (minimum 6 characters)
         const createAccountCheckbox = document.getElementById('createAccount');
-        if (createAccountCheckbox?.checked) {
+        if (createAccountCheckbox?.checked && !authUser) {
             const password = document.getElementById('password')?.value;
-            if (password && password.length < 8) {
-                showToast('Password must be at least 8 characters', 'error');
+            if (password && password.length < 6) {
+                showToast(isAr ? 'يجب أن تتكون كلمة المرور من 6 أحرف على الأقل' : 'Password must be at least 6 characters', 'error');
                 return;
             }
             if (password) {
-                createUserAccount(formData.fullName, formData.email, password);
+                try {
+                    const newUser = await registerUserFromCheckout(formData.fullName, formData.email, password);
+                    currentUid = newUser.uid;
+                } catch (regErr) {
+                    console.error('Registration during checkout failed:', regErr);
+                    showToast(regErr.message || (isAr ? 'فشل إنشاء الحساب الجديد' : 'Failed to create new account'), 'error');
+                    return;
+                }
             }
         }
 
-        // Generate and Save Order
-        const order = createOrderObject(formData);
-        saveOrder(order);
+        if (!currentUid) {
+            currentUid = authUser?.uid || localUser?.uid;
+            if (!currentUid) {
+                showToast(isAr ? 'تعذر التعرف على هوية المستخدم. يرجى تسجيل الدخول مجدداً.' : 'Could not identify authenticated user. Please re-login.', 'error');
+                return;
+            }
+        }
 
-        // Clear cart
+        // Verify cart items
+        const cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
+        if (!cart || cart.length === 0) {
+            showToast(isAr ? 'حقيبة التسوق فارغة' : 'Your shopping bag is empty', 'error');
+            return;
+        }
+
+        // Show spinner on submit button
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin ${isAr ? 'ml-2' : 'mr-2'}"></i> ${isAr ? 'جاري التحقق وتأكيد الطلب...' : 'Verifying & Placing Order...'}`;
+        }
+
+        // Server-side price & totals verification from Firestore
+        const verifiedData = await verifyCartPricesAndCalculateTotals(cart);
+
+        // Generate Order Object (order.userId is the real auth UID, email is in customerInfo)
+        const order = createOrderObject(formData, currentUid, verifiedData);
+
+        // Save order and await Firestore write confirmation
+        await saveOrder(order);
+
+        // Clear cart only after successful save to Firestore
         localStorage.removeItem('luxe_cart');
         if (typeof updateCartCount === 'function') updateCartCount();
 
-        showToast('Ritual order confirmed! Redirecting...', 'success');
+        showToast(isAr ? 'تم تأكيد طلبك بنجاح! جاري التحويل...' : 'Ritual order confirmed! Redirecting...', 'success');
 
-        // Redirect to order success
+        // Redirect to order success page
         setTimeout(() => {
             window.location.href = `order-success.html?orderId=${order.orderId}`;
         }, 1200);
 
     } catch (error) {
         console.error('Checkout processing error:', error);
-        showToast('An unexpected error occurred during checkout. Please try again.', 'error');
+        showToast(isAr ? 'حدث خطأ أثناء حفظ الطلب في قاعدة البيانات. يُرجى التحقق والمحاولة مجدداً.' : 'Failed to save order to database. Please check your connection and try again.', 'error');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
     }
 };
 
@@ -454,6 +586,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1100);
         return;
     }
+
+    // Hide redundant create account section for authenticated users
+    const accountSection = document.getElementById('accountCreationSection');
+    if (accountSection) {
+        accountSection.classList.add('hidden');
+    }
+
+    // Check if current user is blocked on page load
+    (async () => {
+        const authUser = await getFirebaseAuthUser();
+        const localUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        const uid = authUser?.uid || localUser?.uid;
+        if (uid) {
+            const isBlocked = await checkUserBlocked(uid);
+            if (isBlocked) {
+                const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+                showToast(isAr ? 'تم إيقاف هذا الحساب من إتمام الطلبات. يُرجى التواصل مع إدارة المتجر.' : 'This customer account is blocked and cannot place orders.', 'error');
+                const submitBtn = document.querySelector('#checkoutForm button[type="submit"]');
+                if (submitBtn) submitBtn.disabled = true;
+            }
+        }
+    })();
 
     loadOrderSummary();
 

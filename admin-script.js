@@ -2,29 +2,138 @@
 // ADMIN DASHBOARD - KOKO SHOP (MODERN ES6+)
 // ============================================
 
-// Authentication Verification
-const checkAuth = () => {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('luxe_currentUser') || 'null');
+// ============================================
+// SECURITY & HTML ESCAPING (XSS SANITIZATION)
+// ============================================
 
-    if (!currentUser || (!currentUser.isAdmin && currentUser.email !== 'aemade2016@gmail.com')) {
-        if (!sessionStorage.getItem('redirecting_from_admin')) {
-            sessionStorage.setItem('redirecting_from_admin', 'true');
-            alert('Access Denied! Admin privileges required.');
-            window.location.href = 'login.html';
+function escapeHtml(unsafe) {
+    if (unsafe === null || unsafe === undefined) return '';
+    return String(unsafe)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+window.escapeHtml = escapeHtml;
+
+function safeUrl(url, fallback = '') {
+    if (!url || typeof url !== 'string') return fallback;
+    const trimmed = url.trim();
+    const lower = trimmed.toLowerCase();
+    if (
+        lower.startsWith('javascript:') ||
+        lower.startsWith('vbscript:') ||
+        lower.startsWith('data:text/html') ||
+        lower.startsWith('data:application/')
+    ) {
+        return fallback;
+    }
+    if (
+        lower.startsWith('https://') ||
+        lower.startsWith('http://') ||
+        lower.startsWith('./') ||
+        lower.startsWith('../') ||
+        lower.startsWith('/') ||
+        lower.startsWith('images/') ||
+        lower.startsWith('data:image/') ||
+        /^[a-zA-Z0-9_\-\.\/]+$/.test(trimmed)
+    ) {
+        return trimmed;
+    }
+    return fallback;
+}
+window.safeUrl = safeUrl;
+
+// ============================================
+// HARDENED FIRESTORE AUTHENTICATION VERIFICATION
+// ============================================
+
+let _authenticatedAdminUser = null;
+
+const verifyAdminAccess = async () => {
+    try {
+        const configModule = await import('./firebase-config.js');
+        const { auth, db } = configModule;
+        const { onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js');
+        const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+
+        // Resolve Firebase Auth user without trusting localStorage
+        const user = await new Promise((resolve) => {
+            if (auth && auth.currentUser) {
+                resolve(auth.currentUser);
+                return;
+            }
+            const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+                unsubscribe();
+                resolve(firebaseUser);
+            });
+        });
+
+        // If not logged in at all, redirect immediately
+        if (!user) {
+            console.warn('Admin Access Blocked: No authenticated session found.');
+            window.location.replace('login.html');
+            return false;
         }
+
+        // Fetch user document directly from Firestore (Ground Truth)
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        let isAdmin = false;
+        let isBlocked = false;
+
+        if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            isBlocked = Boolean(userData.isBlocked === true || userData.status === 'Blocked');
+            isAdmin = Boolean(
+                user.email === 'aemade2016@gmail.com' ||
+                userData.role === 'admin' ||
+                userData.isAdmin === true
+            );
+        } else {
+            if (user.email === 'aemade2016@gmail.com') {
+                isAdmin = true;
+            }
+        }
+
+        if (!isAdmin || isBlocked) {
+            console.warn('Admin Access Denied: User lacks admin role or is blocked.', user.email);
+            window.location.replace('login.html');
+            return false;
+        }
+
+        _authenticatedAdminUser = user;
+
+        // Display admin email in top bar
+        const emailDisplay = document.getElementById('adminEmailDisplay');
+        if (emailDisplay) {
+            emailDisplay.textContent = user.email;
+        }
+
+        // Unhide the dashboard interface and remove overlay
+        const overlay = document.getElementById('adminAuthOverlay');
+        const content = document.getElementById('adminDashboardContent');
+        if (overlay) overlay.style.display = 'none';
+        if (content) {
+            content.classList.remove('hidden');
+            content.style.display = 'flex';
+        }
+
+        // Load data only after authorization is verified from Firestore
+        loadDashboardOverview();
+        loadProductsTable();
+        loadCategoriesTable();
+        fetchProducts();
+
+        return true;
+    } catch (authError) {
+        console.error('Critical Admin verification failure:', authError);
+        window.location.replace('login.html');
         return false;
     }
-    sessionStorage.removeItem('redirecting_from_admin');
-    return true;
 };
-
-if (checkAuth()) {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('luxe_currentUser') || 'null');
-    const emailDisplay = document.getElementById('adminEmailDisplay');
-    if (emailDisplay && currentUser?.email) {
-        emailDisplay.textContent = currentUser.email;
-    }
-}
 
 // ============================================
 // DATA NORMALIZATION & STORAGE HELPERS
@@ -74,7 +183,7 @@ const normalizeProduct = (product) => {
         savings: details.savings,
         discountPercent: details.discountPercent,
         hasDiscount: details.savings > 0 && details.discountPercent > 0,
-        image: product.image || './images/slider 1.jpeg',
+        image: product.image || './images/slider-1.jpeg',
         barcode: product.barcode || ''
     };
 };
@@ -301,7 +410,7 @@ const getBanners = async () => {
             subtitle: { en: "Natural Radiance", ar: "إشراقتها الطبيعية" },
             description: { en: "Formulated with cold-pressed antioxidants and skin-identical ceramides.", ar: "مستخلصات نباتية مضغوطة على البارد لبشرة صحية ومشرقة." },
             buttonText: { en: "Shop Clean Collection", ar: "تسوق التشكيلة النظيفة" },
-            imageUrl: './images/slider 1.jpeg',
+            imageUrl: './images/slider-1.jpeg',
             targetUrl: 'products.html'
         }
     ];
@@ -458,7 +567,7 @@ const getDefaultStoreSettings = () => ({
         minSpend: 500,
         name: { en: 'Mini Splash Khamrah', ar: 'ميني سبلاش خمرة' },
         originalPrice: 122.50,
-        image: './images/slider 1.jpeg',
+        image: './images/slider-1.jpeg',
         timerMinutes: 30
     },
     homepage: {
@@ -664,8 +773,8 @@ const createRecentOrderRow = (order) => {
                     <i class="fas fa-bag-shopping text-xs"></i>
                 </div>
                 <div>
-                    <h4 class="font-semibold text-gray-900 dark:text-white">${customerInfo.name || 'Client'}</h4>
-                    <span class="text-gray-400 font-mono text-[11px]">${orderId} • ${dateStr}</span>
+                    <h4 class="font-semibold text-gray-900 dark:text-white">${escapeHtml(customerInfo.name || 'Client')}</h4>
+                    <span class="text-gray-400 font-mono text-[11px]">${escapeHtml(orderId)} • ${escapeHtml(dateStr)}</span>
                 </div>
             </div>
             <div class="flex items-center space-x-3">
@@ -678,7 +787,7 @@ const createRecentOrderRow = (order) => {
 
 // Product Table Row Builder
 const createProductTableRow = (product, index = 0) => {
-    const { id, name = '', image = './images/slider 1.jpeg', price = 0, originalPrice = 0, salePrice = 0, category = 'Skincare', stock = 0, hasDiscount = false, discountPercent = 0, savings = 0 } = product;
+    const { id, name = '', image = './images/slider-1.jpeg', price = 0, originalPrice = 0, salePrice = 0, category = 'Skincare', stock = 0, hasDiscount = false, discountPercent = 0, savings = 0 } = product;
 
     const currentPrice = Number(salePrice || price || 0);
     const origPrice = Number(originalPrice || currentPrice);
@@ -692,24 +801,24 @@ const createProductTableRow = (product, index = 0) => {
         <!-- Main Product Row -->
         <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
             <td class="w-10 px-2 py-3 text-center">
-                <button type="button" onclick="toggleTableRowDetails('${detailsId}', this)"
+                <button type="button" onclick="toggleTableRowDetails('${escapeHtml(detailsId)}', this)"
                     class="w-7 h-7 rounded-full bg-pink-50 hover:bg-pink-500 text-pink-600 hover:text-white dark:bg-slate-700 dark:text-pink-400 dark:hover:bg-pink-500 dark:hover:text-white flex items-center justify-center transition shadow-xs text-[10px] mx-auto"
                     title="${isAr ? 'عرض البيانات والإجراءات المخفية' : 'Show hidden details'}">
                     <i class="fas fa-plus transition-transform duration-200"></i>
                 </button>
             </td>
             <td class="px-4 py-3">
-                <img src="${image}" alt="${name}" class="w-11 h-11 rounded-xl object-cover border border-pink-100 dark:border-slate-700">
+                <img src="${escapeHtml(safeUrl(image, './images/slider-1.jpeg'))}" alt="${escapeHtml(name)}" class="w-11 h-11 rounded-xl object-cover border border-pink-100 dark:border-slate-700">
             </td>
             <td class="px-4 py-3">
-                <h4 class="font-semibold text-gray-900 dark:text-white line-clamp-1">${name}</h4>
+                <h4 class="font-semibold text-gray-900 dark:text-white line-clamp-1">${escapeHtml(name)}</h4>
                 ${isDiscounted ? `
                     <div class="flex items-center gap-1.5 mt-1">
                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300">
                             <i class="fas fa-tag text-[8px]"></i>
-                            <span>وفرت ${savingsFormatted} ج.م</span>
+                            <span>وفرت ${escapeHtml(savingsFormatted)} ج.م</span>
                         </span>
-                        <span class="text-[10px] text-pink-500 font-semibold">(-${discountPercent}%)</span>
+                        <span class="text-[10px] text-pink-500 font-semibold">(-${escapeHtml(discountPercent)}%)</span>
                     </div>
                 ` : ''}
             </td>
@@ -719,7 +828,7 @@ const createProductTableRow = (product, index = 0) => {
                     ${isDiscounted && origPrice > currentPrice ? `<span class="text-[10px] text-gray-400 line-through">EGP ${origPrice.toFixed(2)}</span>` : ''}
                 </div>
             </td>
-            <td class="hidden md:table-cell px-4 py-3 text-gray-500 font-medium">${category}</td>
+            <td class="hidden md:table-cell px-4 py-3 text-gray-500 font-medium">${escapeHtml(category)}</td>
             <td class="hidden md:table-cell px-4 py-3">
                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${stock > 10 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">
                     ${stock} in stock
@@ -727,10 +836,10 @@ const createProductTableRow = (product, index = 0) => {
             </td>
             <td class="hidden md:table-cell px-4 py-3 text-right">
                 <div class="flex items-center justify-end space-x-2">
-                    <button onclick="editProduct('${id}')" class="w-7 h-7 rounded-full bg-pink-50 text-pink-600 hover:bg-pink-100 flex items-center justify-center transition" title="Edit Formula">
+                    <button onclick="editProduct('${escapeHtml(id)}')" class="w-7 h-7 rounded-full bg-pink-50 text-pink-600 hover:bg-pink-100 flex items-center justify-center transition" title="Edit Formula">
                         <i class="fas fa-edit text-xs"></i>
                     </button>
-                    <button onclick="deleteProduct('${id}')" class="w-7 h-7 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition" title="Delete Formula">
+                    <button onclick="deleteProduct('${escapeHtml(id)}')" class="w-7 h-7 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition" title="Delete Formula">
                         <i class="fas fa-trash text-xs"></i>
                     </button>
                 </div>
@@ -738,17 +847,17 @@ const createProductTableRow = (product, index = 0) => {
         </tr>
 
         <!-- Product Collapsible Details (Hidden Things) -->
-        <tr id="${detailsId}" class="hidden bg-pink-50/20 dark:bg-slate-800/60 border-y border-pink-100/70 dark:border-slate-700/60">
+        <tr id="${escapeHtml(detailsId)}" class="hidden bg-pink-50/20 dark:bg-slate-800/60 border-y border-pink-100/70 dark:border-slate-700/60">
             <td colspan="7" class="p-3 sm:p-4">
                 <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-pink-100 dark:border-slate-700 shadow-sm space-y-3">
                     <div class="flex items-center justify-between pb-2 border-b border-pink-50 dark:border-slate-800 text-[11px] text-gray-500 font-bold uppercase tracking-wider">
                         <span class="flex items-center gap-1.5"><i class="fas fa-circle-info text-pink-500"></i>${isAr ? 'بيانات وإجراءات المنتج المخفية' : 'Hidden Product Details'}</span>
-                        <span class="text-pink-600 font-mono">${name}</span>
+                        <span class="text-pink-600 font-mono">${escapeHtml(name)}</span>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                         <div class="bg-pink-50/30 dark:bg-slate-800/40 p-2.5 rounded-xl border border-pink-50 dark:border-slate-700">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">${isAr ? 'القسم:' : 'Category:'}</label>
-                            <span class="font-bold text-gray-800 dark:text-gray-200">${category}</span>
+                            <span class="font-bold text-gray-800 dark:text-gray-200">${escapeHtml(category)}</span>
                         </div>
                         <div class="bg-pink-50/30 dark:bg-slate-800/40 p-2.5 rounded-xl border border-pink-50 dark:border-slate-700">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">${isAr ? 'المخزون المتوفر:' : 'Stock:'}</label>
@@ -763,10 +872,10 @@ const createProductTableRow = (product, index = 0) => {
                         </div>
                     </div>
                     <div class="pt-2 flex items-center justify-end gap-2 border-t border-pink-50 dark:border-slate-800">
-                        <button onclick="editProduct('${id}')" class="text-xs px-3.5 py-1.5 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-600 font-semibold transition flex items-center gap-1.5">
+                        <button onclick="editProduct('${escapeHtml(id)}')" class="text-xs px-3.5 py-1.5 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-600 font-semibold transition flex items-center gap-1.5">
                             <i class="fas fa-edit text-xs"></i><span>${isAr ? 'تعديل المنتج' : 'Edit'}</span>
                         </button>
-                        <button onclick="deleteProduct('${id}')" class="text-xs px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold transition flex items-center gap-1.5">
+                        <button onclick="deleteProduct('${escapeHtml(id)}')" class="text-xs px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold transition flex items-center gap-1.5">
                             <i class="fas fa-trash text-xs"></i><span>${isAr ? 'حذف المنتج' : 'Delete'}</span>
                         </button>
                     </div>
@@ -784,16 +893,16 @@ const createCategoryTableRow = (category) => {
     return `
         <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
             <td class="px-5 py-3">
-                <img src="${image}" alt="${nameEn}" class="w-10 h-10 rounded-xl object-cover border border-pink-100 dark:border-slate-700">
+                <img src="${escapeHtml(safeUrl(image, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=120'))}" alt="${escapeHtml(nameEn)}" class="w-10 h-10 rounded-xl object-cover border border-pink-100 dark:border-slate-700">
             </td>
-            <td class="px-5 py-3 font-semibold text-gray-900 dark:text-white">${nameEn}</td>
-            <td class="px-5 py-3 font-semibold text-pink-600 dark:text-pink-400 font-sans" dir="rtl">${nameAr}</td>
+            <td class="px-5 py-3 font-semibold text-gray-900 dark:text-white">${escapeHtml(nameEn)}</td>
+            <td class="px-5 py-3 font-semibold text-pink-600 dark:text-pink-400 font-sans" dir="rtl">${escapeHtml(nameAr)}</td>
             <td class="px-5 py-3 text-right">
                 <div class="flex items-center justify-end space-x-2">
-                    <button onclick="editCategory('${id}')" class="w-7 h-7 rounded-full bg-pink-50 text-pink-600 hover:bg-pink-100 flex items-center justify-center transition" title="Edit Category">
+                    <button onclick="editCategory('${escapeHtml(id)}')" class="w-7 h-7 rounded-full bg-pink-50 text-pink-600 hover:bg-pink-100 flex items-center justify-center transition" title="Edit Category">
                         <i class="fas fa-edit text-xs"></i>
                     </button>
-                    <button onclick="deleteCategory('${id}')" class="w-7 h-7 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition" title="Delete Category">
+                    <button onclick="deleteCategory('${escapeHtml(id)}')" class="w-7 h-7 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition" title="Delete Category">
                         <i class="fas fa-trash text-xs"></i>
                     </button>
                 </div>
@@ -813,23 +922,23 @@ const createBannerTableRow = (banner) => {
     return `
         <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
             <td class="px-5 py-3">
-                <img src="${imageUrl}" alt="${titleEn}" class="w-12 h-10 rounded-xl object-cover border border-pink-100 dark:border-slate-700">
+                <img src="${escapeHtml(safeUrl(imageUrl, './images/slider-1.jpeg'))}" alt="${escapeHtml(titleEn)}" class="w-12 h-10 rounded-xl object-cover border border-pink-100 dark:border-slate-700">
             </td>
             <td class="px-5 py-3">
                 <div class="font-semibold text-gray-900 dark:text-white">
-                    ${titleEn} ${titleAr ? `<span class="text-xs text-gray-400">/</span> <span class="text-xs text-pink-600 font-sans font-medium" dir="rtl">${titleAr}</span>` : ''}
+                    ${escapeHtml(titleEn)} ${titleAr ? `<span class="text-xs text-gray-400">/</span> <span class="text-xs text-pink-600 font-sans font-medium" dir="rtl">${escapeHtml(titleAr)}</span>` : ''}
                 </div>
                 <div class="text-[11px] text-pink-500 font-display italic">
-                    ${subtitleEn} ${subtitleAr ? `<span class="text-[10px] text-gray-400 font-sans not-italic">(${subtitleAr})</span>` : ''}
+                    ${escapeHtml(subtitleEn)} ${subtitleAr ? `<span class="text-[10px] text-gray-400 font-sans not-italic">(${escapeHtml(subtitleAr)})</span>` : ''}
                 </div>
             </td>
-            <td class="px-5 py-3 text-gray-400 font-mono text-[11px] truncate max-w-xs">${targetUrl}</td>
+            <td class="px-5 py-3 text-gray-400 font-mono text-[11px] truncate max-w-xs">${escapeHtml(safeUrl(targetUrl, 'products.html'))}</td>
             <td class="px-5 py-3 text-right">
                 <div class="flex items-center justify-end space-x-2">
-                    <button onclick="editBanner('${id}')" class="w-7 h-7 rounded-full bg-pink-50 text-pink-600 hover:bg-pink-100 flex items-center justify-center transition" title="Edit Banner">
+                    <button onclick="editBanner('${escapeHtml(id)}')" class="w-7 h-7 rounded-full bg-pink-50 text-pink-600 hover:bg-pink-100 flex items-center justify-center transition" title="Edit Banner">
                         <i class="fas fa-edit text-xs"></i>
                     </button>
-                    <button onclick="deleteBanner('${id}')" class="w-7 h-7 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition" title="Delete Banner">
+                    <button onclick="deleteBanner('${escapeHtml(id)}')" class="w-7 h-7 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition" title="Delete Banner">
                         <i class="fas fa-trash text-xs"></i>
                     </button>
                 </div>
@@ -844,13 +953,13 @@ const createReviewTableRow = (review) => {
     return `
         <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
             <td class="px-5 py-3 flex items-center space-x-2.5">
-                <img src="${profileImage}" alt="${customerName}" class="w-8 h-8 rounded-full object-cover">
-                <span class="font-semibold text-gray-900 dark:text-white">${customerName}</span>
+                <img src="${escapeHtml(safeUrl(profileImage, 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80'))}" alt="${escapeHtml(customerName)}" class="w-8 h-8 rounded-full object-cover">
+                <span class="font-semibold text-gray-900 dark:text-white">${escapeHtml(customerName)}</span>
             </td>
             <td class="px-5 py-3 text-amber-400 text-xs">★ ${rating}.0</td>
-            <td class="px-5 py-3 text-gray-500 max-w-xs truncate italic">"${text}"</td>
+            <td class="px-5 py-3 text-gray-500 max-w-xs truncate italic">"${escapeHtml(text)}"</td>
             <td class="px-5 py-3 text-right">
-                <button onclick="deleteReview('${id}')" class="w-7 h-7 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center ml-auto transition">
+                <button onclick="deleteReview('${escapeHtml(id)}')" class="w-7 h-7 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center ml-auto transition">
                     <i class="fas fa-trash text-xs"></i>
                 </button>
             </td>
@@ -874,21 +983,21 @@ const createOrderTableRow = (order, index = 0) => {
         <!-- Main Order Row -->
         <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
             <td class="w-10 px-2 py-3 text-center">
-                <button type="button" onclick="toggleTableRowDetails('${detailsId}', this)" 
+                <button type="button" onclick="toggleTableRowDetails('${escapeHtml(detailsId)}', this)" 
                     class="w-7 h-7 rounded-full bg-pink-50 hover:bg-pink-500 text-pink-600 hover:text-white dark:bg-slate-700 dark:text-pink-400 dark:hover:bg-pink-500 dark:hover:text-white flex items-center justify-center transition shadow-xs text-[10px] mx-auto" 
                     title="${isAr ? 'عرض البيانات المخفية للطلب' : 'Show hidden order details'}">
                     <i class="fas fa-plus transition-transform duration-200"></i>
                 </button>
             </td>
-            <td class="px-4 py-3 font-mono font-bold text-gray-900 dark:text-white">${orderId}</td>
-            <td class="px-4 py-3 text-gray-400 text-xs">${dateStr}</td>
+            <td class="px-4 py-3 font-mono font-bold text-gray-900 dark:text-white">${escapeHtml(orderId)}</td>
+            <td class="px-4 py-3 text-gray-400 text-xs">${escapeHtml(dateStr)}</td>
             <td class="hidden md:table-cell px-4 py-3">
-                <div class="font-semibold text-gray-900 dark:text-white">${customerInfo.name || 'Client'}</div>
-                <div class="text-[11px] text-gray-400 font-mono">${customerInfo.email || ''}</div>
+                <div class="font-semibold text-gray-900 dark:text-white">${escapeHtml(customerInfo.name || 'Client')}</div>
+                <div class="text-[11px] text-gray-400 font-mono">${escapeHtml(customerInfo.email || '')}</div>
             </td>
             <td class="hidden md:table-cell px-4 py-3 font-bold text-pink-600">EGP ${total}</td>
             <td class="hidden md:table-cell px-4 py-3">
-                <select onchange="updateOrderStatus('${orderId}', this.value)" class="text-[11px] font-bold rounded-full px-2.5 py-1 ${statusClass} border-none outline-none cursor-pointer">
+                <select onchange="updateOrderStatus('${escapeHtml(orderId)}', this.value)" class="text-[11px] font-bold rounded-full px-2.5 py-1 ${statusClass} border-none outline-none cursor-pointer">
                     <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending</option>
                     <option value="processing" ${status === 'processing' ? 'selected' : ''}>Processing</option>
                     <option value="delivered" ${status === 'delivered' ? 'selected' : ''}>Delivered</option>
@@ -896,26 +1005,26 @@ const createOrderTableRow = (order, index = 0) => {
                 </select>
             </td>
             <td class="hidden md:table-cell px-4 py-3 text-right">
-                <button onclick="viewOrderDetails('${orderId}')" class="w-7 h-7 rounded-full bg-pink-50 text-pink-600 hover:bg-pink-100 flex items-center justify-center ml-auto transition" title="View Order">
+                <button onclick="viewOrderDetails('${escapeHtml(orderId)}')" class="w-7 h-7 rounded-full bg-pink-50 text-pink-600 hover:bg-pink-100 flex items-center justify-center ml-auto transition" title="View Order">
                     <i class="fas fa-eye text-xs"></i>
                 </button>
             </td>
         </tr>
 
         <!-- Order Collapsible Details (Hidden Things) -->
-        <tr id="${detailsId}" class="hidden bg-pink-50/20 dark:bg-slate-800/60 border-y border-pink-100/70 dark:border-slate-700/60">
+        <tr id="${escapeHtml(detailsId)}" class="hidden bg-pink-50/20 dark:bg-slate-800/60 border-y border-pink-100/70 dark:border-slate-700/60">
             <td colspan="7" class="p-3 sm:p-4">
                 <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-pink-100 dark:border-slate-700 shadow-sm space-y-3">
                     <div class="flex items-center justify-between pb-2 border-b border-pink-50 dark:border-slate-800 text-[11px] text-gray-500 font-bold uppercase tracking-wider">
                         <span class="flex items-center gap-1.5"><i class="fas fa-circle-info text-pink-500"></i>${isAr ? 'بيانات الطلب المخفية على الموبايل' : 'Hidden Order Details'}</span>
-                        <span class="text-pink-600 font-mono font-bold">${orderId}</span>
+                        <span class="text-pink-600 font-mono font-bold">${escapeHtml(orderId)}</span>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                         <div class="bg-pink-50/30 dark:bg-slate-800/40 p-2.5 rounded-xl border border-pink-50 dark:border-slate-700">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">${isAr ? 'العميل:' : 'Customer:'}</label>
-                            <div class="font-bold text-gray-900 dark:text-white">${customerInfo.name || 'Client'}</div>
-                            <div class="text-[10px] text-gray-400 font-mono truncate">${customerInfo.email || ''}</div>
+                            <div class="font-bold text-gray-900 dark:text-white">${escapeHtml(customerInfo.name || 'Client')}</div>
+                            <div class="text-[10px] text-gray-400 font-mono truncate">${escapeHtml(customerInfo.email || '')}</div>
                         </div>
 
                         <div class="bg-pink-50/30 dark:bg-slate-800/40 p-2.5 rounded-xl border border-pink-50 dark:border-slate-700">
@@ -925,7 +1034,7 @@ const createOrderTableRow = (order, index = 0) => {
 
                         <div class="bg-pink-50/30 dark:bg-slate-800/40 p-2.5 rounded-xl border border-pink-50 dark:border-slate-700">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">${isAr ? 'تحديث حالة الشحن:' : 'Order Status:'}</label>
-                            <select onchange="updateOrderStatus('${orderId}', this.value)" class="w-full text-xs font-bold rounded-lg px-2.5 py-1.5 ${statusClass} border border-pink-100 dark:border-slate-700 outline-none cursor-pointer">
+                            <select onchange="updateOrderStatus('${escapeHtml(orderId)}', this.value)" class="w-full text-xs font-bold rounded-lg px-2.5 py-1.5 ${statusClass} border border-pink-100 dark:border-slate-700 outline-none cursor-pointer">
                                 <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending (قيد الانتظار)</option>
                                 <option value="processing" ${status === 'processing' ? 'selected' : ''}>Processing (جاري التجهيز)</option>
                                 <option value="delivered" ${status === 'delivered' ? 'selected' : ''}>Delivered (تم التوصيل)</option>
@@ -935,7 +1044,7 @@ const createOrderTableRow = (order, index = 0) => {
                     </div>
 
                     <div class="pt-2 flex items-center justify-end gap-2 border-t border-pink-50 dark:border-slate-800">
-                        <button onclick="viewOrderDetails('${orderId}')" class="text-xs px-3.5 py-1.5 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-600 font-semibold transition flex items-center gap-1.5">
+                        <button onclick="viewOrderDetails('${escapeHtml(orderId)}')" class="text-xs px-3.5 py-1.5 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-600 font-semibold transition flex items-center gap-1.5">
                             <i class="fas fa-file-invoice text-xs"></i><span>${isAr ? 'عرض الفاتورة والمنتجات' : 'View Full Invoice'}</span>
                         </button>
                     </div>
@@ -972,7 +1081,7 @@ const createUserTableRow = (user, index = 0) => {
         <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
             <td class="w-10 px-2 py-3 text-center">
                 <!-- Small Icon to reveal hidden things (الأيقونة الصغيرة لإظهار العناصر المخفية) -->
-                <button type="button" onclick="toggleTableRowDetails('${detailsId}', this)" 
+                <button type="button" onclick="toggleTableRowDetails('${escapeHtml(detailsId)}', this)" 
                     class="w-7 h-7 rounded-full bg-pink-50 hover:bg-pink-500 text-pink-600 hover:text-white dark:bg-slate-700 dark:text-pink-400 dark:hover:bg-pink-500 dark:hover:text-white flex items-center justify-center transition shadow-xs text-[10px] mx-auto" 
                     title="${isAr ? 'عرض البيانات والإجراءات المخفية' : 'Show hidden details'}">
                     <i class="fas fa-plus transition-transform duration-200"></i>
@@ -981,17 +1090,17 @@ const createUserTableRow = (user, index = 0) => {
             <td class="px-4 py-3">
                 <div class="flex items-center space-x-2.5">
                     <div class="w-8 h-8 rounded-full bg-pink-100 dark:bg-pink-950/60 text-pink-600 dark:text-pink-400 font-bold flex items-center justify-center text-xs shrink-0">
-                        ${name.charAt(0).toUpperCase()}
+                        ${escapeHtml(name.charAt(0).toUpperCase())}
                     </div>
                     <div>
-                        <div class="font-semibold text-gray-900 dark:text-white">${name}</div>
-                        ${phone ? `<div class="text-[10px] text-gray-400">${phone}</div>` : ''}
+                        <div class="font-semibold text-gray-900 dark:text-white">${escapeHtml(name)}</div>
+                        ${phone ? `<div class="text-[10px] text-gray-400">${escapeHtml(phone)}</div>` : ''}
                     </div>
                 </div>
             </td>
-            <td class="px-4 py-3 text-gray-500 dark:text-gray-400 font-mono text-[11px]">${email}</td>
+            <td class="px-4 py-3 text-gray-500 dark:text-gray-400 font-mono text-[11px]">${escapeHtml(email)}</td>
             <td class="hidden md:table-cell px-4 py-3">
-                <select onchange="updateUserRole('${userIdentifier}', this.value)"
+                <select onchange="updateUserRole('${escapeHtml(userIdentifier)}', this.value)"
                     class="text-[11px] font-semibold rounded-full px-2.5 py-1 ${roleBadgeClass} border-none outline-none cursor-pointer">
                     <option value="customer" ${role === 'customer' ? 'selected' : ''}>${isAr ? 'عميل (Customer)' : 'Customer'}</option>
                     <option value="moderator" ${role === 'moderator' ? 'selected' : ''}>${isAr ? 'مشرف (Moderator)' : 'Moderator'}</option>
@@ -1006,17 +1115,17 @@ const createUserTableRow = (user, index = 0) => {
             </td>
             <td class="hidden md:table-cell px-4 py-3 text-right">
                 <div class="flex items-center justify-end space-x-1.5">
-                    <button onclick="openPermissionsModal('${userIdentifier}')"
+                    <button onclick="openPermissionsModal('${escapeHtml(userIdentifier)}')"
                         class="w-7 h-7 rounded-full bg-pink-50 text-pink-600 hover:bg-pink-100 flex items-center justify-center transition"
                         title="${isAr ? 'تعديل الصلاحيات' : 'Custom Permissions'}">
                         <i class="fas fa-shield-halved text-xs"></i>
                     </button>
-                    <button onclick="toggleUserBlock('${userIdentifier}')"
+                    <button onclick="toggleUserBlock('${escapeHtml(userIdentifier)}')"
                         class="text-[11px] px-2.5 py-1 rounded-full font-semibold transition ${isBlocked ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' : 'bg-amber-50 text-amber-600 hover:bg-amber-100'}"
                         title="${isBlocked ? 'Unblock' : 'Block User'}">
                         <i class="fas ${isBlocked ? 'fa-unlock' : 'fa-ban'} mr-1"></i>${isBlocked ? (isAr ? 'إلغاء' : 'Unblock') : (isAr ? 'حظر' : 'Block')}
                     </button>
-                    <button onclick="deleteUser('${userIdentifier}')"
+                    <button onclick="deleteUser('${escapeHtml(userIdentifier)}')"
                         class="w-7 h-7 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition"
                         title="${isAr ? 'حذف العميل' : 'Delete Customer'}">
                         <i class="fas fa-trash text-xs"></i>
@@ -1026,19 +1135,19 @@ const createUserTableRow = (user, index = 0) => {
         </tr>
 
         <!-- Collapsible Responsive Details Drawer for Hidden Things (تظهر عند النقر على الأيقونة الصغيرة) -->
-        <tr id="${detailsId}" class="hidden bg-pink-50/20 dark:bg-slate-800/60 border-y border-pink-100/70 dark:border-slate-700/60">
+        <tr id="${escapeHtml(detailsId)}" class="hidden bg-pink-50/20 dark:bg-slate-800/60 border-y border-pink-100/70 dark:border-slate-700/60">
             <td colspan="7" class="p-3 sm:p-4">
                 <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-pink-100 dark:border-slate-700 shadow-sm space-y-3">
                     <div class="flex items-center justify-between pb-2 border-b border-pink-50 dark:border-slate-800 text-[11px] text-gray-500 font-bold uppercase tracking-wider">
                         <span class="flex items-center gap-1.5"><i class="fas fa-circle-info text-pink-500"></i>${isAr ? 'البيانات والإجراءات المخفية على الموبايل' : 'Hidden Details & Actions'}</span>
-                        <span class="text-pink-600 font-mono">${email}</span>
+                        <span class="text-pink-600 font-mono">${escapeHtml(email)}</span>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                         <!-- Role -->
                         <div class="bg-pink-50/30 dark:bg-slate-800/40 p-2.5 rounded-xl border border-pink-50 dark:border-slate-700">
                             <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">${isAr ? 'الدور والصلاحية:' : 'Role:'}</label>
-                            <select onchange="updateUserRole('${userIdentifier}', this.value)"
+                            <select onchange="updateUserRole('${escapeHtml(userIdentifier)}', this.value)"
                                 class="w-full text-xs font-semibold rounded-lg px-2.5 py-1.5 ${roleBadgeClass} border border-pink-100 dark:border-slate-700 outline-none cursor-pointer">
                                 <option value="customer" ${role === 'customer' ? 'selected' : ''}>${isAr ? 'عميل (Customer)' : 'Customer'}</option>
                                 <option value="moderator" ${role === 'moderator' ? 'selected' : ''}>${isAr ? 'مشرف (Moderator)' : 'Moderator'}</option>
@@ -1066,17 +1175,17 @@ const createUserTableRow = (user, index = 0) => {
 
                     <!-- Actions Bar in details drawer -->
                     <div class="pt-2 flex items-center justify-end gap-2 flex-wrap border-t border-pink-50 dark:border-slate-800">
-                        <button onclick="openPermissionsModal('${userIdentifier}')"
+                        <button onclick="openPermissionsModal('${escapeHtml(userIdentifier)}')"
                             class="text-xs px-3.5 py-1.5 rounded-xl bg-pink-50 hover:bg-pink-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-pink-600 font-semibold transition flex items-center gap-1.5">
                             <i class="fas fa-shield-halved text-xs"></i>
                             <span>${isAr ? 'تعديل الصلاحيات' : 'Custom Permissions'}</span>
                         </button>
-                        <button onclick="toggleUserBlock('${userIdentifier}')"
+                        <button onclick="toggleUserBlock('${escapeHtml(userIdentifier)}')"
                             class="text-xs px-3.5 py-1.5 rounded-xl font-semibold transition flex items-center gap-1.5 ${isBlocked ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' : 'bg-amber-50 text-amber-600 hover:bg-amber-100'}">
                             <i class="fas ${isBlocked ? 'fa-unlock' : 'fa-ban'}"></i>
                             <span>${isBlocked ? (isAr ? 'إلغاء الحظر' : 'Unblock') : (isAr ? 'حظر الحساب' : 'Block User')}</span>
                         </button>
-                        <button onclick="deleteUser('${userIdentifier}')"
+                        <button onclick="deleteUser('${escapeHtml(userIdentifier)}')"
                             class="text-xs px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/50 text-rose-600 font-semibold transition flex items-center gap-1.5">
                             <i class="fas fa-trash text-xs"></i>
                             <span>${isAr ? 'حذف العميل' : 'Delete'}</span>
@@ -1156,7 +1265,7 @@ const loadCategoriesTable = async () => {
             const nameEn = typeof c.name === 'object' ? (c.name.en || '') : c.name;
             const nameAr = typeof c.name === 'object' ? (c.name.ar || '') : (window.i18n?.translateText?.(c.name) || c.name);
             const label = isAr ? `${nameAr} (${nameEn})` : `${nameEn} (${nameAr})`;
-            return `<option value="${nameEn}">${label}</option>`;
+            return `<option value="${escapeHtml(nameEn)}">${escapeHtml(label)}</option>`;
         }).join('');
     }
 };
@@ -1748,8 +1857,8 @@ const viewOrderDetails = (orderId) => {
         <div class="space-y-4">
             <div class="flex justify-between items-center bg-pink-50/50 dark:bg-slate-700/40 p-4 rounded-2xl">
                 <div>
-                    <h3 class="font-bold text-gray-900 dark:text-white font-mono text-sm">${orderId}</h3>
-                    <p class="text-gray-400 text-xs">Customer: ${customerInfo.name || 'Client'} (${customerInfo.email || ''})</p>
+                    <h3 class="font-bold text-gray-900 dark:text-white font-mono text-sm">${escapeHtml(orderId)}</h3>
+                    <p class="text-gray-400 text-xs">Customer: ${escapeHtml(customerInfo.name || 'Client')} (${escapeHtml(customerInfo.email || '')})</p>
                 </div>
                 <span class="text-sm font-bold text-pink-600">EGP ${Number(pricing.total || 0).toFixed(2)}</span>
             </div>
@@ -1760,19 +1869,19 @@ const viewOrderDetails = (orderId) => {
                     ${items.map((item) => `
                         <div class="py-2.5 flex items-center justify-between">
                             <div class="flex items-center space-x-2.5">
-                                <img src="${item.image}" alt="${item.name}" class="w-8 h-8 rounded-lg object-cover">
-                                <span>${item.name} (x${item.quantity || 1})</span>
+                                <img src="${escapeHtml(safeUrl(item.image, './images/slider-1.jpeg'))}" alt="${escapeHtml(item.name || '')}" class="w-8 h-8 rounded-lg object-cover">
+                                <span>${escapeHtml(item.name || '')} (x${parseInt(item.quantity, 10) || 1})</span>
                             </div>
-                            <span class="font-semibold text-pink-600">EGP ${(item.price * (item.quantity || 1)).toFixed(2)}</span>
+                            <span class="font-semibold text-pink-600">EGP ${((parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 1)).toFixed(2)}</span>
                         </div>
                     `).join('')}
                 </div>
             </div>
 
             <div class="bg-gray-50 dark:bg-slate-700/30 p-3.5 rounded-2xl">
-                <p><strong>Shipping Address:</strong> ${customerInfo.address?.street || ''}, ${customerInfo.address?.city || ''}, ${customerInfo.address?.country || ''}</p>
-                <p><strong>Phone:</strong> ${customerInfo.phone || 'N/A'}</p>
-                <p><strong>Payment:</strong> ${(payment.method || 'cod').toUpperCase()} (${payment.status || 'pending'})</p>
+                <p><strong>Shipping Address:</strong> ${escapeHtml(customerInfo.address?.street || '')}, ${escapeHtml(customerInfo.address?.city || '')}, ${escapeHtml(customerInfo.address?.country || '')}</p>
+                <p><strong>Phone:</strong> ${escapeHtml(customerInfo.phone || 'N/A')}</p>
+                <p><strong>Payment:</strong> ${escapeHtml((payment.method || 'cod').toUpperCase())} (${escapeHtml(payment.status || 'pending')})</p>
             </div>
         </div>
     `;
@@ -2031,7 +2140,7 @@ const loadStoreSettingsForm = async () => {
     setVal('giftNameEn', gf.name?.en || (typeof gf.name === 'string' ? gf.name : 'Mini Splash Khamrah'));
     setVal('giftNameAr', gf.name?.ar || 'ميني سبلاش خمرة');
     setVal('giftOriginalPrice', gf.originalPrice ?? 122.50);
-    setVal('giftImage', gf.image || './images/slider 1.jpeg');
+    setVal('giftImage', gf.image || './images/slider-1.jpeg');
     setVal('giftTimerMinutes', gf.timerMinutes ?? 30);
 };
 
@@ -2051,7 +2160,7 @@ const loadAdminNotifications = () => {
             <div class="flex items-center space-x-3">
                 <i class="fas fa-bell text-pink-500"></i>
                 <div>
-                    <h5 class="font-semibold text-gray-900 dark:text-white">${n.message}</h5>
+                    <h5 class="font-semibold text-gray-900 dark:text-white">${escapeHtml(n.message)}</h5>
                     <span class="text-[10px] text-gray-400">${new Date(n.timestamp).toLocaleTimeString()}</span>
                 </div>
             </div>
@@ -2119,10 +2228,7 @@ const showToast = (message, type = 'success') => {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadDashboardOverview();
-    loadProductsTable();
-    loadCategoriesTable();
-    fetchProducts();
+    verifyAdminAccess();
 
     // Discount calculator inputs
     const origInput = document.getElementById('productOriginalPrice');
@@ -2237,7 +2343,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     subtitle: { en: subtitleEn || subtitleAr, ar: subtitleAr || subtitleEn },
                     description: { en: descriptionEn || descriptionAr, ar: descriptionAr || descriptionEn },
                     buttonText: { en: buttonTextEn || buttonTextAr || 'Shop Now', ar: buttonTextAr || buttonTextEn || 'تسوق الآن' },
-                    imageUrl: imageUrl || './images/slider 1.jpeg',
+                    imageUrl: imageUrl || './images/slider-1.jpeg',
                     targetUrl
                 });
 
@@ -2389,7 +2495,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ar: document.getElementById('giftNameAr')?.value.trim() || 'ميني سبلاش خمرة'
                     },
                     originalPrice: Number(document.getElementById('giftOriginalPrice')?.value) || 122.50,
-                    image: document.getElementById('giftImage')?.value.trim() || './images/slider 1.jpeg',
+                    image: document.getElementById('giftImage')?.value.trim() || './images/slider-1.jpeg',
                     timerMinutes: Number(document.getElementById('giftTimerMinutes')?.value) || 30
                 }
             };
@@ -2602,23 +2708,23 @@ const renderInboxThreads = (threads) => {
         const isResolved = chat.status === 'resolved';
 
         return `
-            <div onclick="selectInboxThread('${chat.id}')" 
+            <div onclick="selectInboxThread('${escapeHtml(chat.id)}')" 
                 class="p-3.5 flex items-start gap-3 cursor-pointer transition ${isActive ? 'bg-pink-50/80 dark:bg-slate-700/60 border-l-4 border-pink-500' : 'hover:bg-pink-50/30 dark:hover:bg-slate-700/30'}">
                 <div class="w-10 h-10 rounded-full ${isActive ? 'bg-pink-500 text-white' : 'bg-pink-100 dark:bg-slate-700 text-pink-600 dark:text-pink-400'} flex items-center justify-center font-bold text-xs shrink-0 relative">
-                    ${initials}
+                    ${escapeHtml(initials)}
                     ${isUnread ? '<span class="absolute -top-0.5 -right-0.5 w-3 h-3 bg-rose-500 border-2 border-white dark:border-slate-800 rounded-full"></span>' : ''}
                 </div>
                 <div class="min-w-0 flex-1">
                     <div class="flex items-center justify-between gap-1 mb-0.5">
-                        <h4 class="text-xs font-bold ${isUnread ? 'text-gray-900 dark:text-white font-extrabold' : 'text-gray-700 dark:text-gray-300'} truncate">${name}</h4>
-                        <span class="text-[10px] text-gray-400 shrink-0 font-mono">${timeStr}</span>
+                        <h4 class="text-xs font-bold ${isUnread ? 'text-gray-900 dark:text-white font-extrabold' : 'text-gray-700 dark:text-gray-300'} truncate">${escapeHtml(name)}</h4>
+                        <span class="text-[10px] text-gray-400 shrink-0 font-mono">${escapeHtml(timeStr)}</span>
                     </div>
-                    <p class="text-[11px] ${isUnread ? 'text-pink-600 dark:text-pink-400 font-semibold' : 'text-gray-400'} truncate">${lastMsg}</p>
+                    <p class="text-[11px] ${isUnread ? 'text-pink-600 dark:text-pink-400 font-semibold' : 'text-gray-400'} truncate">${escapeHtml(lastMsg)}</p>
                     <div class="flex items-center gap-1.5 mt-1">
                         <span class="text-[9px] px-1.5 py-0.2 rounded font-medium ${isResolved ? 'bg-gray-100 text-gray-500 dark:bg-slate-800 dark:text-gray-400' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400'}">
                             ${isResolved ? 'تم الحل' : 'مفتوحة'}
                         </span>
-                        ${chat.customerEmail ? `<span class="text-[9px] text-gray-400 truncate max-w-[120px] font-mono">${chat.customerEmail}</span>` : ''}
+                        ${chat.customerEmail ? `<span class="text-[9px] text-gray-400 truncate max-w-[120px] font-mono">${escapeHtml(chat.customerEmail)}</span>` : ''}
                     </div>
                 </div>
             </div>
@@ -2720,8 +2826,8 @@ const renderInboxActiveMessages = (chat) => {
             return `
                 <div class="flex flex-col items-end">
                     <div class="text-[10px] text-gray-400 mb-1 flex items-center gap-1.5">
-                        <span>${time}</span>
-                        <span class="font-bold text-pink-500">${senderLabel}</span>
+                        <span>${escapeHtml(time)}</span>
+                        <span class="font-bold text-pink-500">${escapeHtml(senderLabel)}</span>
                     </div>
                     <div class="max-w-[78%] bg-gradient-to-r from-pink-500 to-rose-500 text-white p-3 rounded-2xl rounded-tr-xs shadow-sm text-xs leading-relaxed">
                         ${escapeHtml(msg.text)}
@@ -2732,8 +2838,8 @@ const renderInboxActiveMessages = (chat) => {
             return `
                 <div class="flex flex-col items-start">
                     <div class="text-[10px] text-gray-400 mb-1 flex items-center gap-1.5">
-                        <span class="font-bold text-gray-700 dark:text-gray-300">${senderLabel}</span>
-                        <span>${time}</span>
+                        <span class="font-bold text-gray-700 dark:text-gray-300">${escapeHtml(senderLabel)}</span>
+                        <span>${escapeHtml(time)}</span>
                     </div>
                     <div class="max-w-[78%] bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-200 p-3 rounded-2xl rounded-tl-xs shadow-sm border border-pink-100/60 dark:border-slate-700 text-xs leading-relaxed">
                         ${escapeHtml(msg.text)}
@@ -2864,16 +2970,8 @@ const formatChatTime = (isoString) => {
     }
 };
 
-const escapeHtml = (unsafe) => {
-    return String(unsafe || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-};
-
-// Export Inbox to window
+// Export to window
+window.verifyAdminAccess = verifyAdminAccess;
 window.loadInboxTab = loadInboxTab;
 window.renderInboxThreads = renderInboxThreads;
 window.selectInboxThread = selectInboxThread;

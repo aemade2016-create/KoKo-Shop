@@ -209,7 +209,7 @@ function addToCart(productId, productData) {
                 productData = {
                     name: found.name,
                     price: Number(found.salePrice || found.price || 0),
-                    image: found.image || './images/slider 1.jpeg'
+                    image: found.image || './images/slider-1.jpeg'
                 };
             }
         } catch (e) {
@@ -231,7 +231,7 @@ function addToCart(productId, productData) {
             id: targetId,
             name: productData ? productData.name : 'Botanical Ritual',
             price: productData ? Number(productData.price || 0) : 0,
-            image: productData ? (productData.image || './images/slider 1.jpeg') : './images/slider 1.jpeg',
+            image: productData ? (productData.image || './images/slider-1.jpeg') : './images/slider-1.jpeg',
             quantity: 1,
             addedAt: new Date().toISOString()
         });
@@ -325,7 +325,7 @@ function toggleWishlist(productId, productData) {
                 productData = {
                     name: found.name,
                     price: Number(found.salePrice || found.price || 0),
-                    image: found.image || './images/slider 1.jpeg'
+                    image: found.image || './images/slider-1.jpeg'
                 };
             }
         } catch (e) {
@@ -349,7 +349,7 @@ function toggleWishlist(productId, productData) {
             id: targetId,
             name: productData ? productData.name : 'Botanical Ritual',
             price: productData ? Number(productData.price || 0) : 0,
-            image: productData ? (productData.image || './images/slider 1.jpeg') : './images/slider 1.jpeg',
+            image: productData ? (productData.image || './images/slider-1.jpeg') : './images/slider-1.jpeg',
             addedAt: new Date().toISOString()
         });
         showToast(isAr ? 'تمت الإضافة إلى قائمة الرغبات ✨' : 'Added to wishlist!');
@@ -453,7 +453,7 @@ function initGlobalCartAndWishlistDelegation() {
                     var name = card ? (card.querySelector('h3, .product-title')?.textContent?.trim() || 'Botanical Ritual') : 'Botanical Ritual';
                     var priceText = card ? (card.querySelector('.text-pink-600, .product-price')?.textContent || '0') : '0';
                     var price = parseFloat(priceText.replace(/[^0-9.]/g, '')) || 0;
-                    var img = card ? (card.querySelector('img')?.getAttribute('src') || './images/slider 1.jpeg') : './images/slider 1.jpeg';
+                    var img = card ? (card.querySelector('img')?.getAttribute('src') || './images/slider-1.jpeg') : './images/slider-1.jpeg';
                     addToCart(targetId, { name: name, price: price, image: img });
                 }
             }
@@ -492,7 +492,7 @@ function initGlobalCartAndWishlistDelegation() {
                     var name = card ? (card.querySelector('h3, .product-title')?.textContent?.trim() || 'Botanical Ritual') : 'Botanical Ritual';
                     var priceText = card ? (card.querySelector('.text-pink-600, .product-price')?.textContent || '0') : '0';
                     var price = parseFloat(priceText.replace(/[^0-9.]/g, '')) || 0;
-                    var img = card ? (card.querySelector('img')?.getAttribute('src') || './images/slider 1.jpeg') : './images/slider 1.jpeg';
+                    var img = card ? (card.querySelector('img')?.getAttribute('src') || './images/slider-1.jpeg') : './images/slider-1.jpeg';
                     toggleWishlist(targetId, { name: name, price: price, image: img });
                 }
             }
@@ -572,7 +572,7 @@ async function getBanners() {
                     subtitle: typeof data.subtitle === 'object' ? data.subtitle : { en: data.subtitle || '', ar: data.subtitleAr || data.subtitle || '' },
                     description: typeof data.description === 'object' ? data.description : { en: data.description || '', ar: data.descriptionAr || data.description || '' },
                     buttonText: typeof data.buttonText === 'object' ? data.buttonText : { en: data.buttonText || 'Shop Now', ar: data.buttonTextAr || 'تسوق الآن' },
-                    imageUrl: data.imageUrl || data.image || './images/slider 1.jpeg',
+                    imageUrl: data.imageUrl || data.image || './images/slider-1.jpeg',
                     targetUrl: data.targetUrl || 'products.html'
                 };
             });
@@ -594,7 +594,7 @@ async function getBanners() {
                 subtitle: typeof b.subtitle === 'object' ? b.subtitle : { en: b.subtitle || '', ar: window.i18n?.translateText?.(b.subtitle) || b.subtitle || '' },
                 description: typeof b.description === 'object' ? b.description : { en: b.description || '', ar: window.i18n?.translateText?.(b.description) || b.description || '' },
                 buttonText: typeof b.buttonText === 'object' ? b.buttonText : { en: b.buttonText || 'Shop Now', ar: 'تسوق الآن' },
-                imageUrl: b.imageUrl || b.image || './images/slider 1.jpeg',
+                imageUrl: b.imageUrl || b.image || './images/slider-1.jpeg',
                 targetUrl: b.targetUrl || 'products.html'
             }));
         }
@@ -608,7 +608,7 @@ async function getBanners() {
             subtitle: { en: "Natural Radiance", ar: "إشراقتها الطبيعية" },
             description: { en: "Formulated with cold-pressed antioxidants and skin-identical ceramides.", ar: "مستخلصات نباتية مضغوطة على البارد لبشرة صحية ومشرقة." },
             buttonText: { en: "Shop Clean Collection", ar: "تسوق التشكيلة النظيفة" },
-            imageUrl: './images/slider 1.jpeg',
+            imageUrl: './images/slider-1.jpeg',
             targetUrl: 'products.html'
         },
         {
@@ -730,7 +730,7 @@ async function getStoreSettings() {
             minSpend: 500,
             name: { en: 'Mini Splash Khamrah', ar: 'ميني سبلاش خمرة' },
             originalPrice: 122.50,
-            image: './images/slider 1.jpeg',
+            image: './images/slider-1.jpeg',
             timerMinutes: 30
         }
     };
@@ -1232,7 +1232,7 @@ function initGiftWidget() {
                 <div class="border border-pink-100/80 dark:border-slate-800 rounded-2xl p-2.5 bg-pink-50/20 dark:bg-slate-800/40 flex items-center justify-between gap-3 mb-4">
                     <div class="flex items-center gap-3 min-w-0">
                         <div class="w-14 h-14 rounded-xl overflow-hidden bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 shrink-0">
-                            <img id="giftWidgetImg" src="./images/slider 1.jpeg" alt="Free Gift" class="w-full h-full object-cover">
+                            <img id="giftWidgetImg" src="./images/slider-1.jpeg" alt="Free Gift" class="w-full h-full object-cover">
                         </div>
                         <div class="min-w-0">
                             <h4 id="giftWidgetTitle" class="text-xs font-bold text-gray-900 dark:text-white truncate">Mini Splash Khamrah</h4>
@@ -1347,7 +1347,7 @@ async function updateGiftWidgetUI() {
         minSpend: 500,
         name: { en: 'Mini Splash Khamrah', ar: 'ميني سبلاش خمرة' },
         originalPrice: 122.50,
-        image: './images/slider 1.jpeg',
+        image: './images/slider-1.jpeg',
         timerMinutes: 30
     };
 
@@ -1363,7 +1363,7 @@ async function updateGiftWidgetUI() {
     const giftTitle = (typeof gift.name === 'object') ? ((isAr ? gift.name.ar : gift.name.en) || gift.name.en || gift.name.ar || 'Mini Splash Khamrah') : String(gift.name || 'Mini Splash Khamrah');
     const minSpend = Number(gift.minSpend) || 500;
     const origPrice = Number(gift.originalPrice) || 122.50;
-    const giftImage = gift.image || './images/slider 1.jpeg';
+    const giftImage = gift.image || './images/slider-1.jpeg';
 
     // Update Image & Title & Price in widget
     const titleEl = document.getElementById('giftWidgetTitle');
@@ -1475,7 +1475,7 @@ async function claimFreeGift() {
         minSpend: 500,
         name: { en: 'Mini Splash Khamrah', ar: 'ميني سبلاش خمرة' },
         originalPrice: 122.50,
-        image: './images/slider 1.jpeg'
+        image: './images/slider-1.jpeg'
     };
 
     const minSpend = Number(gift.minSpend) || 500;
@@ -1503,7 +1503,7 @@ async function claimFreeGift() {
         name: giftTitle,
         price: 0,
         originalPrice: Number(gift.originalPrice) || 122.50,
-        image: gift.image || './images/slider 1.jpeg',
+        image: gift.image || './images/slider-1.jpeg',
         quantity: 1,
         category: 'Free Gift',
         isGift: true
@@ -1528,6 +1528,45 @@ window.claimFreeGift = claimFreeGift;
 let _pendingReviewOrder = null;
 let _selectedReviewRating = 5;
 
+function escapeHtml(unsafe) {
+    if (unsafe === null || unsafe === undefined) return '';
+    return String(unsafe)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+window.escapeHtml = escapeHtml;
+
+function safeUrl(url, fallback = '') {
+    if (!url || typeof url !== 'string') return fallback;
+    const trimmed = url.trim();
+    const lower = trimmed.toLowerCase();
+    if (
+        lower.startsWith('javascript:') ||
+        lower.startsWith('vbscript:') ||
+        lower.startsWith('data:text/html') ||
+        lower.startsWith('data:application/')
+    ) {
+        return fallback;
+    }
+    if (
+        lower.startsWith('https://') ||
+        lower.startsWith('http://') ||
+        lower.startsWith('./') ||
+        lower.startsWith('../') ||
+        lower.startsWith('/') ||
+        lower.startsWith('images/') ||
+        lower.startsWith('data:image/') ||
+        /^[a-zA-Z0-9_\-\.\/]+$/.test(trimmed)
+    ) {
+        return trimmed;
+    }
+    return fallback;
+}
+window.safeUrl = safeUrl;
+
 async function initAutoReviewSystem() {
     // Avoid running on admin dashboard
     if (window.location.pathname.includes('admin-dashboard') || document.body.classList.contains('admin-dashboard')) {
@@ -1535,35 +1574,44 @@ async function initAutoReviewSystem() {
     }
 
     const currentUser = getCurrentUser();
-    if (!currentUser || !currentUser.email) return;
+    let userUid = currentUser?.uid;
+    if (!userUid) {
+        try {
+            const configModule = await import('./firebase-config.js');
+            userUid = configModule.auth?.currentUser?.uid;
+        } catch (e) {}
+    }
 
-    const userEmail = String(currentUser.email).toLowerCase();
+    const userEmail = currentUser?.email ? String(currentUser.email).toLowerCase() : '';
+    if (!userUid && !userEmail) return;
 
     // 1. Search in local orders first
     let localOrders = JSON.parse(localStorage.getItem('luxe_orders') || '[]');
     let candidate = localOrders.find((o) => 
-        (String(o.userId || '').toLowerCase() === userEmail || String(o.customerInfo?.email || '').toLowerCase() === userEmail) &&
+        (o.userId === userUid || (userEmail && (String(o.userId || '').toLowerCase() === userEmail || String(o.customerInfo?.email || '').toLowerCase() === userEmail))) &&
         (o.status === 'delivered' || o.status === 'completed') &&
         !o.isRated
     );
 
     // 2. Also search in Firestore orders if not found locally
-    if (!candidate) {
+    if (!candidate && userUid) {
         try {
             const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
             const configModule = await import('./firebase-config.js');
             const { collection, getDocs, query, where } = firestoreModule;
             const { db } = configModule;
 
+            // Query ONLY by userId == userUid to avoid composite index and abide by Firestore rules
             const q = query(
                 collection(db, 'orders'),
-                where('status', '==', 'delivered')
+                where('userId', '==', userUid)
             );
             const snapshot = await getDocs(q);
             if (!snapshot.empty) {
                 const fsOrders = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+                // Filter status === 'delivered' and !isRated in JavaScript
                 candidate = fsOrders.find((o) => 
-                    (String(o.userId || '').toLowerCase() === userEmail || String(o.customerInfo?.email || '').toLowerCase() === userEmail) &&
+                    (o.status === 'delivered' || o.status === 'completed') &&
                     !o.isRated
                 );
             }
@@ -1595,10 +1643,10 @@ function renderAutoReviewModal(order) {
     const items = order.items || [];
     const itemsPreviewHtml = items.slice(0, 3).map((item) => `
         <div class="flex items-center gap-2.5 p-2 bg-pink-50/50 dark:bg-slate-800/60 rounded-2xl border border-pink-100/60 dark:border-slate-700">
-            <img src="${item.image || './images/slider 1.jpeg'}" alt="${item.name}" class="w-10 h-10 rounded-xl object-cover border border-pink-100 dark:border-slate-700 shrink-0">
+            <img src="${escapeHtml(safeUrl(item.image, './images/slider-1.jpeg'))}" alt="${escapeHtml(item.name || 'Product')}" class="w-10 h-10 rounded-xl object-cover border border-pink-100 dark:border-slate-700 shrink-0">
             <div class="min-w-0 flex-1 text-left rtl:text-right">
-                <p class="text-xs font-bold text-gray-900 dark:text-white truncate">${item.name}</p>
-                <p class="text-[10px] text-gray-400 font-mono">${isAr ? 'الكمية: ' : 'Qty: '}${item.quantity || 1}</p>
+                <p class="text-xs font-bold text-gray-900 dark:text-white truncate">${escapeHtml(item.name || 'Product')}</p>
+                <p class="text-[10px] text-gray-400 font-mono">${isAr ? 'الكمية: ' : 'Qty: '}${parseInt(item.quantity, 10) || 1}</p>
             </div>
         </div>
     `).join('');
@@ -1616,7 +1664,7 @@ function renderAutoReviewModal(order) {
                     ${isAr ? 'تهانينا على استلام طلبيتك! 🌟' : 'Congratulations on receiving your order! 🌟'}
                 </h3>
                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                    ${isAr ? `طلبك رقم <span class="font-mono font-bold text-pink-600">${order.orderId}</span> تم تسليمه بنجاح. رأيك يساعدنا على التطوير المستمر!` : `Your order <span class="font-mono font-bold text-pink-600">${order.orderId}</span> was delivered. Please share your rating!`}
+                    ${isAr ? `طلبك رقم <span class="font-mono font-bold text-pink-600">${escapeHtml(order.orderId)}</span> تم تسليمه بنجاح. رأيك يساعدنا على التطوير المستمر!` : `Your order <span class="font-mono font-bold text-pink-600">${escapeHtml(order.orderId)}</span> was delivered. Please share your rating!`}
                 </p>
             </div>
 
@@ -1718,12 +1766,20 @@ async function submitAutoReview() {
     const commentEl = document.getElementById('autoReviewComment');
     const comment = commentEl ? commentEl.value.trim() : '';
     const currentUser = getCurrentUser() || {};
+    let userUid = currentUser.uid;
+    if (!userUid) {
+        try {
+            const configModule = await import('./firebase-config.js');
+            userUid = configModule.auth?.currentUser?.uid;
+        } catch (e) {}
+    }
+    userUid = userUid || _pendingReviewOrder.userId || '';
 
     const reviewId = 'rev_' + Date.now();
     const reviewData = {
         id: reviewId,
         orderId: _pendingReviewOrder.orderId,
-        userId: currentUser.email || _pendingReviewOrder.userId || '',
+        userId: userUid,
         userName: currentUser.name || _pendingReviewOrder.customerInfo?.name || 'Client',
         author: currentUser.name || _pendingReviewOrder.customerInfo?.name || 'Client',
         rating: _selectedReviewRating,
@@ -1757,16 +1813,15 @@ async function submitAutoReview() {
     try {
         const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
         const configModule = await import('./firebase-config.js');
-        const { doc, setDoc } = firestoreModule;
+        const { doc, setDoc, updateDoc } = firestoreModule;
         const { db } = configModule;
 
         await setDoc(doc(db, 'reviews', reviewId), reviewData, { merge: true });
-        await setDoc(doc(db, 'orders', _pendingReviewOrder.orderId), {
+        // Use updateDoc to update only isRated and ratedAt
+        await updateDoc(doc(db, 'orders', _pendingReviewOrder.orderId), {
             isRated: true,
-            rating: _selectedReviewRating,
-            reviewText: reviewData.comment,
             ratedAt: new Date().toISOString()
-        }, { merge: true });
+        });
     } catch (err) {
         console.warn('Auto review Firestore submit notice:', err);
     }
@@ -1862,7 +1917,7 @@ function initLiveChatSystem() {
                             <!-- Card 1: Oud Body Splash (Front / Aligned) -->
                             <div class="absolute left-8 top-0 bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-2 shadow-xl w-28 text-center transform -rotate-3 hover:rotate-0 transition duration-300 z-10">
                                 <div class="w-12 h-14 mx-auto overflow-hidden rounded-lg mb-1 bg-pink-50 dark:bg-slate-700">
-                                    <img src="./images/slider 1.jpeg" alt="Oud Body Splash" class="w-full h-full object-cover">
+                                    <img src="./images/slider-1.jpeg" alt="Oud Body Splash" class="w-full h-full object-cover">
                                 </div>
                                 <p class="text-[9px] font-bold text-gray-800 dark:text-gray-200 truncate">Oud Body Splash</p>
                             </div>

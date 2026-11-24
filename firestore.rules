@@ -8,37 +8,97 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isLoggedIn() && request.auth.token.email == 'aemade2016@gmail.com';
+      return isLoggedIn() && (
+        request.auth.token.email == 'aemade2016@gmail.com' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isAdmin', false) == true ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') == 'admin'))
+      );
     }
 
     function isOwner(userId) {
       return isLoggedIn() && request.auth.uid == userId;
     }
 
+    function isNotBlocked() {
+      return isLoggedIn() && (
+        !exists(/databases/$(database)/documents/users/$(request.auth.uid)) ||
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isBlocked', false) != true &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('status', 'Active') != 'Blocked')
+      );
+    }
+
+    // Products: public read, admin write
     match /products/{productId} {
       allow read: if true;
       allow create, update, delete: if isAdmin();
     }
 
-    match /orders/{orderId} {
-      allow read: if isAdmin() || (isLoggedIn() && resource.data.userId == request.auth.uid);
-      allow create: if isAdmin() || (isLoggedIn() && request.resource.data.userId == request.auth.uid);
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
-    }
-
-    match /users/{userId} {
-      allow read: if isOwner(userId) || isAdmin();
-      allow create: if isAdmin() || (isLoggedIn() && request.auth.uid == userId);
-      allow update: if isOwner(userId) || isAdmin();
-      allow delete: if isAdmin();
-    }
-
-    match /reviews/{reviewId} {
+    // Categories: public read, admin write
+    match /categories/{categoryId} {
       allow read: if true;
       allow create, update, delete: if isAdmin();
     }
 
+    // Banners: public read, admin write
+    match /banners/{bannerId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Settings: public read, admin write
+    match /settings/{settingId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Users: Owner or admin read; owner cannot modify protected fields
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAdmin() || (
+        isLoggedIn() && request.auth.uid == userId &&
+        !request.resource.data.keys().hasAny(['role', 'isAdmin', 'isBlocked', 'status', 'permissions'])
+      );
+      allow update: if isAdmin() || (
+        isOwner(userId) &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'isAdmin', 'isBlocked', 'permissions', 'status'])
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Orders: Admin or customer read/create; customer can only update rating fields after delivery
+    match /orders/{orderId} {
+      allow read: if isAdmin() || (
+        isLoggedIn() && (
+          resource.data.userId == request.auth.uid ||
+          resource.data.get('customerInfo', {}).get('email', '') == request.auth.token.email
+        )
+      );
+      allow create: if isAdmin() || (isLoggedIn() && request.resource.data.userId == request.auth.uid && isNotBlocked());
+      allow update: if isAdmin() || (
+        isLoggedIn() &&
+        resource.data.userId == request.auth.uid &&
+        resource.data.get('status', '') == 'delivered' &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRated', 'ratedAt'])
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Reviews: Public read; authenticated non-blocked users can submit reviews for themselves
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isAdmin() || (isLoggedIn() && request.resource.data.userId == request.auth.uid && isNotBlocked());
+      allow update, delete: if isAdmin();
+    }
+
+    // Chats: Admin can list all chats; users/guests can access only their specific chat ID
+    match /chats/{chatId} {
+      allow list: if isAdmin();
+      allow get, create, update: if isAdmin() || !isLoggedIn() || isNotBlocked();
+      allow delete: if isAdmin();
+    }
+
+    // Internal admin collections
     match /_meta/{docId} {
       allow read, write: if isAdmin();
     }

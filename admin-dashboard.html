@@ -65,6 +65,21 @@
 
 <body class="admin-dashboard bg-[#fdf8fa] dark:bg-slate-900 text-gray-900 dark:text-gray-100 font-sans min-h-screen flex flex-col overflow-x-hidden max-w-[100vw] w-full">
 
+    <!-- Admin Auth Verification Screen (Shown by default while validating admin role) -->
+    <div id="adminAuthOverlay" class="fixed inset-0 z-50 bg-[#fdf8fa] dark:bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
+        <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-pink-500 to-rose-400 text-white flex items-center justify-center shadow-lg shadow-pink-500/30 mb-4 animate-pulse">
+            <i class="fas fa-crown text-2xl"></i>
+        </div>
+        <div class="flex items-center space-x-2 text-pink-600 dark:text-pink-400 font-bold text-sm mb-2">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span id="adminAuthLoadingText">جاري التحقق من الصلاحيات...</span>
+        </div>
+        <p class="text-xs text-gray-400 font-sans">Verifying administrative privileges with server...</p>
+    </div>
+
+    <!-- Protected Admin Dashboard Wrapper (Hidden until verified) -->
+    <div id="adminDashboardContent" class="hidden flex-col min-h-screen flex-1 w-full" style="display: none;">
+
     <!-- Top Admin Header Bar -->
     <header class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-pink-100/60 dark:border-slate-800 sticky top-0 z-50 transition-colors">
         <div class="px-6 py-3.5">
@@ -1061,7 +1076,7 @@
                                 <label for="giftImage" class="block font-bold text-[11px] text-gray-700 dark:text-gray-300 mb-1">
                                     رابط صورة الهدية (Gift Image URL) *
                                 </label>
-                                <input type="text" id="giftImage" placeholder="./images/slider 1.jpeg أو رابط صورة" required
+                                <input type="text" id="giftImage" placeholder="./images/slider-1.jpeg أو رابط صورة" required
                                     class="w-full px-3.5 py-2.5 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-xs focus:ring-2 focus:ring-pink-400 outline-none font-sans">
                             </div>
                             <div>
@@ -1360,6 +1375,10 @@
         <i id="toastIcon" class="fas fa-check-circle text-pink-500 text-lg"></i>
         <span id="toastMessage" class="text-xs font-semibold">Action completed</span>
     </div>
+
+    </div>
+
+    <!-- End Protected Admin Dashboard Wrapper -->
 
     <!-- Scripts -->
     <script src="init-products.js"></script>
