@@ -8,11 +8,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="i18n.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="responsive.css">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="responsive.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Firebase Configuration -->
+    <script type="module" src="firebase-config.js"></script>
     <style>
         .payment-option {
             cursor: pointer;
@@ -345,7 +348,7 @@
                                 Create Password *
                             </label>
                             <div class="relative">
-                                <input type="password" id="password" minlength="6"
+                                <input type="password" id="password" minlength="6" disabled
                                     class="w-full px-4 py-3 rounded-2xl border border-pink-100 dark:border-slate-700 bg-pink-50/20 dark:bg-slate-700/30 text-gray-800 dark:text-white text-sm focus:ring-2 focus:ring-pink-400 focus:border-pink-300 outline-none transition pr-12"
                                     placeholder="Minimum 6 characters">
                                 <button type="button" onclick="togglePasswordVisibility()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-pink-600 transition" aria-label="Toggle password visibility">
@@ -386,14 +389,14 @@
                                     <label for="cardNumber" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
                                         Card Number *
                                     </label>
-                                    <input type="text" id="cardNumber" maxlength="19" placeholder="1234 5678 9012 3456"
+                                    <input type="text" id="cardNumber" maxlength="19" placeholder="1234 5678 9012 3456" disabled
                                         class="w-full px-4 py-3 rounded-xl border border-pink-100 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-pink-400 outline-none font-mono">
                                 </div>
                                 <div>
                                     <label for="cardName" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
                                         Cardholder Name *
                                     </label>
-                                    <input type="text" id="cardName" placeholder="Amina Mansour"
+                                    <input type="text" id="cardName" placeholder="Amina Mansour" disabled
                                         class="w-full px-4 py-3 rounded-xl border border-pink-100 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-pink-400 outline-none">
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
@@ -401,14 +404,14 @@
                                         <label for="cardExpiry" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
                                             Expiry (MM/YY) *
                                         </label>
-                                        <input type="text" id="cardExpiry" maxlength="5" placeholder="12/28"
+                                        <input type="text" id="cardExpiry" maxlength="5" placeholder="12/28" disabled
                                             class="w-full px-4 py-3 rounded-xl border border-pink-100 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-pink-400 outline-none font-mono">
                                     </div>
                                     <div>
                                         <label for="cardCVV" class="block text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
                                             CVV *
                                         </label>
-                                        <input type="text" id="cardCVV" maxlength="4" placeholder="123"
+                                        <input type="text" id="cardCVV" maxlength="4" placeholder="123" disabled
                                             class="w-full px-4 py-3 rounded-xl border border-pink-100 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-pink-400 outline-none font-mono">
                                     </div>
                                 </div>
@@ -442,7 +445,7 @@
                             <!-- Option 3: Cash on Delivery -->
                             <div class="payment-option border border-pink-100 dark:border-slate-700 rounded-2xl p-4 sm:p-5" onclick="selectPayment('cod')">
                                 <label class="flex items-center cursor-pointer">
-                                    <input type="radio" name="payment" value="cod" class="mr-3 w-4 h-4 accent-pink-500">
+                                    <input type="radio" name="payment" value="cod" class="mr-3 w-4 h-4 accent-pink-500" checked>
                                     <div class="flex-1 flex items-center justify-between">
                                         <div class="flex items-center space-x-2.5">
                                             <i class="fas fa-money-bill-wave text-emerald-500"></i>
@@ -463,7 +466,7 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit"
+                    <button type="submit" id="submitOrderBtn"
                         class="w-full bg-pink-500 hover:bg-pink-600 text-white py-4 px-8 rounded-full font-semibold text-xs tracking-wider uppercase transition-all duration-300 shadow-lg shadow-pink-500/25 flex items-center justify-center space-x-2 transform hover:scale-[1.01]">
                         <i class="fas fa-lock text-xs"></i>
                         <span>Complete Ritual Order</span>
