@@ -126,6 +126,7 @@ const verifyAdminAccess = async () => {
         loadProductsTable();
         loadCategoriesTable();
         fetchProducts();
+        loadInboxTab();
 
         return true;
     } catch (authError) {
@@ -2613,24 +2614,74 @@ let _activeChatUnsubscribe = null;
 const getChats = () => JSON.parse(localStorage.getItem('luxe_chats')) || [];
 const saveChats = (chats) => localStorage.setItem('luxe_chats', JSON.stringify(chats));
 
+// Storage listener for instantaneous multi-tab sync
+if (!window._kokoAdminInboxStorageBound) {
+    window._kokoAdminInboxStorageBound = true;
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'luxe_chats' || e.key === 'luxe_chats_updated') {
+            syncInboxFromLocalStorage();
+        }
+    });
+    window.addEventListener('luxe_chats_updated', () => {
+        syncInboxFromLocalStorage();
+    });
+}
+
+function syncInboxFromLocalStorage() {
+    const localChats = getChats();
+    const mergedMap = new Map();
+    _inboxChatsCache.forEach((c) => mergedMap.set(c.id, c));
+    localChats.forEach((c) => {
+        const existing = mergedMap.get(c.id);
+        if (existing) {
+            const msgMap = new Map();
+            (existing.messages || []).forEach((m) => msgMap.set(m.id || (m.timestamp + m.text), m));
+            (c.messages || []).forEach((m) => msgMap.set(m.id || (m.timestamp + m.text), m));
+            mergedMap.set(c.id, {
+                ...existing,
+                ...c,
+                messages: Array.from(msgMap.values()).sort((m1, m2) => new Date(m1.timestamp || 0) - new Date(m2.timestamp || 0))
+            });
+        } else {
+            mergedMap.set(c.id, c);
+        }
+    });
+    _inboxChatsCache = Array.from(mergedMap.values()).sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
+    renderInboxThreads(_inboxChatsCache);
+    updateInboxUnreadBadge();
+    if (_activeInboxChatId) {
+        const activeChat = _inboxChatsCache.find((c) => c.id === _activeInboxChatId);
+        if (activeChat) renderInboxActiveMessages(activeChat);
+    }
+}
+
 const loadInboxTab = async () => {
     const threadsContainer = document.getElementById('inboxThreadsList');
     if (!threadsContainer) return;
 
-    threadsContainer.innerHTML = '<div class="text-center py-16 text-gray-400 text-xs"><i class="fas fa-spinner fa-spin text-xl mb-2 text-pink-400"></i><p>Loading conversations...</p></div>';
+    // 1. Immediately render cached chats without waiting for Firestore
+    _inboxChatsCache = getChats();
+    if (_inboxChatsCache.length > 0) {
+        renderInboxThreads(_inboxChatsCache);
+        updateInboxUnreadBadge();
+        if (!_activeInboxChatId && window.innerWidth >= 768) {
+            selectInboxThread(_inboxChatsCache[0].id);
+        }
+    } else {
+        threadsContainer.innerHTML = '<div class="text-center py-16 text-gray-400 text-xs"><i class="fas fa-spinner fa-spin text-xl mb-2 text-pink-400"></i><p>Loading conversations...</p></div>';
+    }
 
     try {
         const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
         const configModule = await import('./firebase-config.js');
-        const { collection, onSnapshot, query, orderBy } = firestoreModule;
+        const { collection, onSnapshot } = firestoreModule;
         const { db } = configModule;
 
         if (_inboxUnsubscribe) _inboxUnsubscribe();
 
-        // Listen in real time to all chats
-        const q = query(collection(db, 'chats'), orderBy('updatedAt', 'desc'));
-        _inboxUnsubscribe = onSnapshot(q, (snapshot) => {
-            const chats = snapshot.docs.map((docItem) => ({
+        // Listen in real time to all chats (without orderBy to eliminate missing index errors)
+        _inboxUnsubscribe = onSnapshot(collection(db, 'chats'), (snapshot) => {
+            const remoteChats = snapshot.docs.map((docItem) => ({
                 id: docItem.id,
                 ...docItem.data()
             }));
@@ -2639,7 +2690,22 @@ const loadInboxTab = async () => {
             const localChats = getChats();
             const mergedMap = new Map();
             localChats.forEach((c) => mergedMap.set(c.id, c));
-            chats.forEach((c) => mergedMap.set(c.id, { ...mergedMap.get(c.id), ...c }));
+            remoteChats.forEach((c) => {
+                const existing = mergedMap.get(c.id);
+                if (existing) {
+                    const msgMap = new Map();
+                    (existing.messages || []).forEach((m) => msgMap.set(m.id || (m.timestamp + m.text), m));
+                    (c.messages || []).forEach((m) => msgMap.set(m.id || (m.timestamp + m.text), m));
+                    mergedMap.set(c.id, {
+                        ...existing,
+                        ...c,
+                        messages: Array.from(msgMap.values()).sort((m1, m2) => new Date(m1.timestamp || 0) - new Date(m2.timestamp || 0))
+                    });
+                } else {
+                    mergedMap.set(c.id, c);
+                }
+            });
+
             _inboxChatsCache = Array.from(mergedMap.values()).sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
             saveChats(_inboxChatsCache);
 
@@ -2866,7 +2932,7 @@ const sendAdminReply = async (event) => {
     input.value = '';
 
     const newMsg = {
-        id: 'msg_' + Date.now(),
+        id: 'msg_adm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
         sender: 'admin',
         senderName: 'Koko Support / خدمة العملاء',
         text: replyText,
@@ -2889,6 +2955,9 @@ const sendAdminReply = async (event) => {
         renderInboxActiveMessages(chat);
         renderInboxThreads(_inboxChatsCache);
     }
+
+    localStorage.setItem('luxe_chats_updated', Date.now());
+    window.dispatchEvent(new CustomEvent('luxe_chats_updated', { detail: { chatId: _activeInboxChatId } }));
 
     try {
         const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');

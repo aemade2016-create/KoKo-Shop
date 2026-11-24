@@ -2041,6 +2041,43 @@ function simulateChatAttachment() {
 
 async function listenToCurrentChat() {
     _chatId = getActiveChatId();
+
+    // 1. Instantly load and render cached local messages
+    try {
+        const localChats = JSON.parse(localStorage.getItem('luxe_chats') || '[]');
+        const existingChat = localChats.find((c) => c.id === _chatId);
+        if (existingChat && Array.isArray(existingChat.messages) && existingChat.messages.length > 0) {
+            _chatMessagesCache = [...existingChat.messages];
+            renderLiveChatMessages(_chatMessagesCache);
+        }
+    } catch (e) {
+        console.warn('Local chat cache read notice:', e);
+    }
+
+    // 2. Real-time sync listener across browser tabs & events
+    if (!window._kokoChatStorageListenerBound) {
+        window._kokoChatStorageListenerBound = true;
+        const syncCurrentChatFromLocal = () => {
+            try {
+                const localChats = JSON.parse(localStorage.getItem('luxe_chats') || '[]');
+                const current = localChats.find((c) => c.id === _chatId);
+                if (current && Array.isArray(current.messages)) {
+                    if (current.messages.length !== _chatMessagesCache.length) {
+                        _chatMessagesCache = [...current.messages];
+                        renderLiveChatMessages(_chatMessagesCache);
+                    }
+                }
+            } catch (err) {}
+        };
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'luxe_chats' || e.key === 'luxe_chats_updated') {
+                syncCurrentChatFromLocal();
+            }
+        });
+        window.addEventListener('luxe_chats_updated', () => syncCurrentChatFromLocal());
+    }
+
+    // 3. Connect to Firestore real-time listener for current chat
     try {
         const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
         const configModule = await import('./firebase-config.js');
@@ -2052,8 +2089,40 @@ async function listenToCurrentChat() {
         _chatUnsubscribe = onSnapshot(doc(db, 'chats', _chatId), (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                _chatMessagesCache = data.messages || [];
+                const remoteMsgs = data.messages || [];
+
+                // Merge remote messages with local messages uniquely
+                const msgMap = new Map();
+                _chatMessagesCache.forEach((m) => msgMap.set(m.id || (m.timestamp + m.text), m));
+                remoteMsgs.forEach((m) => msgMap.set(m.id || (m.timestamp + m.text), m));
+                _chatMessagesCache = Array.from(msgMap.values()).sort((a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
+
                 renderLiveChatMessages(_chatMessagesCache);
+
+                // Keep local cache synchronized
+                try {
+                    let localChats = JSON.parse(localStorage.getItem('luxe_chats') || '[]');
+                    let chatIndex = localChats.findIndex((c) => c.id === _chatId);
+                    if (chatIndex > -1) {
+                        localChats[chatIndex].messages = _chatMessagesCache;
+                        localChats[chatIndex].lastMessage = data.lastMessage || localChats[chatIndex].lastMessage;
+                        localChats[chatIndex].updatedAt = data.updatedAt || localChats[chatIndex].updatedAt;
+                    } else {
+                        localChats.unshift({
+                            id: _chatId,
+                            customerEmail: data.customerEmail || '',
+                            customerName: data.customerName || 'عميل المتجر',
+                            messages: _chatMessagesCache,
+                            lastMessage: data.lastMessage || '',
+                            lastSender: data.lastSender || 'admin',
+                            unreadByAdmin: !!data.unreadByAdmin,
+                            unreadByCustomer: !!data.unreadByCustomer,
+                            status: data.status || 'open',
+                            updatedAt: data.updatedAt || new Date().toISOString()
+                        });
+                    }
+                    localStorage.setItem('luxe_chats', JSON.stringify(localChats));
+                } catch (e) {}
 
                 // If unread by customer and modal closed, show notification badge
                 const modal = document.getElementById('liveChatModalCard');
@@ -2097,7 +2166,7 @@ function renderLiveChatMessages(messages) {
                         <span class="font-bold text-pink-600">${senderLabel}</span>
                         <span>${time}</span>
                     </div>
-                    <div class="max-w-[85%] bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3.5 py-2.5 rounded-2xl rounded-tr-xs shadow-md text-xs leading-relaxed font-sans">
+                    <div class="max-w-[85%] bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3.5 py-2.5 rounded-2xl rounded-tr-xs shadow-md text-xs leading-relaxed font-sans whitespace-pre-line">
                         ${escapeChatHtml(msg.text)}
                     </div>
                 </div>
@@ -2109,7 +2178,7 @@ function renderLiveChatMessages(messages) {
                         <span>${time}</span>
                         <span class="font-bold text-gray-700 dark:text-gray-300">${senderLabel}</span>
                     </div>
-                    <div class="max-w-[85%] bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-200 px-3.5 py-2.5 rounded-2xl rounded-tl-xs shadow-sm border border-pink-100 dark:border-slate-700 text-xs leading-relaxed font-sans">
+                    <div class="max-w-[85%] bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-200 px-3.5 py-2.5 rounded-2xl rounded-tl-xs shadow-sm border border-pink-100 dark:border-slate-700 text-xs leading-relaxed font-sans whitespace-pre-line">
                         ${escapeChatHtml(msg.text)}
                     </div>
                 </div>
@@ -2140,7 +2209,7 @@ async function dispatchChatMessage(text) {
     _chatId = getActiveChatId();
 
     const newMsg = {
-        id: 'msg_' + Date.now(),
+        id: 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
         sender: 'customer',
         senderName: user.name || 'عميل المتجر',
         text: text,
@@ -2159,6 +2228,8 @@ async function dispatchChatMessage(text) {
         customerName: user.name || 'عميل المتجر',
         messages: []
     };
+    chatObj.customerEmail = user.email || chatObj.customerEmail || '';
+    chatObj.customerName = user.name || chatObj.customerName || 'عميل المتجر';
     chatObj.messages = chatObj.messages || [];
     chatObj.messages.push(newMsg);
     chatObj.lastMessage = text;
@@ -2175,6 +2246,7 @@ async function dispatchChatMessage(text) {
     }
     localStorage.setItem('luxe_chats', JSON.stringify(localChats));
     localStorage.setItem('luxe_chats_updated', Date.now());
+    window.dispatchEvent(new CustomEvent('luxe_chats_updated', { detail: { chatId: _chatId } }));
 
     // Sync to Firestore
     try {
@@ -2199,42 +2271,118 @@ async function dispatchChatMessage(text) {
         console.warn('Live chat customer send Firestore fallback:', err);
     }
 
-    // Automated smart assistant response for quick pills
+    // Automated smart assistant response for questions and inquiries
     triggerSmartAssistantReply(text);
 }
 
 function triggerSmartAssistantReply(customerText) {
-    const textLower = customerText.toLowerCase().trim();
+    const rawText = String(customerText || '').trim();
+    if (!rawText) return;
+
+    // Normalize text for flexible Arabic & English pattern matching
+    const normalized = rawText
+        .toLowerCase()
+        .replace(/[أإآ]/g, 'ا')
+        .replace(/[ة]/g, 'ه')
+        .replace(/[ى]/g, 'ي')
+        .replace(/[\u064B-\u065F\u0670]/g, ''); // strip Arabic tashkeel
+
     let autoReply = '';
 
-    if (textLower.includes('تتبع طلبي') || textLower.includes('track')) {
+    // 1. Order Tracking
+    if (normalized.includes('تتبع') || normalized.includes('اوردر') || normalized.includes('طلب') || normalized.includes('شحنه') || normalized.includes('track') || normalized.includes('order')) {
         const user = getCurrentUser();
         const localOrders = JSON.parse(localStorage.getItem('luxe_orders') || '[]');
-        const userOrders = localOrders.filter((o) => user && (o.userId === user.email || o.customerInfo?.email === user.email));
+        const userOrders = localOrders.filter((o) => user && (o.userId === user.email || o.userId === user.uid || o.customerInfo?.email === user.email));
 
         if (userOrders.length > 0) {
             const latest = userOrders[userOrders.length - 1];
             const statusMap = {
                 pending: 'قيد المراجعة والتجهيز 📦',
-                processing: 'جاري تحضير التركيبة المعملية ✨',
+                processing: 'جاري تحضير التركيبة المعملية والتغليف ✨',
+                shipped: 'في الطريق إليك مع مندوب الشحن 🚚',
                 delivered: 'تم التوصيل بنجاح 🎉',
                 cancelled: 'ملغي ❌'
             };
             const statusAr = statusMap[latest.status] || latest.status;
-            autoReply = `أهلاً بك! آخر طلب مسجل لك برقم #${latest.orderId} بقيمة ${Number(latest.pricing?.total || 0).toFixed(2)} ج.م، وحالته الحالية: (${statusAr}).`;
+            autoReply = `أهلاً بك! آخر طلب مسجل لك برقم #${latest.orderId} بقيمة ${Number(latest.pricing?.total || 0).toFixed(2)} ج.م، وحالته الحالية: (${statusAr}).\nفريق التوصيل يعمل على وصوله بأعلى معايير الجودة 🌸.`;
         } else {
-            autoReply = 'أهلاً بك في كوكو شوب! لتتبع شحنتك فوراً، يرجى تزويدنا برقم الطلب (مثال: ORD-...) وسيقوم فريق الدعم بالتحقق منه لحظياً.';
+            autoReply = 'أهلاً بك في كوكو شوب! لتتبع شحنتك فوراً، يرجى تزويدنا برقم الطلب (مثال: ORD-XXXXXX) وسيقوم فريق الدعم بالتحقق منه ومتابعة خط سيره لحظياً 📦.';
         }
-    } else if (textLower.includes('الشحن') || textLower.includes('توصيل') || textLower.includes('shipping')) {
-        autoReply = 'الشحن والتوصيل يستغرق من 2 إلى 4 أيام عمل لكافة المحافظات المصرية. والتوصيل مجاني تماماً للطلبات التي تتجاوز 500 ج.م 🚚✨';
-    } else if (textLower.includes('استشارة') || textLower.includes('منتجات') || textLower.includes('product')) {
-        autoReply = 'فريقنا الطبي والجمالي جاهز لمساعدتك في اختيار التركيبة الأنسب لنوع بشرتك واحتياجاتك! تفضل بسؤالك وسنجيبك فوراً.';
+    }
+    // 2. Body Splash & Fragrance (Specific handling for "بادي اسبلاش 250", "سبلاش", "خمرة", etc.)
+    else if (normalized.includes('سبلاش') || normalized.includes('اسبلاش') || normalized.includes('splash') || normalized.includes('معطر') || normalized.includes('برفان') || normalized.includes('خمره') || normalized.includes('عود')) {
+        if (normalized.includes('250')) {
+            autoReply = `مرحباً بك! بخصوص معطرات الجسم والبادي اسبلاش بحجم 250 مل أو بفئة 250 ج.م:\n\n✨ **Oud Body Splash (250ml)**: بادي اسبلاش برائحة العود الملكي الفاخر مع ثبات عالي يدوم طوال اليوم.\n🌸 **Mini Splash Khamrah**: ميني سبلاش خمرة المركز بسعر 122.50 ج.م فقط (وهدية مجانية للطلبات فوق 500 ج.م!).\n🌹 **Velvet Rose Body Mist**: معطر الجسم بالورد المخملي والمسك لنعومة وانتعاش يدوم 24 ساعة.\n\n💡 كود الخصم (LUXE10) يمنحك خصماً فورياً 10%، والشحن مجاني للطلبات فوق 500 ج.م 🚚!`;
+        } else {
+            autoReply = `تشكيلة معطرات الجسم الفاخرة (Body Splash) المتوفرة لدينا:\n\n🌸 **Oud Body Splash**: بادي اسبلاش العود الفاخر، تركيبة منعشة وثبات يدوم طويلاً.\n✨ **Mini Splash Khamrah**: ميني سبلاش خمرة المركز بسعر 122.50 ج.م (احصل عليه مجاناً كهدية عند الشراء بقيمة 500 ج.م فأكثر!).\n🌿 جميع منتجاتنا معتمدة، آمنة على البشرة ولا تسبب أي تحسس.`;
+        }
+    }
+    // 3. Serums & Glow Care
+    else if (normalized.includes('سيروم') || normalized.includes('سيرم') || normalized.includes('serum') || normalized.includes('نضاره') || normalized.includes('اشراق') || normalized.includes('هيالورونيك')) {
+        autoReply = `سيروم النضارة والإشراق (**Radiant Glow Serum**) متوفر الآن بسعر **49.99 ج.م** بدلاً من 69.99 ج.م ✨!\nغني بالفيتامينات وحمض الهيالورونيك لترطيب عميق، وتوحيد لون البشرة واستعادة نضارتها الطبيعية من أول استخدام.`;
+    }
+    // 4. Moisturizers & Face Creams
+    else if (normalized.includes('مرطب') || normalized.includes('كريم') || normalized.includes('ترطيب') || normalized.includes('moisturizer') || normalized.includes('cream') || normalized.includes('جفاف')) {
+        autoReply = `للعناية الفائقة وترطيب البشرة، نرشح لك أفضل خياراتنا المعملية:\n\n💧 **مرطب هيدرا بوست (Hydra Boost Moisturizer)**: بسعر 39.99 ج.م بدلاً من 59.99 ج.م (ترطيب عميق يدوم 24 ساعة بدون ملمس دهني).\n🌙 **كريم الليل المقاوم للتجاعيد (Age-Defying Night Cream)**: بسعر 59.99 ج.م لتجديد خلايا البشرة أثناء النوم.`;
+    }
+    // 5. Cleansers & Face Wash
+    else if (normalized.includes('غسول') || normalized.includes('منظف') || normalized.includes('cleanser') || normalized.includes('مسام') || normalized.includes('حبوب')) {
+        autoReply = `غسول الوجه الرغوي اللطيف (**Gentle Cleansing Foam**) متوفر الآن بسعر **24.99 ج.م** بدلاً من 34.99 ج.م 🫧.\nينظف المسام بعمق ويزيل الدهون والمكياج بلطف تام دون تجفيف البشرة ومناسب لجميع أنواع البشرة الحساسة.`;
+    }
+    // 6. Hair Care & Conditioner
+    else if (normalized.includes('شعر') || normalized.includes('بلسم') || normalized.includes('ارجان') || normalized.includes('conditioner') || normalized.includes('تساقط') || normalized.includes('هيشان')) {
+        autoReply = `بلسم الأرجان الملكي (**Argan Conditioner**) بتركيبة زيت الأرجان النقي يغذي ألياف الشعر من الجذور حتى الأطراف، ويمنحه لمعاناً حريرياً ويقضي على التقصف والهيشان تماماً 🌿✨.`;
+    }
+    // 7. Sunscreen & SPF
+    else if (normalized.includes('شمس') || normalized.includes('واقي') || normalized.includes('صن بلوك') || normalized.includes('sunscreen') || normalized.includes('spf')) {
+        autoReply = `واقي الشمس الطبي (**SPF 50 Sunscreen**) يوفر حماية قصوى وواسعة المدى من الأشعة فوق البنفسجية (UVA/UVB)، مع تركيبة خفيفة وسريعة الامتصاص لا تترك أي أثر أبيض ☀️.`;
+    }
+    // 8. Eye Cream & Dark Circles
+    else if (normalized.includes('عين') || normalized.includes('هالات') || normalized.includes('انتفاخ') || normalized.includes('eye')) {
+        autoReply = `كريم محيط العين بفيتامين سي (**Vitamin C Eye Cream**) متوفر بسعر **34.99 ج.م**، يساعد بفاعلية في تفتيح الهالات السوداء ومحاربة الخطوط الرفيعة والانتفاخات الصباحية 👁️✨.`;
+    }
+    // 9. Prices, Offers & Promo Codes
+    else if (normalized.includes('سعر') || normalized.includes('اسعار') || normalized.includes('بكام') || normalized.includes('كام') || normalized.includes('عروض') || normalized.includes('عرض') || normalized.includes('خصم') || normalized.includes('كود') || normalized.includes('كوبون') || normalized.includes('offer') || normalized.includes('discount')) {
+        autoReply = `أقوى عروض كوكو شوب الحالية 🎉:\n\n🎁 كود الخصم: **LUXE10** يمنحك خصماً إضافياً 10% على كافة المنتجات!\n🚚 **شحن مجاني** لجميع محافظات مصر عند الشراء بقيمة 500 ج.م أو أكثر.\n✨ **هدية مجانية** فاخرة (ميني سبلاش خمرة) تُضاف لسلتك تلقائياً عند تجاوز 500 ج.م!`;
+    }
+    // 10. Shipping & Delivery
+    else if (normalized.includes('شحن') || normalized.includes('توصيل') || normalized.includes('محافظات') || normalized.includes('كام يوم') || normalized.includes('امتي') || normalized.includes('shipping') || normalized.includes('delivery')) {
+        autoReply = `الشحن والتوصيل يستغرق من **2 إلى 4 أيام عمل** لكافة محافظات جمهورية مصر العربية 🇪🇬.\nالتوصيل مجاني تماماً للطلبات التي تتجاوز قيمتها 500 ج.م 🚚✨.`;
+    }
+    // 11. Payment Methods
+    else if (normalized.includes('دفع') || normalized.includes('كاش') || normalized.includes('فيزا') || normalized.includes('فودافون') || normalized.includes('محفظه') || normalized.includes('payment') || normalized.includes('cash')) {
+        autoReply = `نوفر لك خيارات دفع مرنة وآمنة 💳:\n1️⃣ الدفع عند الاستلام (COD) نقداً للمندوب عند استلام ومعاينة طلبك.\n2️⃣ الدفع بالبطاقات البنكية (Visa / MasterCard).\n3️⃣ المحافظ الإلكترونية المعتمدة (فودافون كاش، أورنج، اتصالات، وي باي).`;
+    }
+    // 12. Returns & Warranty
+    else if (normalized.includes('استرجاع') || normalized.includes('استبدال') || normalized.includes('ضمان') || normalized.includes('مرتجع') || normalized.includes('return') || normalized.includes('refund')) {
+        autoReply = `نضمن لك حق الاستبدال والاسترجاع بكل سهولة خلال **14 يوماً** من تاريخ استلام الشحنة، وفقاً لقانون حماية المستهلك للمنتجات غير المفتوحة وبحالتها الأصلية 🛡️.`;
+    }
+    // 13. Greetings
+    else if (normalized.includes('سلام') || normalized.includes('مرحبا') || normalized.includes('اهلا') || normalized.includes('صباح') || normalized.includes('مساء') || normalized.includes('ازيك') || normalized.includes('عامل ايه') || normalized.includes('hello') || normalized.includes('hi')) {
+        autoReply = `أهلاً وسهلاً بك في متجر كوكو شوب (KoKo Shop) 💖 يسعدني جداً خدمتك اليوم! تفضل بسؤالك عن أي منتج، أسعارنا، عروض البادي اسبلاش، أو تتبع شحنتك وسأجيبك فوراً 🌸.`;
+    }
+    // 14. Thanks & Compliments
+    else if (normalized.includes('شكرا') || normalized.includes('تسلم') || normalized.includes('الله يسعدك') || normalized.includes('مشكور') || normalized.includes('تمام') || normalized.includes('thanks')) {
+        autoReply = `على الرحب والسعة دائماً! نحن في خدمتك في أي وقت، ونتمنى لك تجربة تسوق ممتعة ومميزة في كوكو شوب 🌸✨.`;
+    }
+    // 15. Human Support Agent Request
+    else if (normalized.includes('خدمه عملاء') || normalized.includes('خدمة عملاء') || normalized.includes('موظف') || normalized.includes('حد يكلمني') || normalized.includes('انسان') || normalized.includes('human') || normalized.includes('agent') || normalized.includes('support')) {
+        autoReply = `تم إشعار فريق خدمة العملاء والدعم الفني برسالتك بنجاح 🔔 وسيقوم أحد ممثلينا بالرد عليك هنا في المحادثة مباشرة في أقرب وقت. تفضل بكتابة أي تفاصيل إضافية لمساعدتك بسرعة.`;
+    }
+    // 16. General Product Inquiries or Consultation Pill
+    else if (normalized.includes('استشاره') || normalized.includes('منتجات') || normalized.includes('product')) {
+        autoReply = `فريقنا الطبي والجمالي جاهز لمساعدتك في اختيار التركيبة الأنسب لنوع بشرتك واحتياجاتك! تفضل بذكر نوع بشرتك (جافة، دهنية، مختلطة) أو المنتج الذي تبحث عنه وسنجيبك فوراً ✨.`;
+    }
+    // 17. Conversational Fallback (NEVER stays silent!)
+    else {
+        autoReply = `شكراً لتواصلك معنا في كوكو شوب 💖 تم استلام رسالتك وإشعار ممثل خدمة العملاء وسيقوم بالرد عليك هنا مباشرة 💬.\n\nفي هذه الأثناء، يمكنك سؤالي عن:\n✨ منتجات العناية بالبشرة (سيروم، مرطب، غسول)\n🌸 مجموعات البادي اسبلاش ومعطرات الجسم\n🚚 تفاصيل ومصاريف الشحن والتوصيل\n🎁 عروض الخصومات وكود (LUXE10)\n📦 تتبع شحنتك وطلبك الحالي`;
     }
 
     if (autoReply) {
         setTimeout(async () => {
             const botMsg = {
-                id: 'msg_bot_' + Date.now(),
+                id: 'msg_bot_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
                 sender: 'admin',
                 senderName: 'Koko Bot / المساعد الذكي',
                 text: autoReply,
@@ -2244,7 +2392,39 @@ function triggerSmartAssistantReply(customerText) {
             _chatMessagesCache.push(botMsg);
             renderLiveChatMessages(_chatMessagesCache);
 
-            // Sync to Firestore & local
+            // 1. Save to local storage for instant offline / tab sync
+            try {
+                let localChats = JSON.parse(localStorage.getItem('luxe_chats') || '[]');
+                let chatIndex = localChats.findIndex((c) => c.id === _chatId);
+                if (chatIndex > -1) {
+                    localChats[chatIndex].messages = localChats[chatIndex].messages || [];
+                    localChats[chatIndex].messages.push(botMsg);
+                    localChats[chatIndex].lastMessage = autoReply;
+                    localChats[chatIndex].lastSender = 'admin';
+                    localChats[chatIndex].unreadByCustomer = false;
+                    localChats[chatIndex].updatedAt = botMsg.timestamp;
+                } else {
+                    localChats.unshift({
+                        id: _chatId,
+                        customerEmail: '',
+                        customerName: 'عميل المتجر',
+                        lastMessage: autoReply,
+                        lastSender: 'admin',
+                        unreadByCustomer: false,
+                        unreadByAdmin: false,
+                        status: 'open',
+                        updatedAt: botMsg.timestamp,
+                        messages: [botMsg]
+                    });
+                }
+                localStorage.setItem('luxe_chats', JSON.stringify(localChats));
+                localStorage.setItem('luxe_chats_updated', Date.now());
+                window.dispatchEvent(new CustomEvent('luxe_chats_updated', { detail: { chatId: _chatId } }));
+            } catch (err) {
+                console.warn('Bot reply local save error:', err);
+            }
+
+            // 2. Sync to Firestore
             try {
                 const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
                 const configModule = await import('./firebase-config.js');
@@ -2255,11 +2435,13 @@ function triggerSmartAssistantReply(customerText) {
                     lastMessage: autoReply,
                     lastSender: 'admin',
                     unreadByCustomer: false,
-                    updatedAt: new Date().toISOString(),
+                    updatedAt: botMsg.timestamp,
                     messages: arrayUnion(botMsg)
                 }, { merge: true });
-            } catch (e) {}
-        }, 800);
+            } catch (e) {
+                console.warn('Bot reply Firestore sync fallback:', e);
+            }
+        }, 600);
     }
 }
 
