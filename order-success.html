@@ -382,87 +382,172 @@
     <script src="init-products.js"></script>
     <script src="app.js"></script>
     <script>
-        // Get order ID from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const orderId = urlParams.get('orderId');
+        (async () => {
+            'use strict';
 
-        if (!orderId) {
-            window.location.href = 'index.html';
-        }
+            const escapeHtml = window.escapeHtml || ((unsafe) => {
+                if (unsafe === null || unsafe === undefined) return '';
+                return String(unsafe)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            });
 
-        const escapeHtml = (unsafe) => {
-            if (unsafe === null || unsafe === undefined) return '';
-            return String(unsafe)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        };
+            const safeUrl = window.safeUrl || ((url, fallback = './images/slider-1.jpeg') => {
+                if (!url || typeof url !== 'string') return fallback;
+                const trimmed = url.trim();
+                if (/^(?:javascript|data:text\/html):/i.test(trimmed)) {
+                    return fallback;
+                }
+                return trimmed;
+            });
 
-        // Load order details
-        function loadOrderDetails() {
-            const orders = JSON.parse(localStorage.getItem('luxe_orders')) || [];
-            const order = orders.find((o) => o.orderId === orderId);
+            // Get order ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('orderId');
 
-            if (!order) {
+            if (!orderId) {
                 window.location.href = 'index.html';
                 return;
             }
 
-            // Display order number and date
-            document.getElementById('orderNumber').textContent = order.orderId;
-            document.getElementById('orderDate').textContent = new Date(order.createdAt).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-            document.getElementById('customerEmail').textContent = order.customerInfo?.email || '';
+            // Load order details from localStorage or Firestore
+            async function loadOrderDetails() {
+                let order = null;
 
-            // Display order items
-            let itemsHtml = '';
-            (order.items || []).forEach((item) => {
-                itemsHtml += `
-                    <div class="flex items-center space-x-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-                        <img src="${escapeHtml(item.image || './images/slider-1.jpeg')}" alt="${escapeHtml(item.name || 'Product')}" class="w-20 h-20 object-cover rounded-lg">
-                        <div class="flex-1">
-                            <h4 class="font-semibold text-gray-900 dark:text-white">${escapeHtml(item.name || 'Product')}</h4>
-                            <p class="text-sm text-gray-500">Quantity: ${item.quantity || 1}</p>
-                        </div>
-                        <span class="font-bold text-pink-500">EGP ${((parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 1)).toFixed(2)}</span>
-                    </div>
-                `;
-            });
-            document.getElementById('orderItemsList').innerHTML = itemsHtml;
+                // 1. Try localStorage
+                try {
+                    const orders = JSON.parse(localStorage.getItem('luxe_orders')) || [];
+                    order = orders.find((o) => o && o.orderId === orderId);
+                } catch (e) {
+                    console.warn('Could not read luxe_orders from localStorage:', e);
+                }
 
-            // Display shipping address
-            const address = order.customerInfo?.address || {};
-            let addressHtml = `<p class="font-semibold">${escapeHtml(order.customerInfo?.name || 'Client')}</p>`;
-            addressHtml += `<p>${escapeHtml(address.street || '')}</p>`;
-            if (address.apartment) {
-                addressHtml += `<p>${escapeHtml(address.apartment)}</p>`;
+                // 2. Try Firestore collection 'orders' if not in localStorage
+                if (!order) {
+                    try {
+                        const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+                        const configModule = await import('./firebase-config.js');
+                        const { doc, getDoc } = firestoreModule;
+                        const { db } = configModule;
+                        if (db && doc && getDoc) {
+                            const snap = await getDoc(doc(db, 'orders', orderId));
+                            if (snap.exists()) {
+                                order = snap.data();
+                            }
+                        }
+                    } catch (fsErr) {
+                        console.warn('Firestore order fetch notice on success page:', fsErr);
+                    }
+                }
+
+                if (!order) {
+                    console.warn('Order not found for ID:', orderId);
+                    document.getElementById('orderNumber').textContent = escapeHtml(orderId);
+                    document.getElementById('orderDate').textContent = new Date().toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    return;
+                }
+
+                // Display order number and date
+                const orderNumEl = document.getElementById('orderNumber');
+                if (orderNumEl) orderNumEl.textContent = order.orderId;
+
+                const orderDateEl = document.getElementById('orderDate');
+                if (orderDateEl) {
+                    let orderDate = new Date();
+                    if (order.createdAt) {
+                        if (typeof order.createdAt.toDate === 'function') {
+                            orderDate = order.createdAt.toDate();
+                        } else {
+                            orderDate = new Date(order.createdAt);
+                        }
+                    }
+                    orderDateEl.textContent = orderDate.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                }
+
+                const emailEl = document.getElementById('customerEmail');
+                if (emailEl) emailEl.textContent = order.customerInfo?.email || '';
+
+                // Display order items
+                const itemsListEl = document.getElementById('orderItemsList');
+                if (itemsListEl) {
+                    let itemsHtml = '';
+                    (order.items || []).forEach((item) => {
+                        let itemName = item.name;
+                        if (typeof itemName === 'object' && itemName !== null) {
+                            itemName = itemName.en || itemName.ar || 'Ritual Formulation';
+                        }
+                        itemName = itemName || 'Product';
+                        const itemImg = safeUrl(item.image, './images/slider-1.jpeg');
+                        const itemPrice = parseFloat(item.price) || 0;
+                        const itemQty = parseInt(item.quantity, 10) || 1;
+                        const itemTotal = itemPrice * itemQty;
+
+                        itemsHtml += `
+                            <div class="flex items-center space-x-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                                <img src="${escapeHtml(itemImg)}" alt="${escapeHtml(itemName)}" class="w-20 h-20 object-cover rounded-lg" onerror="this.src='./images/slider-1.jpeg'">
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-gray-900 dark:text-white">${escapeHtml(itemName)}</h4>
+                                    <p class="text-sm text-gray-500">Quantity: ${itemQty}</p>
+                                </div>
+                                <span class="font-bold text-pink-500">EGP ${itemTotal.toFixed(2)}</span>
+                            </div>
+                        `;
+                    });
+                    itemsListEl.innerHTML = itemsHtml || '<p class="text-sm text-gray-400 py-2">No items listed</p>';
+                }
+
+                // Display shipping address
+                const shippingAddressEl = document.getElementById('shippingAddress');
+                if (shippingAddressEl) {
+                    const address = order.customerInfo?.address || {};
+                    let addressHtml = `<p class="font-semibold">${escapeHtml(order.customerInfo?.name || 'Client')}</p>`;
+                    if (address.street) addressHtml += `<p>${escapeHtml(address.street)}</p>`;
+                    if (address.apartment) addressHtml += `<p>${escapeHtml(address.apartment)}</p>`;
+                    if (address.city || address.state || address.zip) {
+                        addressHtml += `<p>${escapeHtml(address.city || '')}${address.state ? ', ' + escapeHtml(address.state) : ''} ${escapeHtml(address.zip || '')}</p>`;
+                    }
+                    if (address.country) addressHtml += `<p>${escapeHtml(address.country)}</p>`;
+                    if (order.customerInfo?.phone) {
+                        addressHtml += `<p class="mt-2">Phone: ${escapeHtml(order.customerInfo.phone)}</p>`;
+                    }
+                    shippingAddressEl.innerHTML = addressHtml;
+                }
+
+                // Display pricing
+                const subtotal = order.pricing?.subtotal !== undefined ? Number(order.pricing.subtotal).toFixed(2) : '0.00';
+                const shipping = order.pricing?.shipping && Number(order.pricing.shipping) > 0 ? `EGP ${Number(order.pricing.shipping).toFixed(2)}` : 'FREE';
+                const tax = order.pricing?.tax !== undefined ? Number(order.pricing.tax).toFixed(2) : '0.00';
+                const total = order.pricing?.total !== undefined ? Number(order.pricing.total).toFixed(2) : '0.00';
+
+                const subtotalEl = document.getElementById('orderSubtotal');
+                const shippingEl = document.getElementById('orderShipping');
+                const taxEl = document.getElementById('orderTax');
+                const totalEl = document.getElementById('orderTotal');
+
+                if (subtotalEl) subtotalEl.textContent = `EGP ${subtotal}`;
+                if (shippingEl) shippingEl.textContent = shipping;
+                if (taxEl) taxEl.textContent = `EGP ${tax}`;
+                if (totalEl) totalEl.textContent = `EGP ${total}`;
             }
-            addressHtml += `<p>${escapeHtml(address.city || '')}${address.state ? ', ' + escapeHtml(address.state) : ''} ${escapeHtml(address.zip || '')}</p>`;
-            addressHtml += `<p>${escapeHtml(address.country || '')}</p>`;
-            if (order.customerInfo?.phone) {
-                addressHtml += `<p class="mt-2">Phone: ${escapeHtml(order.customerInfo.phone)}</p>`;
+
+            // Initialize on ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', loadOrderDetails);
+            } else {
+                await loadOrderDetails();
             }
-            document.getElementById('shippingAddress').innerHTML = addressHtml;
-
-            // Display pricing
-            const subtotal = order.pricing?.subtotal ? Number(order.pricing.subtotal).toFixed(2) : '0.00';
-            const shipping = order.pricing?.shipping && Number(order.pricing.shipping) > 0 ? `EGP ${Number(order.pricing.shipping).toFixed(2)}` : 'FREE';
-            const tax = order.pricing?.tax ? Number(order.pricing.tax).toFixed(2) : '0.00';
-            const total = order.pricing?.total ? Number(order.pricing.total).toFixed(2) : '0.00';
-
-            document.getElementById('orderSubtotal').textContent = `EGP ${subtotal}`;
-            document.getElementById('orderShipping').textContent = shipping;
-            document.getElementById('orderTax').textContent = `EGP ${tax}`;
-            document.getElementById('orderTotal').textContent = `EGP ${total}`;
-        }
-
-        // Initialize
-        loadOrderDetails();
+        })();
     </script>
 </body>
 
