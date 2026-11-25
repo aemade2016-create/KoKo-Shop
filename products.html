@@ -1127,7 +1127,7 @@
                 // Check Admin Access
                 const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
                 const adminIcon = document.getElementById('adminPanelIcon');
-                if (adminIcon && (currentUser.email === 'aemade2016@gmail.com' || currentUser.isAdmin)) {
+                if (adminIcon && (currentUser.isAdmin === true || currentUser.role === 'admin')) {
                     adminIcon.classList.remove('hidden');
                 }
             } catch (error) {

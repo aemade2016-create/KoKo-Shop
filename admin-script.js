@@ -88,14 +88,9 @@ const verifyAdminAccess = async () => {
             const userData = userDocSnap.data();
             isBlocked = Boolean(userData.isBlocked === true || userData.status === 'Blocked');
             isAdmin = Boolean(
-                user.email === 'aemade2016@gmail.com' ||
                 userData.role === 'admin' ||
                 userData.isAdmin === true
             );
-        } else {
-            if (user.email === 'aemade2016@gmail.com') {
-                isAdmin = true;
-            }
         }
 
         if (!isAdmin || isBlocked) {
@@ -562,8 +557,8 @@ const getUsers = async () => {
         },
         {
             id: 'user_admin',
-            name: 'Ahmed Emad (Super Admin)',
-            email: 'aemade2016@gmail.com',
+            name: 'Store Administrator',
+            email: 'admin@kokoshop.com',
             phone: '01000000000',
             role: 'admin',
             isAdmin: true,

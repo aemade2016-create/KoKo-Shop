@@ -922,7 +922,7 @@ function isLoggedIn() {
 
 function isAdmin() {
     var user = getCurrentUser();
-    return user && (user.isAdmin === true || user.role === 'admin' || user.email === 'aemade2016@gmail.com');
+    return Boolean(user && (user.isAdmin === true || user.role === 'admin'));
 }
 
 function logout() {
@@ -981,9 +981,8 @@ function updateAdminPanelIcon() {
 // ============================================
 // 5C. CHECK ADMIN CREDENTIALS
 // ============================================
-function checkAdminCredentials(email) {
-    // Admin email check
-    return email === 'aemade2016@gmail.com';
+function checkAdminCredentials() {
+    return isAdmin();
 }
 
 // ============================================

@@ -625,7 +625,7 @@
             // Admin Crown Icon Check
             const adminIcon = document.getElementById('adminPanelIcon');
             if (adminIcon) {
-                const isAdmin = (userData.email === 'aemade2016@gmail.com' || userData.isAdmin === true || userData.role === 'admin');
+                const isAdmin = Boolean(userData.isAdmin === true || userData.role === 'admin');
                 if (isAdmin) {
                     adminIcon.classList.remove('hidden');
                 } else {
@@ -812,8 +812,6 @@
                             email: firebaseUser.email,
                             phone: firebaseUser.phoneNumber || '',
                             photoURL: firebaseUser.photoURL || '',
-                            isAdmin: (firebaseUser.email === 'aemade2016@gmail.com'),
-                            createdAt: serverTimestamp(),
                             orders: [],
                             wishlist: []
                         };

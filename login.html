@@ -515,9 +515,9 @@
                 const result = await signInWithEmail(email, password);
 
                 if (result.success) {
-                    let isAdmin = (email === 'aemade2016@gmail.com');
+                    let isAdmin = false;
                     let displayName = result.user.displayName || 'Client';
-                    let userRole = isAdmin ? 'admin' : 'customer';
+                    let userRole = 'customer';
 
                     try {
                         const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
@@ -525,7 +525,7 @@
                         const userSnap = await getDoc(doc(db, 'users', result.user.uid));
                         if (userSnap.exists()) {
                             const uData = userSnap.data();
-                            isAdmin = (uData.role === 'admin' || uData.isAdmin === true || email === 'aemade2016@gmail.com');
+                            isAdmin = Boolean(uData.role === 'admin' || uData.isAdmin === true);
                             userRole = uData.role || (isAdmin ? 'admin' : 'customer');
                             if (uData.name) displayName = uData.name;
                         }
@@ -574,12 +574,13 @@
                 const result = await signUpWithEmail(name, email, password);
 
                 if (result.success) {
-                    const isAdmin = (email === 'aemade2016@gmail.com');
+                    const isAdmin = false;
                     const userData = {
                         uid: result.user.uid,
                         email: result.user.email,
                         name,
-                        isAdmin,
+                        isAdmin: false,
+                        role: 'customer',
                         createdAt: new Date().toISOString()
                     };
 
@@ -667,7 +668,7 @@
 
                 const result = await signInWithGoogle();
                 if (result.success) {
-                    const isAdmin = (result.user.email === 'aemade2016@gmail.com') || (result.userData?.role === 'admin') || (result.userData?.isAdmin === true);
+                    const isAdmin = Boolean((result.userData?.role === 'admin') || (result.userData?.isAdmin === true));
                     const userData = {
                         uid: result.user.uid,
                         email: result.user.email,
@@ -717,13 +718,14 @@
 
             const result = await signInWithFacebook();
             if (result.success) {
-                const isAdmin = (result.user.email === 'aemade2016@gmail.com');
+                const isAdmin = Boolean((result.userData?.role === 'admin') || (result.userData?.isAdmin === true));
                 const userData = {
                     uid: result.user.uid,
                     email: result.user.email,
                     name: result.user.displayName || 'Client',
                     photoURL: result.user.photoURL,
                     isAdmin,
+                    role: isAdmin ? 'admin' : (result.userData?.role || 'customer'),
                     createdAt: new Date().toISOString()
                 };
 

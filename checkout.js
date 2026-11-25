@@ -226,46 +226,43 @@
     // PAYMENT SELECTION & ACCORDION
     // ============================================
 
-    const selectPayment = (method) => {
-        selectedPaymentMethod = method;
+    const selectPayment = (method = 'cod') => {
+        // Enforce Cash on Delivery (COD) as the only active payment method until official payment gateway integration
+        selectedPaymentMethod = 'cod';
 
         // Remove selected style from all
         document.querySelectorAll('.payment-option').forEach((option) => {
             option.classList.remove('selected');
         });
 
-        // Mark current selected
-        const activeOption = document.querySelector(`.payment-option[onclick*="'${method}'"]`);
-        if (activeOption) {
-            activeOption.classList.add('selected');
+        // Mark COD option selected
+        const codOption = document.querySelector(`.payment-option[onclick*="'cod'"]`);
+        if (codOption) {
+            codOption.classList.add('selected');
         }
 
-        // Check radio
-        const radio = document.querySelector(`input[name="payment"][value="${method}"]`);
+        // Check COD radio
+        const radio = document.querySelector(`input[name="payment"][value="cod"]`);
         if (radio) radio.checked = true;
 
-        // Toggle accordions
+        // Toggle accordions & inputs (disable card inputs completely)
         const cardDetails = document.getElementById('cardDetails');
         const walletDetails = document.getElementById('walletDetails');
         const codDetails = document.getElementById('codDetails');
 
-        const isCard = (method === 'card');
-        const isWallet = (method === 'wallet');
-        const isCod = (method === 'cod');
-
         if (cardDetails) {
-            cardDetails.classList.toggle('hidden', !isCard);
+            cardDetails.classList.add('hidden');
             ['cardNumber', 'cardName', 'cardExpiry', 'cardCVV'].forEach((fieldId) => {
                 const field = document.getElementById(fieldId);
                 if (field) {
-                    field.disabled = !isCard;
-                    field.required = isCard;
+                    field.disabled = true;
+                    field.required = false;
                 }
             });
         }
 
-        if (walletDetails) walletDetails.classList.toggle('hidden', !isWallet);
-        if (codDetails) codDetails.classList.toggle('hidden', !isCod);
+        if (walletDetails) walletDetails.classList.add('hidden');
+        if (codDetails) codDetails.classList.remove('hidden');
     };
 
     window.selectPayment = selectPayment;
@@ -580,8 +577,8 @@
             },
             items: verifiedData.items,
             payment: {
-                method: selectedPaymentMethod,
-                status: selectedPaymentMethod === 'cod' ? 'pending' : 'completed',
+                method: 'cod',
+                status: 'pending',
                 transactionId: `TXN-${Date.now()}`
             },
             pricing: verifiedData.pricing,
@@ -740,36 +737,9 @@
                 return;
             }
 
-            // 3. Ensure Payment Method
-            if (!selectedPaymentMethod) {
-                selectedPaymentMethod = 'cod';
-                selectPayment('cod');
-            }
-
-            // 4. Validate Card Details if card method selected
-            if (selectedPaymentMethod === 'card') {
-                const cardNumber = (document.getElementById('cardNumber')?.value || '').replace(/\s/g, '');
-                const cardName = (document.getElementById('cardName')?.value || '').trim();
-                const cardExpiry = (document.getElementById('cardExpiry')?.value || '').trim();
-                const cardCVV = (document.getElementById('cardCVV')?.value || '').trim();
-
-                if (!cardName) {
-                    showToast(isAr ? 'يرجى إدخال اسم حامل البطاقة' : 'Please enter cardholder name', 'error');
-                    return;
-                }
-                if (cardNumber.length < 13 || cardNumber.length > 19) {
-                    showToast(isAr ? 'رقم البطاقة غير صحيح' : 'Invalid card number', 'error');
-                    return;
-                }
-                if (!/^\d{2}\/\d{2}$/.test(cardExpiry)) {
-                    showToast(isAr ? 'تاريخ انتهاء البطاقة غير صحيح (MM/YY)' : 'Invalid expiry date (MM/YY)', 'error');
-                    return;
-                }
-                if (cardCVV.length < 3 || cardCVV.length > 4) {
-                    showToast(isAr ? 'رمز الأمان CVV غير صحيح' : 'Invalid CVV', 'error');
-                    return;
-                }
-            }
+            // 3. Ensure Payment Method (Always COD)
+            selectedPaymentMethod = 'cod';
+            selectPayment('cod');
 
             const formData = {
                 email: document.getElementById('email')?.value.trim() || '',
@@ -981,11 +951,14 @@
             }
         })();
 
+        // 9. Enforce Cash on Delivery
+        selectPayment('cod');
+
         // 10. Admin Crown Icon Check
         try {
             const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
             const adminIcon = document.getElementById('adminPanelIcon');
-            if (adminIcon && (currentUser.email === 'aemade2016@gmail.com' || currentUser.isAdmin)) {
+            if (adminIcon && (currentUser.isAdmin === true || currentUser.role === 'admin')) {
                 adminIcon.classList.remove('hidden');
             }
         } catch (e) {

@@ -70,15 +70,14 @@ export async function signInWithGoogle() {
         const user = result.user;
         const displayName = user.displayName || (user.email ? user.email.split('@')[0] : 'Client');
         const userEmail = user.email || '';
-        const isDefaultAdmin = (userEmail === 'aemade2016@gmail.com');
 
         let profileData = {
             uid: user.uid,
             name: displayName,
             email: userEmail,
             photoURL: user.photoURL || '',
-            role: isDefaultAdmin ? 'admin' : 'customer',
-            isAdmin: isDefaultAdmin,
+            role: 'customer',
+            isAdmin: false,
             isBlocked: false,
             orders: [],
             wishlist: []
@@ -102,7 +101,7 @@ export async function signInWithGoogle() {
                 });
             } else {
                 const existingData = userDoc.data();
-                const isAdmin = existingData.role === 'admin' || existingData.isAdmin === true || isDefaultAdmin;
+                const isAdmin = Boolean(existingData.role === 'admin' || existingData.isAdmin === true);
                 profileData = {
                     ...profileData,
                     ...existingData,
@@ -130,15 +129,14 @@ export async function signInWithFacebook() {
         const user = result.user;
         const displayName = user.displayName || (user.email ? user.email.split('@')[0] : 'Client');
         const userEmail = user.email || '';
-        const isDefaultAdmin = (userEmail === 'aemade2016@gmail.com');
 
         let profileData = {
             uid: user.uid,
             name: displayName,
             email: userEmail,
             photoURL: user.photoURL || '',
-            role: isDefaultAdmin ? 'admin' : 'customer',
-            isAdmin: isDefaultAdmin,
+            role: 'customer',
+            isAdmin: false,
             isBlocked: false,
             orders: [],
             wishlist: []
@@ -161,7 +159,7 @@ export async function signInWithFacebook() {
                 });
             } else {
                 const existingData = userDoc.data();
-                const isAdmin = existingData.role === 'admin' || existingData.isAdmin === true || isDefaultAdmin;
+                const isAdmin = Boolean(existingData.role === 'admin' || existingData.isAdmin === true);
                 profileData = {
                     ...profileData,
                     ...existingData,

@@ -185,7 +185,7 @@
     <!-- Success Content -->
     <section class="py-20">
         <div class="container mx-auto px-4">
-            <div class="max-w-3xl mx-auto">
+            <div class="max-w-3xl mx-auto" id="orderSuccessWrapper">
                 <!-- Success Icon -->
                 <div class="text-center mb-8">
                     <div
@@ -404,12 +404,40 @@
                 return trimmed;
             });
 
+            function showOrderNotFound() {
+                const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+                const wrapper = document.getElementById('orderSuccessWrapper') || document.querySelector('.max-w-3xl.mx-auto');
+                if (wrapper) {
+                    wrapper.innerHTML = `
+                        <div class="text-center py-16 bg-white dark:bg-gray-800 rounded-3xl p-8 sm:p-12 shadow-xl border border-pink-100 dark:border-gray-700">
+                            <div class="w-20 h-20 mx-auto mb-6 bg-pink-100 dark:bg-pink-950/60 text-pink-500 rounded-full flex items-center justify-center text-3xl">
+                                <i class="fas fa-receipt"></i>
+                            </div>
+                            <h1 class="text-3xl font-display font-bold text-gray-900 dark:text-white mb-3">
+                                ${isAr ? 'لم يتم العثور على الطلب' : 'Order Not Found'}
+                            </h1>
+                            <p class="text-base text-gray-600 dark:text-gray-400 max-w-md mx-auto mb-8 leading-relaxed">
+                                ${isAr ? 'عذراً، لم نتمكن من العثور على تفاصيل هذا الطلب. يمكنك مراجعة سجل طلباتك السابقة من حسابك أو العودة للتسوق.' : 'We could not find the details for this order. You can check your previous orders from your account or continue shopping.'}
+                            </p>
+                            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                                <a href="profile.html" class="w-full sm:w-auto px-8 py-3.5 bg-primary-500 hover:bg-primary-600 text-white rounded-full font-semibold text-sm shadow-md transition">
+                                    <i class="fas fa-user mr-2"></i>${isAr ? 'عرض طلباتي' : 'View My Orders'}
+                                </a>
+                                <a href="index.html" class="w-full sm:w-auto px-8 py-3.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-full font-semibold text-sm transition">
+                                    <i class="fas fa-home mr-2"></i>${isAr ? 'الرئيسية' : 'Return Home'}
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
             // Get order ID from URL
             const urlParams = new URLSearchParams(window.location.search);
             const orderId = urlParams.get('orderId');
 
             if (!orderId) {
-                window.location.href = 'index.html';
+                showOrderNotFound();
                 return;
             }
 
@@ -445,12 +473,7 @@
 
                 if (!order) {
                     console.warn('Order not found for ID:', orderId);
-                    document.getElementById('orderNumber').textContent = escapeHtml(orderId);
-                    document.getElementById('orderDate').textContent = new Date().toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    });
+                    showOrderNotFound();
                     return;
                 }
 

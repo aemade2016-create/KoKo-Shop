@@ -1238,6 +1238,25 @@
             ).join('');
         };
 
+        const escapeHtml = window.escapeHtml || ((str) => {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        });
+
+        const safeUrl = window.safeUrl || ((url, fallback = '') => {
+            if (!url || typeof url !== 'string') return fallback;
+            const trimmed = url.trim();
+            const lower = trimmed.toLowerCase();
+            if (lower.startsWith('javascript:') || lower.startsWith('vbscript:') || lower.startsWith('data:text/html') || lower.startsWith('data:application/')) return fallback;
+            if (lower.startsWith('https://') || lower.startsWith('http://') || lower.startsWith('./') || lower.startsWith('../') || lower.startsWith('/') || lower.startsWith('images/') || lower.startsWith('data:image/') || /^[a-zA-Z0-9_\-\.\/]+$/.test(trimmed)) return trimmed;
+            return fallback;
+        });
+
         // Review Card Generator (Modular ES6 Function)
         const createReviewCard = (review) => {
             const {
@@ -1247,6 +1266,10 @@
                 profileImage = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop'
             } = review;
 
+            const safeCustomerName = escapeHtml(customerName || 'Customer');
+            const safeReviewText = escapeHtml(text || '');
+            const safeProfileImage = escapeHtml(safeUrl(profileImage, 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop'));
+
             return `
                 <div class="bg-white dark:bg-slate-800 rounded-2xl p-7 border border-pink-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between text-left">
                     <div>
@@ -1254,12 +1277,12 @@
                             <div class="flex text-amber-400 text-xs space-x-1">${generateStars(rating)}</div>
                             <i class="fas fa-quote-right text-pink-300 dark:text-pink-950/70 text-lg"></i>
                         </div>
-                        <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-6 italic">"${text}"</p>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-6 italic">"${safeReviewText}"</p>
                     </div>
                     <div class="flex items-center pt-4 border-t border-pink-50 dark:border-slate-700/60">
-                        <img src="${profileImage}" alt="${customerName}" class="w-11 h-11 rounded-full object-cover ring-2 ring-pink-100 dark:ring-pink-900 mr-3" loading="lazy">
+                        <img src="${safeProfileImage}" alt="${safeCustomerName}" class="w-11 h-11 rounded-full object-cover ring-2 ring-pink-100 dark:ring-pink-900 mr-3" loading="lazy">
                         <div>
-                            <h4 class="font-display font-semibold text-gray-900 dark:text-white text-sm">${customerName}</h4>
+                            <h4 class="font-display font-semibold text-gray-900 dark:text-white text-sm">${safeCustomerName}</h4>
                             <span class="text-[11px] text-pink-600 dark:text-pink-400 flex items-center font-medium">
                                 <i class="fas fa-check-circle text-[10px] mr-1"></i>Verified Ritual
                             </span>
@@ -1954,7 +1977,7 @@
             try {
                 const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
                 const adminIcon = document.getElementById('adminPanelIcon');
-                if (adminIcon && (currentUser.email === 'aemade2016@gmail.com' || currentUser.isAdmin)) {
+                if (adminIcon && (currentUser.isAdmin === true || currentUser.role === 'admin')) {
                     adminIcon.classList.remove('hidden');
                 }
             } catch (e) {
