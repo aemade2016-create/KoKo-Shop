@@ -68,15 +68,17 @@ export async function signInWithGoogle() {
     try {
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
-        const isAdmin = (user.email === 'aemade2016@gmail.com');
+        const displayName = user.displayName || (user.email ? user.email.split('@')[0] : 'Client');
+        const userEmail = user.email || '';
+        const isDefaultAdmin = (userEmail === 'aemade2016@gmail.com');
 
         let profileData = {
             uid: user.uid,
-            name: user.displayName || user.email.split('@')[0],
-            email: user.email,
+            name: displayName,
+            email: userEmail,
             photoURL: user.photoURL || '',
-            role: isAdmin ? 'admin' : 'customer',
-            isAdmin: isAdmin,
+            role: isDefaultAdmin ? 'admin' : 'customer',
+            isAdmin: isDefaultAdmin,
             isBlocked: false,
             orders: [],
             wishlist: []
@@ -88,17 +90,26 @@ export async function signInWithGoogle() {
             const userDoc = await getDoc(userRef);
 
             if (!userDoc.exists()) {
+                // Strictly adhere to firestore.rules (do not send role, isAdmin, isBlocked, permissions, status)
                 await setDoc(userRef, {
-                    ...profileData,
+                    uid: user.uid,
+                    name: displayName,
+                    email: userEmail,
+                    photoURL: user.photoURL || '',
+                    orders: [],
+                    wishlist: [],
                     createdAt: serverTimestamp()
                 });
             } else {
                 const existingData = userDoc.data();
+                const isAdmin = existingData.role === 'admin' || existingData.isAdmin === true || isDefaultAdmin;
                 profileData = {
                     ...profileData,
                     ...existingData,
-                    name: user.displayName || existingData.name || profileData.name,
-                    photoURL: user.photoURL || existingData.photoURL || profileData.photoURL
+                    name: displayName || existingData.name || profileData.name,
+                    photoURL: user.photoURL || existingData.photoURL || profileData.photoURL,
+                    role: isAdmin ? 'admin' : (existingData.role || 'customer'),
+                    isAdmin: isAdmin
                 };
             }
         } catch (dbErr) {
@@ -117,15 +128,17 @@ export async function signInWithFacebook() {
     try {
         const result = await signInWithPopup(auth, facebookProvider);
         const user = result.user;
-        const isAdmin = (user.email === 'aemade2016@gmail.com');
+        const displayName = user.displayName || (user.email ? user.email.split('@')[0] : 'Client');
+        const userEmail = user.email || '';
+        const isDefaultAdmin = (userEmail === 'aemade2016@gmail.com');
 
         let profileData = {
             uid: user.uid,
-            name: user.displayName || user.email.split('@')[0],
-            email: user.email,
+            name: displayName,
+            email: userEmail,
             photoURL: user.photoURL || '',
-            role: isAdmin ? 'admin' : 'customer',
-            isAdmin: isAdmin,
+            role: isDefaultAdmin ? 'admin' : 'customer',
+            isAdmin: isDefaultAdmin,
             isBlocked: false,
             orders: [],
             wishlist: []
@@ -136,17 +149,26 @@ export async function signInWithFacebook() {
             const userDoc = await getDoc(userRef);
 
             if (!userDoc.exists()) {
+                // Strictly adhere to firestore.rules (do not send role, isAdmin, isBlocked, permissions, status)
                 await setDoc(userRef, {
-                    ...profileData,
+                    uid: user.uid,
+                    name: displayName,
+                    email: userEmail,
+                    photoURL: user.photoURL || '',
+                    orders: [],
+                    wishlist: [],
                     createdAt: serverTimestamp()
                 });
             } else {
                 const existingData = userDoc.data();
+                const isAdmin = existingData.role === 'admin' || existingData.isAdmin === true || isDefaultAdmin;
                 profileData = {
                     ...profileData,
                     ...existingData,
-                    name: user.displayName || existingData.name || profileData.name,
-                    photoURL: user.photoURL || existingData.photoURL || profileData.photoURL
+                    name: displayName || existingData.name || profileData.name,
+                    photoURL: user.photoURL || existingData.photoURL || profileData.photoURL,
+                    role: isAdmin ? 'admin' : (existingData.role || 'customer'),
+                    isAdmin: isAdmin
                 };
             }
         } catch (dbErr) {

@@ -389,6 +389,67 @@
         // State discount multiplier (applied if promo code active)
         let discountMultiplier = 0;
 
+        const verifyGiftEligibility = () => {
+            let cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
+            const storeSettings = JSON.parse(localStorage.getItem('luxe_settings') || '{}');
+            const minSpend = Number(storeSettings?.gift?.minSpend) || 500;
+
+            const paidSubtotal = cart
+                .filter(item => !item.isGift && item.id !== 'free-gift-promo')
+                .reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 1), 0);
+
+            if (paidSubtotal < minSpend) {
+                const hadGift = cart.some(item => item.isGift || item.id === 'free-gift-promo');
+                if (hadGift) {
+                    cart = cart.filter(item => !item.isGift && item.id !== 'free-gift-promo');
+                    if (typeof saveCart === 'function') {
+                        saveCart(cart);
+                    } else {
+                        localStorage.setItem('luxe_cart', JSON.stringify(cart));
+                        if (typeof updateCartCount === 'function') updateCartCount();
+                    }
+                }
+            }
+            return cart;
+        };
+
+        const escapeHtml = window.escapeHtml || ((str) => {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        });
+
+        const safeUrl = window.safeUrl || ((url, fallback = './images/slider-1.jpeg') => {
+            if (!url || typeof url !== 'string') return fallback;
+            const trimmed = url.trim();
+            const lower = trimmed.toLowerCase();
+            if (
+                lower.startsWith('javascript:') ||
+                lower.startsWith('vbscript:') ||
+                lower.startsWith('data:text/html') ||
+                lower.startsWith('data:application/')
+            ) {
+                return fallback;
+            }
+            if (
+                lower.startsWith('https://') ||
+                lower.startsWith('http://') ||
+                lower.startsWith('./') ||
+                lower.startsWith('../') ||
+                lower.startsWith('/') ||
+                lower.startsWith('images/') ||
+                lower.startsWith('data:image/') ||
+                /^[a-zA-Z0-9_\-\.\/]+$/.test(trimmed)
+            ) {
+                return trimmed;
+            }
+            return fallback;
+        });
+
         // Modular ES6 Cart Item Builder
         const createCartItemRow = (item) => {
             const {
@@ -403,7 +464,8 @@
             const unitPrice = isGift ? 0 : (parseFloat(price) || 0);
             const itemTotal = unitPrice * (parseInt(quantity, 10) || 1);
             const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
-            const displayName = window.i18n ? window.i18n.translateText(name) : name;
+            const rawName = (typeof name === 'object') ? ((isAr ? name.ar : name.en) || name.en || name.ar || '') : name;
+            const displayName = window.i18n ? window.i18n.translateText(rawName) : rawName;
             const unitPriceFormatted = isGift 
                 ? (isAr ? '0.00 ج.م' : 'EGP 0.00') 
                 : (isAr ? `${unitPrice.toFixed(2)} ج.م` : `EGP ${unitPrice.toFixed(2)}`);
@@ -413,11 +475,15 @@
             const perUnitText = isAr ? 'لكل عبوة' : '/ unit';
             const removeTitle = isAr ? 'حذف المنتج من الحقيبة' : 'Remove item';
 
+            const safeId = escapeHtml(String(id || ''));
+            const safeDisplayName = escapeHtml(String(displayName || ''));
+            const safeImage = escapeHtml(safeUrl(image, './images/slider-1.jpeg'));
+
             return `
                 <div class="p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 hover:bg-pink-50/30 dark:hover:bg-slate-700/30 rounded-2xl transition-all duration-300 ${isGift ? 'bg-pink-50/40 dark:bg-pink-950/20 border border-pink-200/60 dark:border-pink-800/40' : ''}">
                     <!-- Thumbnail -->
                     <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-pink-50 dark:bg-slate-900 border border-pink-100 dark:border-slate-700 flex-shrink-0 relative">
-                        <img src="${image}" alt="${displayName}" class="w-full h-full object-cover">
+                        <img src="${safeImage}" alt="${safeDisplayName}" class="w-full h-full object-cover">
                         ${isGift ? `
                             <span class="absolute top-1 left-1 bg-pink-500 text-white text-[9px] font-bold p-1 rounded-full flex items-center justify-center">
                                 <i class="fas fa-gift text-[8px]"></i>
@@ -428,7 +494,7 @@
                     <!-- Details -->
                     <div class="flex-1 text-center sm:text-left">
                         <div class="flex items-center gap-2 justify-center sm:justify-start flex-wrap mb-1">
-                            <h3 class="font-display font-semibold text-gray-900 dark:text-white text-base">${displayName}</h3>
+                            <h3 class="font-display font-semibold text-gray-900 dark:text-white text-base">${safeDisplayName}</h3>
                             ${isGift ? `
                                 <span class="inline-flex items-center gap-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
                                     <i class="fas fa-gift text-[9px]"></i>
@@ -442,14 +508,14 @@
 
                         <!-- Quantity Stepper -->
                         <div class="inline-flex items-center space-x-3 bg-pink-50/70 dark:bg-slate-700/70 p-1 rounded-full border border-pink-100/60 dark:border-slate-600">
-                            <button onclick="updateQuantity('${id}', -1)" 
+                            <button onclick="updateQuantity('${safeId}', -1)" 
                                 class="w-7 h-7 bg-white dark:bg-slate-800 rounded-full text-gray-700 dark:text-gray-300 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-slate-700 transition flex items-center justify-center text-xs shadow-sm"
                                 title="Decrease quantity" aria-label="Decrease quantity">
                                 <i class="fas fa-minus text-[10px]"></i>
                             </button>
                             <span class="font-semibold text-xs text-gray-900 dark:text-white w-6 text-center">${quantity}</span>
                             ${!isGift ? `
-                                <button onclick="updateQuantity('${id}', 1)" 
+                                <button onclick="updateQuantity('${safeId}', 1)" 
                                     class="w-7 h-7 bg-white dark:bg-slate-800 rounded-full text-gray-700 dark:text-gray-300 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-slate-700 transition flex items-center justify-center text-xs shadow-sm"
                                     title="Increase quantity" aria-label="Increase quantity">
                                     <i class="fas fa-plus text-[10px]"></i>
@@ -464,7 +530,7 @@
 
                     <!-- Subtotal & Remove -->
                     <div class="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-4">
-                        <button onclick="removeFromCartPage('${id}')" 
+                        <button onclick="removeFromCartPage('${safeId}')" 
                             class="text-gray-400 hover:text-rose-500 w-8 h-8 rounded-full hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center justify-center transition"
                             title="${removeTitle}" aria-label="${removeTitle}">
                             <i class="far fa-trash-can text-sm"></i>
@@ -514,6 +580,7 @@
                 return;
             }
 
+            verifyGiftEligibility();
             const cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
             const cartItemsList = document.getElementById('cartItemsList');
             const itemCount = document.getElementById('itemCount');
@@ -563,6 +630,7 @@
                         if (typeof updateCartCount === 'function') updateCartCount();
                     }
 
+                    verifyGiftEligibility();
                     loadCart();
                 }
             } catch (error) {
@@ -582,6 +650,7 @@
                         localStorage.setItem('luxe_cart', JSON.stringify(cart));
                         if (typeof updateCartCount === 'function') updateCartCount();
                     }
+                    verifyGiftEligibility();
                     showToast('Formulation removed from bag');
                     loadCart();
                 }
@@ -596,17 +665,22 @@
             let subtotal = 0;
 
             cart.forEach((item) => {
-                const price = parseFloat(item.price) || 0;
-                const qty = parseInt(item.quantity, 10) || 1;
-                subtotal += price * qty;
+                const isGift = Boolean(item.isGift || item.id === 'free-gift-promo');
+                if (!isGift) {
+                    const price = parseFloat(item.price) || 0;
+                    const qty = parseInt(item.quantity, 10) || 1;
+                    subtotal += price * qty;
+                }
             });
 
             // Apply promo discount if active
             const discountAmount = subtotal * discountMultiplier;
             const discountedSubtotal = Math.max(subtotal - discountAmount, 0);
 
-            // Free shipping on orders over EGP 500
-            const shipping = (discountedSubtotal > 500 || discountedSubtotal === 0) ? 0 : 49.00;
+            // Read freeShippingThreshold dynamically from store settings
+            const storeSettings = JSON.parse(localStorage.getItem('luxe_settings') || '{}');
+            const freeShippingThreshold = Number(storeSettings?.freeShippingThreshold) || 500;
+            const shipping = (discountedSubtotal >= freeShippingThreshold || discountedSubtotal === 0) ? 0 : 49.00;
             const tax = discountedSubtotal * 0.10; // 10% Clinical VAT
             const total = discountedSubtotal + tax + shipping;
 
@@ -638,13 +712,16 @@
 
             if (code === 'LUXE10') {
                 discountMultiplier = 0.10;
+                sessionStorage.setItem('koko_promo_code', 'LUXE10');
                 showToast('10% VIP Discount Applied!');
                 calculateTotals();
             } else if (code === 'WELCOME20') {
                 discountMultiplier = 0.20;
+                sessionStorage.setItem('koko_promo_code', 'WELCOME20');
                 showToast('20% Welcome Ritual Discount Applied!');
                 calculateTotals();
             } else {
+                sessionStorage.removeItem('koko_promo_code');
                 showToast('Invalid promo code. Try LUXE10');
             }
         };
@@ -695,6 +772,15 @@
                         window.location.replace('login.html?redirect=cart.html');
                     }, 1200);
                     return;
+                }
+
+                // Restore promo code if saved in sessionStorage
+                const savedPromo = sessionStorage.getItem('koko_promo_code');
+                if (savedPromo) {
+                    const promoInput = document.getElementById('promoCode');
+                    if (promoInput) promoInput.value = savedPromo;
+                    if (savedPromo === 'LUXE10') discountMultiplier = 0.10;
+                    else if (savedPromo === 'WELCOME20') discountMultiplier = 0.20;
                 }
 
                 loadCart();

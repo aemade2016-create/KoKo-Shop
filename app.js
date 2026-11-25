@@ -517,7 +517,7 @@ async function getCategories() {
                     ...data,
                     name: typeof data.name === 'object'
                         ? data.name
-                        : { en: data.name || '', ar: data.nameAr || window.i18n?.translateText?.(data.name) || data.name || '' },
+                        : { en: data.name || '', ar: data.nameAr || window.i18n?.translateText?.(data.name, true) || data.name || '' },
                     image: data.image || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop'
                 };
             });
@@ -535,7 +535,7 @@ async function getCategories() {
                 ...cat,
                 name: typeof cat.name === 'object'
                     ? cat.name
-                    : { en: cat.name || cat, ar: window.i18n?.translateText?.(cat.name || cat) || cat.name || cat }
+                    : { en: cat.name || cat, ar: window.i18n?.translateText?.(cat.name || cat, true) || cat.name || cat }
             }));
         }
     } catch (e) {}
@@ -590,9 +590,9 @@ async function getBanners() {
             return fallbackBanners.map((b) => ({
                 ...b,
                 badge: typeof b.badge === 'object' ? b.badge : { en: b.badge || 'Featured Ritual', ar: 'طقس مميز' },
-                title: typeof b.title === 'object' ? b.title : { en: b.title || '', ar: window.i18n?.translateText?.(b.title) || b.title || '' },
-                subtitle: typeof b.subtitle === 'object' ? b.subtitle : { en: b.subtitle || '', ar: window.i18n?.translateText?.(b.subtitle) || b.subtitle || '' },
-                description: typeof b.description === 'object' ? b.description : { en: b.description || '', ar: window.i18n?.translateText?.(b.description) || b.description || '' },
+                title: typeof b.title === 'object' ? b.title : { en: b.title || '', ar: window.i18n?.translateText?.(b.title, true) || b.title || '' },
+                subtitle: typeof b.subtitle === 'object' ? b.subtitle : { en: b.subtitle || '', ar: window.i18n?.translateText?.(b.subtitle, true) || b.subtitle || '' },
+                description: typeof b.description === 'object' ? b.description : { en: b.description || '', ar: window.i18n?.translateText?.(b.description, true) || b.description || '' },
                 buttonText: typeof b.buttonText === 'object' ? b.buttonText : { en: b.buttonText || 'Shop Now', ar: 'تسوق الآن' },
                 imageUrl: b.imageUrl || b.image || './images/slider-1.jpeg',
                 targetUrl: b.targetUrl || 'products.html'
@@ -758,9 +758,8 @@ async function applyStoreSettings() {
 
         const philTitle = document.getElementById('cmsPhilosophyTitle');
         if (philTitle && settings.homepage?.philosophyTitle) {
-            philTitle.innerHTML = isAr
-                ? resolveText(settings.homepage.philosophyTitle)
-                : `${resolveText(settings.homepage.philosophyTitle)} <br><span class="font-display italic font-normal text-pink-500">Pure Botanical Actives</span>`;
+            const rawTitle = resolveText(settings.homepage.philosophyTitle);
+            philTitle.innerHTML = escapeHtml(rawTitle);
         }
 
         const philDesc = document.getElementById('cmsPhilosophyDesc');
@@ -770,17 +769,15 @@ async function applyStoreSettings() {
 
         const featTitle = document.getElementById('cmsFeaturedTitle');
         if (featTitle && settings.homepage?.featuredTitle) {
-            featTitle.innerHTML = isAr
-                ? resolveText(settings.homepage.featuredTitle)
-                : `Featured <span class="font-display italic font-normal text-pink-500">Creations</span>`;
+            const rawFeatTitle = resolveText(settings.homepage.featuredTitle);
+            featTitle.innerHTML = escapeHtml(rawFeatTitle);
         }
 
         // 2. About Page CMS injection (about.html)
         const abHeroTitle = document.getElementById('cmsAboutHeroTitle');
         if (abHeroTitle && settings.aboutPage?.heroTitle) {
-            abHeroTitle.innerHTML = isAr
-                ? resolveText(settings.aboutPage.heroTitle)
-                : `Where Botanical Wisdom Meets <br class="hidden sm:inline"><span class="font-display italic font-normal text-pink-500">Clinical Formulation</span>`;
+            const rawAbTitle = resolveText(settings.aboutPage.heroTitle);
+            abHeroTitle.innerHTML = escapeHtml(rawAbTitle);
         }
 
         const abHeroDesc = document.getElementById('cmsAboutHeroDesc');
@@ -812,14 +809,14 @@ async function applyStoreSettings() {
         footerEmail.forEach((el) => {
             if (settings.supportEmail) {
                 el.textContent = settings.supportEmail;
-                if (el.tagName === 'A') el.href = `mailto:${settings.supportEmail}`;
+                if (el.tagName === 'A') el.href = `mailto:${encodeURIComponent(settings.supportEmail)}`;
             }
         });
 
         // 4. Social Media Links injection (All pages)
         const fbLinks = document.querySelectorAll('.cms-footer-social-facebook');
         fbLinks.forEach((el) => {
-            const url = settings.socials?.facebook || 'https://facebook.com';
+            const url = safeUrl(settings.socials?.facebook, 'https://facebook.com');
             el.href = url;
             el.target = '_blank';
             el.rel = 'noopener noreferrer';
@@ -827,7 +824,7 @@ async function applyStoreSettings() {
 
         const ttLinks = document.querySelectorAll('.cms-footer-social-tiktok');
         ttLinks.forEach((el) => {
-            const url = settings.socials?.tiktok || 'https://tiktok.com';
+            const url = safeUrl(settings.socials?.tiktok, 'https://tiktok.com');
             el.href = url;
             el.target = '_blank';
             el.rel = 'noopener noreferrer';
@@ -835,7 +832,7 @@ async function applyStoreSettings() {
 
         const igLinks = document.querySelectorAll('.cms-footer-social-instagram');
         igLinks.forEach((el) => {
-            const url = settings.socials?.instagram || 'https://instagram.com';
+            const url = safeUrl(settings.socials?.instagram, 'https://instagram.com');
             el.href = url;
             el.target = '_blank';
             el.rel = 'noopener noreferrer';
@@ -845,7 +842,7 @@ async function applyStoreSettings() {
         waLinks.forEach((el) => {
             let rawWa = settings.socials?.whatsapp || '+201000000000';
             const cleanWa = rawWa.startsWith('http') ? rawWa : `https://wa.me/${rawWa.replace(/\D/g, '')}`;
-            el.href = cleanWa;
+            el.href = safeUrl(cleanWa, 'https://wa.me/201000000000');
             el.target = '_blank';
             el.rel = 'noopener noreferrer';
         });
@@ -925,7 +922,7 @@ function isLoggedIn() {
 
 function isAdmin() {
     var user = getCurrentUser();
-    return user && (user.isAdmin === true || user.email === 'aemade2016@gmail.com');
+    return user && (user.isAdmin === true || user.role === 'admin' || user.email === 'aemade2016@gmail.com');
 }
 
 function logout() {
@@ -990,31 +987,56 @@ function checkAdminCredentials(email) {
 }
 
 // ============================================
-// 6. TOAST NOTIFICATIONS
+// 6. TOAST NOTIFICATIONS (ENHANCED MODERN HIGH-CONTRAST)
 // ============================================
-window.showToast = function (message, type) {
-    var toast = document.getElementById('toast');
-    var toastMessage = document.getElementById('toastMessage');
+window.showToast = function (message, type = 'success') {
+    let toast = document.getElementById('toast');
+    let toastMessage = document.getElementById('toastMessage');
+    let toastIcon = document.getElementById('toastIcon');
 
-    if (!toast || !toastMessage) return;
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toast';
+        toast.className = 'fixed bottom-8 right-8 px-5 py-3.5 rounded-2xl shadow-xl transform translate-y-32 transition-transform duration-300 z-50 flex items-center space-x-3 pointer-events-none';
+        toast.innerHTML = `
+            <i id="toastIcon" class="fas fa-check-circle text-lg text-white"></i>
+            <span id="toastMessage" class="text-xs font-semibold text-white"></span>
+        `;
+        document.body.appendChild(toast);
+        toastMessage = document.getElementById('toastMessage');
+        toastIcon = document.getElementById('toastIcon');
+    }
 
-    toastMessage.textContent = message;
+    if (toastMessage) toastMessage.textContent = message;
 
-    // Change color based on type
+    // Remove legacy conflicting classes
+    toast.classList.remove(
+        'bg-white', 'dark:bg-slate-800', 
+        'text-gray-800', 'dark:text-white', 
+        'border-pink-200', 'dark:border-slate-700', 
+        'bg-green-500', 'bg-red-500', 
+        'bg-rose-500', 'bg-emerald-500'
+    );
+
     if (type === 'error') {
-        toast.classList.remove('bg-green-500');
-        toast.classList.add('bg-red-500');
+        toast.classList.add('bg-rose-500', 'text-white', 'border', 'border-rose-600');
+        if (toastIcon) {
+            toastIcon.className = 'fas fa-exclamation-circle text-white text-lg';
+        }
     } else {
-        toast.classList.remove('bg-red-500');
-        toast.classList.add('bg-green-500');
+        toast.classList.add('bg-emerald-500', 'text-white', 'border', 'border-emerald-600');
+        if (toastIcon) {
+            toastIcon.className = 'fas fa-check-circle text-white text-lg';
+        }
     }
 
     toast.style.transform = 'translateY(0)';
 
-    setTimeout(function () {
+    if (toast._hideTimeout) clearTimeout(toast._hideTimeout);
+    toast._hideTimeout = setTimeout(function () {
         toast.style.transform = 'translateY(8rem)';
-    }, 3000);
-}
+    }, 3200);
+};
 
 function highlightActivePage() {
     var rawPage = window.location.pathname.split('/').pop() || 'index.html';
@@ -1363,14 +1385,14 @@ async function updateGiftWidgetUI() {
     const giftTitle = (typeof gift.name === 'object') ? ((isAr ? gift.name.ar : gift.name.en) || gift.name.en || gift.name.ar || 'Mini Splash Khamrah') : String(gift.name || 'Mini Splash Khamrah');
     const minSpend = Number(gift.minSpend) || 500;
     const origPrice = Number(gift.originalPrice) || 122.50;
-    const giftImage = gift.image || './images/slider-1.jpeg';
+    const giftImage = safeUrl(gift.image, './images/slider-1.jpeg');
 
     // Update Image & Title & Price in widget
     const titleEl = document.getElementById('giftWidgetTitle');
     const imgEl = document.getElementById('giftWidgetImg');
     const oldPriceEl = document.getElementById('giftWidgetOldPrice');
     if (titleEl) titleEl.textContent = giftTitle;
-    if (imgEl) imgEl.src = giftImage;
+    if (imgEl) imgEl.src = safeUrl(giftImage, './images/slider-1.jpeg');
     if (oldPriceEl) oldPriceEl.textContent = isAr ? `${origPrice.toFixed(2)} ج.م` : `LE ${origPrice.toFixed(2)}`;
 
     // Compute cart total excluding gifts
@@ -1503,7 +1525,7 @@ async function claimFreeGift() {
         name: giftTitle,
         price: 0,
         originalPrice: Number(gift.originalPrice) || 122.50,
-        image: gift.image || './images/slider-1.jpeg',
+        image: safeUrl(gift.image, './images/slider-1.jpeg'),
         quantity: 1,
         category: 'Free Gift',
         isGift: true
@@ -1910,7 +1932,7 @@ function initLiveChatSystem() {
                             <!-- Card 2: Argan Conditioner (Behind / Angled) -->
                             <div class="absolute right-8 top-1 bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-2 shadow-lg w-28 text-center transform rotate-6 hover:rotate-0 transition duration-300">
                                 <div class="w-12 h-14 mx-auto overflow-hidden rounded-lg mb-1 bg-pink-50 dark:bg-slate-700">
-                                    <img src="./images/slider 2.jpeg" alt="Argan Conditioner" class="w-full h-full object-cover">
+                                    <img src="./images/slider-1.jpeg" alt="Argan Conditioner" class="w-full h-full object-cover">
                                 </div>
                                 <p class="text-[9px] font-bold text-gray-800 dark:text-gray-200 truncate">Argan Conditioner</p>
                             </div>
@@ -2163,7 +2185,7 @@ function renderLiveChatMessages(messages) {
             return `
                 <div class="flex flex-col items-start" dir="rtl">
                     <div class="text-[9px] text-gray-400 mb-1 flex items-center gap-1 font-mono">
-                        <span class="font-bold text-pink-600">${senderLabel}</span>
+                        <span class="font-bold text-pink-600">${escapeChatHtml(senderLabel)}</span>
                         <span>${time}</span>
                     </div>
                     <div class="max-w-[85%] bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3.5 py-2.5 rounded-2xl rounded-tr-xs shadow-md text-xs leading-relaxed font-sans whitespace-pre-line">
@@ -2176,7 +2198,7 @@ function renderLiveChatMessages(messages) {
                 <div class="flex flex-col items-end" dir="rtl">
                     <div class="text-[9px] text-gray-400 mb-1 flex items-center gap-1.5 font-mono">
                         <span>${time}</span>
-                        <span class="font-bold text-gray-700 dark:text-gray-300">${senderLabel}</span>
+                        <span class="font-bold text-gray-700 dark:text-gray-300">${escapeChatHtml(senderLabel)}</span>
                     </div>
                     <div class="max-w-[85%] bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-200 px-3.5 py-2.5 rounded-2xl rounded-tl-xs shadow-sm border border-pink-100 dark:border-slate-700 text-xs leading-relaxed font-sans whitespace-pre-line">
                         ${escapeChatHtml(msg.text)}

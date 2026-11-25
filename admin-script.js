@@ -122,7 +122,10 @@ const verifyAdminAccess = async () => {
         }
 
         // Load data only after authorization is verified from Firestore
-        loadDashboardOverview();
+        await loadOrdersTable();
+        loadStoreSettingsForm();
+        await loadUsersTable();
+        await loadDashboardOverview();
         loadProductsTable();
         loadCategoriesTable();
         fetchProducts();
@@ -143,6 +146,18 @@ const verifyAdminAccess = async () => {
 const parseNumeric = (value) => {
     const parsed = Number(value);
     return isNaN(parsed) ? 0 : parsed;
+};
+
+const parseAnyDate = (val) => {
+    if (!val) return null;
+    try {
+        if (typeof val?.toDate === 'function') return val.toDate();
+        if (typeof val?.seconds === 'number') return new Date(val.seconds * 1000);
+        const d = new Date(val);
+        return isNaN(d.getTime()) ? null : d;
+    } catch (e) {
+        return null;
+    }
 };
 
 const calculateDiscountDetails = (originalPrice, salePrice) => {
@@ -229,7 +244,7 @@ const getCategories = async () => {
                 const data = docItem.data();
                 const name = typeof data.name === 'object'
                     ? data.name
-                    : { en: data.name || '', ar: data.nameAr || window.i18n?.translateText?.(data.name) || data.name || '' };
+                    : { en: data.name || '', ar: data.nameAr || window.i18n?.translateText?.(data.name, true) || data.name || '' };
                 return {
                     id: docItem.id,
                     ...data,
@@ -250,7 +265,7 @@ const getCategories = async () => {
                 id: cat.id || `cat-${idx + 1}`,
                 name: typeof cat.name === 'object'
                     ? cat.name
-                    : { en: cat.name || cat, ar: window.i18n?.translateText?.(cat.name || cat) || cat.name || cat },
+                    : { en: cat.name || cat, ar: window.i18n?.translateText?.(cat.name || cat, true) || cat.name || cat },
                 image: cat.image || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop'
             }));
         }
@@ -298,11 +313,17 @@ const saveCategory = async (categoryData) => {
         const { doc, setDoc, serverTimestamp } = firestoreModule;
         const { db } = configModule;
 
-        await setDoc(doc(db, 'categories', catId), {
+        const categoryPayload = {
             ...normalizedData,
-            updatedAt: serverTimestamp(),
-            createdAt: normalizedData.createdAt || serverTimestamp()
-        }, { merge: true });
+            updatedAt: serverTimestamp()
+        };
+        if (!existingCategory) {
+            categoryPayload.createdAt = serverTimestamp();
+        } else if (existingCategory.createdAt) {
+            categoryPayload.createdAt = existingCategory.createdAt;
+        }
+
+        await setDoc(doc(db, 'categories', catId), categoryPayload, { merge: true });
 
         // CASCADE UPDATE: If category name changed, update all products belonging to this category
         if (oldNameEn && normalizedData.name.en && oldNameEn !== normalizedData.name.en) {
@@ -352,7 +373,7 @@ const syncCategoriesFromProducts = async () => {
         const existing = categories.find((c) => (typeof c.name === 'object' ? c.name.en === name : c.name === name));
         return {
             id: existing ? existing.id : `cat-${idx + 1}`,
-            name: existing ? existing.name : { en: name, ar: window.i18n?.translateText?.(name) || name },
+            name: existing ? existing.name : { en: name, ar: window.i18n?.translateText?.(name, true) || name },
             image: existing ? existing.image : 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=600&fit=crop'
         };
     });
@@ -395,9 +416,9 @@ const getBanners = async () => {
             return stored.map((b) => ({
                 ...b,
                 badge: typeof b.badge === 'object' ? b.badge : { en: b.badge || "Featured Ritual", ar: "طقس مميز" },
-                title: typeof b.title === 'object' ? b.title : { en: b.title || "", ar: window.i18n?.translateText?.(b.title) || b.title || "" },
-                subtitle: typeof b.subtitle === 'object' ? b.subtitle : { en: b.subtitle || "", ar: window.i18n?.translateText?.(b.subtitle) || b.subtitle || "" },
-                description: typeof b.description === 'object' ? b.description : { en: b.description || "", ar: window.i18n?.translateText?.(b.description) || b.description || "" },
+                title: typeof b.title === 'object' ? b.title : { en: b.title || "", ar: window.i18n?.translateText?.(b.title, true) || b.title || "" },
+                subtitle: typeof b.subtitle === 'object' ? b.subtitle : { en: b.subtitle || "", ar: window.i18n?.translateText?.(b.subtitle, true) || b.subtitle || "" },
+                description: typeof b.description === 'object' ? b.description : { en: b.description || "", ar: window.i18n?.translateText?.(b.description, true) || b.description || "" },
                 buttonText: typeof b.buttonText === 'object' ? b.buttonText : { en: b.buttonText || "Shop Now", ar: "تسوق الآن" }
             }));
         }
@@ -431,22 +452,30 @@ const saveBanner = async (bannerData) => {
         id: bannerId
     };
 
+    let banners = await getBanners();
+    const existingBanner = banners.find((b) => String(b.id) === bannerId);
+
     try {
         const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
         const configModule = await import('./firebase-config.js');
         const { doc, setDoc, serverTimestamp } = firestoreModule;
         const { db } = configModule;
 
-        await setDoc(doc(db, 'banners', bannerId), {
+        const bannerPayload = {
             ...normalizedData,
-            updatedAt: serverTimestamp(),
-            createdAt: normalizedData.createdAt || serverTimestamp()
-        }, { merge: true });
+            updatedAt: serverTimestamp()
+        };
+        if (!existingBanner) {
+            bannerPayload.createdAt = serverTimestamp();
+        } else if (existingBanner.createdAt) {
+            bannerPayload.createdAt = existingBanner.createdAt;
+        }
+
+        await setDoc(doc(db, 'banners', bannerId), bannerPayload, { merge: true });
     } catch (err) {
         console.warn('Firestore banner sync fallback:', err);
     }
 
-    let banners = await getBanners();
     const existingIndex = banners.findIndex((b) => String(b.id) === bannerId);
     if (existingIndex > -1) {
         banners[existingIndex] = { ...banners[existingIndex], ...normalizedData };
@@ -760,7 +789,8 @@ const showTab = (tabName) => {
 // Recent Order Row Builder
 const createRecentOrderRow = (order) => {
     const { orderId = 'ORD-00', customerInfo = {}, pricing = {}, status = 'pending', createdAt } = order;
-    const dateStr = createdAt ? new Date(createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recent';
+    const parsedDate = parseAnyDate(createdAt);
+    const dateStr = parsedDate ? parsedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recent';
     const total = Number(pricing.total || 0).toFixed(2);
 
     const statusBadge = status === 'completed' || status === 'delivered'
@@ -890,7 +920,7 @@ const createProductTableRow = (product, index = 0) => {
 const createCategoryTableRow = (category) => {
     const { id, name = '', image = '' } = category;
     const nameEn = typeof name === 'object' ? (name.en || '') : name;
-    const nameAr = typeof name === 'object' ? (name.ar || '') : (window.i18n?.translateText?.(name) || name);
+    const nameAr = typeof name === 'object' ? (name.ar || '') : (window.i18n?.translateText?.(name, true) || name);
     return `
         <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
             <td class="px-5 py-3">
@@ -916,9 +946,9 @@ const createCategoryTableRow = (category) => {
 const createBannerTableRow = (banner) => {
     const { id, title = '', subtitle = '', imageUrl = '', targetUrl = 'products.html' } = banner;
     const titleEn = typeof title === 'object' ? (title.en || '') : title;
-    const titleAr = typeof title === 'object' ? (title.ar || '') : (window.i18n?.translateText?.(title) || '');
+    const titleAr = typeof title === 'object' ? (title.ar || '') : (window.i18n?.translateText?.(title, true) || '');
     const subtitleEn = typeof subtitle === 'object' ? (subtitle.en || '') : subtitle;
-    const subtitleAr = typeof subtitle === 'object' ? (subtitle.ar || '') : (window.i18n?.translateText?.(subtitle) || '');
+    const subtitleAr = typeof subtitle === 'object' ? (subtitle.ar || '') : (window.i18n?.translateText?.(subtitle, true) || '');
 
     return `
         <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
@@ -950,11 +980,15 @@ const createBannerTableRow = (banner) => {
 
 // Review Table Row Builder
 const createReviewTableRow = (review) => {
-    const { id, customerName = 'Customer', rating = 5, text = '', profileImage = '' } = review;
+    const id = review.id || `review-${Date.now()}`;
+    const customerName = review.customerName || review.userName || review.author || 'Customer';
+    const rating = parseInt(review.rating, 10) || 5;
+    const text = review.text || review.comment || review.quote || '';
+    const profileImage = review.profileImage || './images/slider-1.jpeg';
     return `
         <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
             <td class="px-5 py-3 flex items-center space-x-2.5">
-                <img src="${escapeHtml(safeUrl(profileImage, 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80'))}" alt="${escapeHtml(customerName)}" class="w-8 h-8 rounded-full object-cover">
+                <img src="${escapeHtml(safeUrl(profileImage, './images/slider-1.jpeg'))}" alt="${escapeHtml(customerName)}" class="w-8 h-8 rounded-full object-cover">
                 <span class="font-semibold text-gray-900 dark:text-white">${escapeHtml(customerName)}</span>
             </td>
             <td class="px-5 py-3 text-amber-400 text-xs">★ ${rating}.0</td>
@@ -971,7 +1005,8 @@ const createReviewTableRow = (review) => {
 // Order Table Row Builder
 const createOrderTableRow = (order, index = 0) => {
     const { orderId = 'ORD-00', createdAt, customerInfo = {}, pricing = {}, status = 'pending' } = order;
-    const dateStr = createdAt ? new Date(createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent';
+    const parsedDate = parseAnyDate(createdAt);
+    const dateStr = parsedDate ? parsedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent';
     const total = Number(pricing.total || 0).toFixed(2);
     const detailsId = `order-details-row-${index}-${orderId.replace(/[^a-zA-Z0-9]/g, '_')}`;
     const isAr = window.i18n?.currentLang === 'ar';
@@ -1264,7 +1299,7 @@ const loadCategoriesTable = async () => {
         const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
         catSelect.innerHTML = categories.map((c) => {
             const nameEn = typeof c.name === 'object' ? (c.name.en || '') : c.name;
-            const nameAr = typeof c.name === 'object' ? (c.name.ar || '') : (window.i18n?.translateText?.(c.name) || c.name);
+            const nameAr = typeof c.name === 'object' ? (c.name.ar || '') : (window.i18n?.translateText?.(c.name, true) || c.name);
             const label = isAr ? `${nameAr} (${nameEn})` : `${nameEn} (${nameAr})`;
             return `<option value="${escapeHtml(nameEn)}">${escapeHtml(label)}</option>`;
         }).join('');
@@ -1317,7 +1352,11 @@ const loadOrdersTable = async () => {
                 const key = o.orderId || o.id;
                 mergedMap.set(key, { ...mergedMap.get(key), ...o });
             });
-            orders = Array.from(mergedMap.values()).sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            orders = Array.from(mergedMap.values()).sort((a, b) => {
+                const timeA = parseAnyDate(a.createdAt)?.getTime() || 0;
+                const timeB = parseAnyDate(b.createdAt)?.getTime() || 0;
+                return timeB - timeA;
+            });
             saveOrders(orders);
         }
     } catch (err) {
@@ -1795,6 +1834,18 @@ const deleteReview = async (reviewId) => {
         let reviews = await getReviews();
         reviews = reviews.filter((r) => String(r.id) !== String(reviewId));
         await saveReviews(reviews);
+
+        // Delete from Firestore
+        try {
+            const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+            const configModule = await import('./firebase-config.js');
+            const { doc, deleteDoc } = firestoreModule;
+            const { db } = configModule;
+            await deleteDoc(doc(db, 'reviews', String(reviewId)));
+        } catch (fsErr) {
+            console.warn('Firestore review delete notice:', fsErr);
+        }
+
         showToast('Review removed');
         loadReviewsTable();
     }
@@ -2367,14 +2418,29 @@ document.addEventListener('DOMContentLoaded', () => {
             const newReview = {
                 id: document.getElementById('reviewId').value || `review-${Date.now()}`,
                 customerName: document.getElementById('reviewCustomerName').value.trim(),
-                profileImage: document.getElementById('reviewProfileImage').value.trim(),
+                profileImage: document.getElementById('reviewProfileImage').value.trim() || './images/slider-1.jpeg',
                 rating: parseInt(document.getElementById('reviewRating').value, 10) || 5,
-                text: document.getElementById('reviewText').value.trim()
+                text: document.getElementById('reviewText').value.trim(),
+                createdAt: new Date().toISOString()
             };
 
             const reviews = await getReviews();
             reviews.push(newReview);
             await saveReviews(reviews);
+
+            // Save to Firestore
+            try {
+                const firestoreModule = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+                const configModule = await import('./firebase-config.js');
+                const { doc, setDoc, serverTimestamp } = firestoreModule;
+                const { db } = configModule;
+                await setDoc(doc(db, 'reviews', newReview.id), {
+                    ...newReview,
+                    createdAt: serverTimestamp()
+                }, { merge: true });
+            } catch (fsErr) {
+                console.warn('Firestore review save notice:', fsErr);
+            }
 
             resetReviewForm();
             showToast('Review saved');
@@ -2527,10 +2593,6 @@ document.addEventListener('DOMContentLoaded', () => {
             closeMobileSidebar();
         }
     });
-
-    // Load initial settings and users
-    loadStoreSettingsForm();
-    loadUsersTable();
 });
 
 // ============================================
@@ -2538,7 +2600,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================
 window.showTab = showTab;
 window.logout = logout;
-window.initMockData = initMockData;
 window.showToast = showToast;
 
 // Products
@@ -3041,6 +3102,7 @@ const formatChatTime = (isoString) => {
 
 // Export to window
 window.verifyAdminAccess = verifyAdminAccess;
+window.verifyAdminAuth = verifyAdminAccess;
 window.loadInboxTab = loadInboxTab;
 window.renderInboxThreads = renderInboxThreads;
 window.selectInboxThread = selectInboxThread;

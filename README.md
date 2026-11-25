@@ -79,7 +79,6 @@ KoKo-Shop/
 │   ├── i18n.js                 # محرك الترجمة الفورية (العربية / الإنجليزية)
 │   ├── firebase-config.js      # إعدادات واتصال Firebase SDK v10
 │   ├── firebase-auth.js        # عمليات المصادقة وتسجيل الدخول الاجتماعي
-│   └── mock-data.js            # أداة حقن بيانات تجريبية (للاختبار)
 │
 ├── 🎨 Styling & Config
 │   ├── styles.css              # التنسيقات المخصصة والخطوط

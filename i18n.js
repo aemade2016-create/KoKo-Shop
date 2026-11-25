@@ -635,6 +635,16 @@
         'Shop All': 'تسوق الكل',
         'Shop All Products': 'جميع المنتجات',
         'Serums': 'السيروم',
+        'Serum': 'سيروم',
+        'Moisturizers': 'المرطبات',
+        'Moisturizer': 'مرطب',
+        'Cleansers': 'الغسول والمنظفات',
+        'Cleanser': 'غسول',
+        'Toner': 'تونر',
+        'Sunscreen': 'واقي شمس',
+        'Eye Cream': 'كريم العين',
+        'Mask': 'ماسك',
+        'Oil': 'زيت',
         'Serums & Elixirs': 'السيروم والإكسير',
         'Moisturizers': 'المرطبات',
         'Barrier Creams': 'كريمات حماية البشرة',
@@ -1200,7 +1210,6 @@
         // Admin Studio & Dashboard Comprehensive Translations
         'Studio Overview': 'نظرة عامة على المتجر',
         'Real-time performance metrics and botanical orders': 'مؤشرات الأداء اللحظية والطلبات المسجلة',
-        'Load Demo Data': 'تحميل بيانات تجريبية',
         'Active Formulations': 'مستحضرات نشطة',
         'Total Orders Placed': 'إجمالي الطلبات المسجلة',
         'Registered Accounts': 'الحسابات المسجلة',
@@ -1299,15 +1308,29 @@
         return fallback || key;
     };
 
-    // Direct String Translator Helper
-    const translateText = (text) => {
-        if (!text || typeof text !== 'string') return text;
+    // Direct String Translator Helper (supports forceAr and language awareness)
+    const translateText = (text, forceAr = false) => {
+        if (!text) return text;
+        if (typeof text === 'object') {
+            const currentLang = typeof getCurrentLanguage === 'function' ? getCurrentLanguage() : 'ar';
+            if (forceAr) return text.ar || text.en || '';
+            return text[currentLang] || text.en || text.ar || '';
+        }
+        if (typeof text !== 'string') return text;
+        const currentLang = typeof getCurrentLanguage === 'function' ? getCurrentLanguage() : 'ar';
+        if (currentLang === 'en' && !forceAr) {
+            return text;
+        }
         const trimmed = text.trim();
         return directTextMap[trimmed] || text;
     };
 
     const reverseTranslateText = (text) => {
-        if (!text || typeof text !== 'string') return text;
+        if (!text) return text;
+        if (typeof text === 'object') {
+            return text.en || text.ar || '';
+        }
+        if (typeof text !== 'string') return text;
         const trimmed = text.trim();
         return reverseTextMap[trimmed] || text;
     };
@@ -1319,7 +1342,7 @@
         if (typeof field === 'object') {
             return field[lang] || field.en || field.ar || fallback;
         }
-        return lang === 'ar' ? (translateText(field) || field) : (reverseTranslateText(field) || field);
+        return lang === 'ar' ? (translateText(field, true) || field) : (reverseTranslateText(field) || field);
     };
 
     const translateProduct = (product, lang = getCurrentLanguage()) => {

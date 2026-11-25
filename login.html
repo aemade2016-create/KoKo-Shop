@@ -515,11 +515,29 @@
                 const result = await signInWithEmail(email, password);
 
                 if (result.success) {
-                    const isAdmin = (email === 'aemade2016@gmail.com');
+                    let isAdmin = (email === 'aemade2016@gmail.com');
+                    let displayName = result.user.displayName || 'Client';
+                    let userRole = isAdmin ? 'admin' : 'customer';
+
+                    try {
+                        const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+                        const { db } = await import('./firebase-config.js');
+                        const userSnap = await getDoc(doc(db, 'users', result.user.uid));
+                        if (userSnap.exists()) {
+                            const uData = userSnap.data();
+                            isAdmin = (uData.role === 'admin' || uData.isAdmin === true || email === 'aemade2016@gmail.com');
+                            userRole = uData.role || (isAdmin ? 'admin' : 'customer');
+                            if (uData.name) displayName = uData.name;
+                        }
+                    } catch (dbErr) {
+                        console.warn('Firestore user fetch on login notice:', dbErr);
+                    }
+
                     const userData = {
                         uid: result.user.uid,
                         email: result.user.email,
-                        name: result.user.displayName || 'Client',
+                        name: displayName,
+                        role: userRole,
                         isAdmin,
                         createdAt: new Date().toISOString()
                     };

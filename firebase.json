@@ -13,8 +13,7 @@
             ".git/**",
             ".vscode/**",
             "docs/**",
-            "README.md",
-            "setup.html"
+            "README.md"
         ],
         "headers": [
             {

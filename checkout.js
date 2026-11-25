@@ -19,10 +19,28 @@
     const safeUrl = (url, fallback = './images/slider-1.jpeg') => {
         if (!url || typeof url !== 'string') return fallback;
         const trimmed = url.trim();
-        if (/^(?:javascript|data:text\/html):/i.test(trimmed)) {
+        const lower = trimmed.toLowerCase();
+        if (
+            lower.startsWith('javascript:') ||
+            lower.startsWith('vbscript:') ||
+            lower.startsWith('data:text/html') ||
+            lower.startsWith('data:application/')
+        ) {
             return fallback;
         }
-        return trimmed;
+        if (
+            lower.startsWith('https://') ||
+            lower.startsWith('http://') ||
+            lower.startsWith('./') ||
+            lower.startsWith('../') ||
+            lower.startsWith('/') ||
+            lower.startsWith('images/') ||
+            lower.startsWith('data:image/') ||
+            /^[a-zA-Z0-9_\-\.\/]+$/.test(trimmed)
+        ) {
+            return trimmed;
+        }
+        return fallback;
     };
 
     // Attach to window for global reuse
@@ -112,6 +130,19 @@
         `;
     };
 
+    const getAppliedPromoDiscount = (subtotal) => {
+        const code = (sessionStorage.getItem('koko_promo_code') || localStorage.getItem('koko_promo_code') || '').trim().toUpperCase();
+        let multiplier = 0;
+        if (code === 'LUXE10') multiplier = 0.10;
+        else if (code === 'WELCOME20') multiplier = 0.20;
+        const discountAmount = multiplier > 0 ? (subtotal * multiplier) : 0;
+        return {
+            code: multiplier > 0 ? code : null,
+            multiplier,
+            discountAmount
+        };
+    };
+
     const calculateTotals = (cart = null) => {
         try {
             const items = cart !== null ? cart : getCartItems();
@@ -126,9 +157,14 @@
                 }
             });
 
-            const shipping = (subtotal > 500 || subtotal === 0) ? 0 : 49.00;
-            const tax = subtotal * 0.10;
-            const total = subtotal + shipping + tax;
+            const { code, discountAmount } = getAppliedPromoDiscount(subtotal);
+            const discountedSubtotal = Math.max(0, subtotal - discountAmount);
+
+            const storeSettings = JSON.parse(localStorage.getItem('luxe_settings') || '{}');
+            const freeShippingThreshold = Number(storeSettings?.freeShippingThreshold) || 500;
+            const shipping = (discountedSubtotal >= freeShippingThreshold || discountedSubtotal === 0) ? 0 : 49.00;
+            const tax = discountedSubtotal * 0.10;
+            const total = discountedSubtotal + shipping + tax;
 
             const subtotalEl = document.getElementById('subtotal');
             const shippingEl = document.getElementById('shipping');
@@ -138,7 +174,13 @@
             const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
             const formatLocal = (amount) => isAr ? `${amount.toFixed(2)} ج.م` : `EGP ${amount.toFixed(2)}`;
 
-            if (subtotalEl) subtotalEl.textContent = formatLocal(subtotal);
+            if (subtotalEl) {
+                if (discountAmount > 0) {
+                    subtotalEl.innerHTML = `<span class="line-through text-xs text-gray-400 mr-1.5">${formatLocal(subtotal)}</span> <span class="text-pink-600 font-bold">${formatLocal(discountedSubtotal)}</span> <span class="text-[10px] text-emerald-600 font-semibold block">(${code}: -${formatLocal(discountAmount)})</span>`;
+                } else {
+                    subtotalEl.textContent = formatLocal(subtotal);
+                }
+            }
             if (shippingEl) shippingEl.textContent = shipping > 0 ? formatLocal(shipping) : (isAr ? 'مجاناً' : 'FREE');
             if (taxEl) taxEl.textContent = formatLocal(tax);
             if (totalEl) totalEl.textContent = formatLocal(total);
@@ -302,7 +344,7 @@
             if (!auth) return null;
             const { onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js');
             return await new Promise((resolve) => {
-                const timer = setTimeout(() => resolve(null), 1500);
+                const timer = setTimeout(() => resolve(null), 4000);
                 const unsubscribe = onAuthStateChanged(auth, (user) => {
                     clearTimeout(timer);
                     unsubscribe();
@@ -351,7 +393,13 @@
         const db = configModule?.db;
         const { doc, getDoc, collection, query, where, getDocs } = firestoreModule || {};
 
+        const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+        const storeSettings = JSON.parse(localStorage.getItem('luxe_settings') || '{}');
+        const minSpend = Number(storeSettings?.gift?.minSpend) || 500;
+        const freeShippingThreshold = Number(storeSettings?.freeShippingThreshold) || 500;
+
         let subtotal = 0;
+        let paidSubtotal = 0;
         const verifiedItems = [];
 
         // Local products cache fallback
@@ -365,28 +413,55 @@
             localProducts = [];
         }
 
+        // First pass: verify prices of paid items
         for (const item of cart) {
             const isGift = Boolean(item.isGift || item.id === 'free-gift-promo');
+            if (isGift) continue;
+
             const quantity = Math.max(1, parseInt(item.quantity, 10) || 1);
             let unitPrice = 0;
             let productName = item.name;
             if (typeof productName === 'object' && productName !== null) {
-                const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
                 productName = isAr ? (productName.ar || productName.en) : (productName.en || productName.ar);
             }
             productName = productName || 'Ritual Formulation';
-
             let productImage = item.image || './images/slider-1.jpeg';
 
-            if (!isGift) {
-                let foundPrice = null;
+            let foundPrice = null;
 
-                // 1. Try Firestore direct doc lookup if db is available
-                if (db && doc && getDoc) {
+            // 1. Try Firestore direct doc lookup if db is available
+            if (db && doc && getDoc) {
+                try {
+                    const snap = await getDoc(doc(db, 'products', String(item.id)));
+                    if (snap.exists()) {
+                        const pData = snap.data();
+                        const sale = parseFloat(pData.salePrice);
+                        const reg = parseFloat(pData.price);
+                        if (!isNaN(sale) && sale > 0) foundPrice = sale;
+                        else if (!isNaN(reg) && reg >= 0) foundPrice = reg;
+                        if (pData.name) {
+                            if (typeof pData.name === 'string') productName = pData.name;
+                            else if (typeof pData.name === 'object') {
+                                productName = isAr ? (pData.name.ar || pData.name.en) : (pData.name.en || pData.name.ar);
+                            }
+                        }
+                        if (pData.image) productImage = pData.image;
+                    }
+                } catch (snapErr) {
+                    console.warn(`Direct doc lookup failed for ${item.id}:`, snapErr);
+                }
+
+                // 2. Query lookup by 'id' field
+                if (foundPrice === null && collection && query && where && getDocs) {
                     try {
-                        const snap = await getDoc(doc(db, 'products', String(item.id)));
-                        if (snap.exists()) {
-                            const pData = snap.data();
+                        let q = query(collection(db, 'products'), where('id', '==', String(item.id)));
+                        let qSnap = await getDocs(q);
+                        if (qSnap.empty && !isNaN(Number(item.id))) {
+                            q = query(collection(db, 'products'), where('id', '==', Number(item.id)));
+                            qSnap = await getDocs(q);
+                        }
+                        if (!qSnap.empty) {
+                            const pData = qSnap.docs[0].data();
                             const sale = parseFloat(pData.salePrice);
                             const reg = parseFloat(pData.price);
                             if (!isNaN(sale) && sale > 0) foundPrice = sale;
@@ -394,71 +469,39 @@
                             if (pData.name) {
                                 if (typeof pData.name === 'string') productName = pData.name;
                                 else if (typeof pData.name === 'object') {
-                                    const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
                                     productName = isAr ? (pData.name.ar || pData.name.en) : (pData.name.en || pData.name.ar);
                                 }
                             }
                             if (pData.image) productImage = pData.image;
                         }
-                    } catch (snapErr) {
-                        console.warn(`Direct doc lookup failed for ${item.id}:`, snapErr);
-                    }
-
-                    // 2. If not found by doc id, try query by 'id' field in products collection
-                    if (foundPrice === null && collection && query && where && getDocs) {
-                        try {
-                            let q = query(collection(db, 'products'), where('id', '==', String(item.id)));
-                            let qSnap = await getDocs(q);
-                            if (qSnap.empty && !isNaN(Number(item.id))) {
-                                q = query(collection(db, 'products'), where('id', '==', Number(item.id)));
-                                qSnap = await getDocs(q);
-                            }
-                            if (!qSnap.empty) {
-                                const pData = qSnap.docs[0].data();
-                                const sale = parseFloat(pData.salePrice);
-                                const reg = parseFloat(pData.price);
-                                if (!isNaN(sale) && sale > 0) foundPrice = sale;
-                                else if (!isNaN(reg) && reg >= 0) foundPrice = reg;
-                                if (pData.name) {
-                                    if (typeof pData.name === 'string') productName = pData.name;
-                                    else if (typeof pData.name === 'object') {
-                                        const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
-                                        productName = isAr ? (pData.name.ar || pData.name.en) : (pData.name.en || pData.name.ar);
-                                    }
-                                }
-                                if (pData.image) productImage = pData.image;
-                            }
-                        } catch (qErr) {
-                            console.warn(`Query lookup failed for ${item.id}:`, qErr);
-                        }
+                    } catch (qErr) {
+                        console.warn(`Query lookup failed for ${item.id}:`, qErr);
                     }
                 }
-
-                // 3. Fallback to local products array
-                if (foundPrice === null && localProducts.length > 0) {
-                    const localMatch = localProducts.find((p) => String(p.id) === String(item.id));
-                    if (localMatch) {
-                        const sale = parseFloat(localMatch.salePrice);
-                        const reg = parseFloat(localMatch.price);
-                        if (!isNaN(sale) && sale > 0) foundPrice = sale;
-                        else if (!isNaN(reg) && reg >= 0) foundPrice = reg;
-                        if (localMatch.name) {
-                            if (typeof localMatch.name === 'string') productName = localMatch.name;
-                            else if (typeof localMatch.name === 'object') {
-                                const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
-                                productName = isAr ? (localMatch.name.ar || localMatch.name.en) : (localMatch.name.en || localMatch.name.ar);
-                            }
-                        }
-                        if (localMatch.image) productImage = localMatch.image;
-                    }
-                }
-
-                // 4. Final fallback to cart item price
-                unitPrice = (foundPrice !== null) ? foundPrice : (parseFloat(item.salePrice !== undefined && item.salePrice !== null ? item.salePrice : item.price) || 0);
             }
 
+            // 3. Fallback to local products array
+            if (foundPrice === null && localProducts.length > 0) {
+                const localMatch = localProducts.find((p) => String(p.id) === String(item.id));
+                if (localMatch) {
+                    const sale = parseFloat(localMatch.salePrice);
+                    const reg = parseFloat(localMatch.price);
+                    if (!isNaN(sale) && sale > 0) foundPrice = sale;
+                    else if (!isNaN(reg) && reg >= 0) foundPrice = reg;
+                    if (localMatch.name) {
+                        if (typeof localMatch.name === 'string') productName = localMatch.name;
+                        else if (typeof localMatch.name === 'object') {
+                            productName = isAr ? (localMatch.name.ar || localMatch.name.en) : (localMatch.name.en || localMatch.name.ar);
+                        }
+                    }
+                    if (localMatch.image) productImage = localMatch.image;
+                }
+            }
+
+            unitPrice = (foundPrice !== null) ? foundPrice : (parseFloat(item.salePrice !== undefined && item.salePrice !== null ? item.salePrice : item.price) || 0);
             const itemTotal = unitPrice * quantity;
             subtotal += itemTotal;
+            paidSubtotal += itemTotal;
 
             verifiedItems.push({
                 productId: String(item.id || item.productId || 'item'),
@@ -466,18 +509,54 @@
                 price: unitPrice,
                 quantity: quantity,
                 image: safeUrl(productImage, './images/slider-1.jpeg'),
-                isGift: isGift
+                isGift: false
             });
         }
 
-        const shipping = (subtotal > 500 || subtotal === 0) ? 0 : 49.00;
-        const tax = subtotal * 0.10;
-        const total = subtotal + shipping + tax;
+        // Prevent free orders / empty orders
+        if (paidSubtotal <= 0) {
+            throw new Error(isAr ? 'حقيبة التسوق فارغة أو تحتوي على هدايا مجانية فقط. يرجى إضافة منتجات مدفوعة لإتمام الطلب.' : 'Your shopping bag contains only free gifts. Please add paid items to proceed.');
+        }
+
+        // Second pass: handle free gift if eligible
+        const giftItem = cart.find(item => Boolean(item.isGift || item.id === 'free-gift-promo'));
+        if (giftItem) {
+            if (paidSubtotal >= minSpend) {
+                let giftName = giftItem.name;
+                if (typeof giftName === 'object' && giftName !== null) {
+                    giftName = isAr ? (giftName.ar || giftName.en) : (giftName.en || giftName.ar);
+                }
+                verifiedItems.push({
+                    productId: String(giftItem.id || 'free-gift-promo'),
+                    name: giftName || (isAr ? 'ميني سبلاش خمرة (هدية مجانية)' : 'Mini Splash Khamrah (Free Gift)'),
+                    price: 0,
+                    quantity: 1,
+                    image: safeUrl(giftItem.image, './images/slider-1.jpeg'),
+                    isGift: true
+                });
+            } else {
+                // If not eligible, automatically purge gift from local carts
+                try {
+                    let localCart = JSON.parse(localStorage.getItem('luxe_cart') || '[]');
+                    localCart = localCart.filter(i => !i.isGift && i.id !== 'free-gift-promo');
+                    localStorage.setItem('luxe_cart', JSON.stringify(localCart));
+                    if (typeof window.updateCartCount === 'function') window.updateCartCount();
+                } catch (e) {}
+            }
+        }
+
+        const { code, discountAmount } = getAppliedPromoDiscount(subtotal);
+        const discountedSubtotal = Math.max(0, subtotal - discountAmount);
+        const shipping = (discountedSubtotal >= freeShippingThreshold || discountedSubtotal === 0) ? 0 : 49.00;
+        const tax = discountedSubtotal * 0.10;
+        const total = discountedSubtotal + shipping + tax;
 
         return {
             items: verifiedItems,
             pricing: {
                 subtotal,
+                discount: discountAmount,
+                promoCode: code || null,
                 shipping,
                 tax,
                 total
@@ -708,12 +787,9 @@
 
             // 5. Resolve authenticated user or Account Creation
             let authUser = await getFirebaseAuthUser();
-            const localUser = typeof window.getCurrentUser === 'function' ? window.getCurrentUser() : JSON.parse(localStorage.getItem('currentUser') || 'null');
-            let currentUid = authUser?.uid || localUser?.uid;
-
             const createAccountCheckbox = document.getElementById('createAccount');
 
-            if (!currentUid) {
+            if (!authUser) {
                 if (createAccountCheckbox?.checked) {
                     const password = document.getElementById('password')?.value;
                     if (!password || password.length < 6) {
@@ -726,7 +802,7 @@
                     }
                     try {
                         const newUser = await registerUserFromCheckout(formData.fullName, formData.email, password);
-                        currentUid = newUser.uid;
+                        authUser = newUser;
                     } catch (regErr) {
                         console.error('Registration during checkout failed:', regErr);
                         showToast(regErr.message || (isAr ? 'فشل إنشاء الحساب الجديد' : 'Failed to create new account'), 'error');
@@ -737,8 +813,8 @@
                         return;
                     }
                 } else {
-                    // User is not logged in and didn't select create account
-                    showToast(isAr ? 'يرجى تسجيل الدخول أو تفعيل خيار إنشاء حساب لإتمام الطلب' : 'Please log in or check "Create an account" to place your order', 'error');
+                    // User is not logged in to Firebase Auth and didn't select create account
+                    showToast(isAr ? 'جلسة تسجيل الدخول منتهية أو غير مسجلة. يرجى تسجيل الدخول مجدداً لإتمام الطلب بأمان.' : 'Authentication session expired or required. Please log in again to place order safely.', 'error');
                     sessionStorage.setItem('loginRedirect', 'checkout.html');
                     setTimeout(() => {
                         window.location.href = 'login.html?redirect=checkout.html';
@@ -746,6 +822,8 @@
                     return;
                 }
             }
+
+            const currentUid = authUser.uid;
 
             // 6. Check if customer is blocked directly from Firestore users/{uid}
             const isBlocked = await checkUserBlocked(currentUid);
@@ -772,6 +850,7 @@
             // 11. Clear cart only after successful save to Firestore
             localStorage.removeItem('luxe_cart');
             localStorage.removeItem('cart');
+            sessionStorage.removeItem('koko_promo_code');
             if (typeof window.updateCartCount === 'function') window.updateCartCount();
 
             showToast(isAr ? 'تم تأكيد طلبك بنجاح! جاري التحويل...' : 'Ritual order confirmed! Redirecting...', 'success');

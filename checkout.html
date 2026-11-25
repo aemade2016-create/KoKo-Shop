@@ -437,7 +437,7 @@
 
                             <div id="walletDetails" class="hidden bg-pink-50/40 dark:bg-slate-700/30 p-5 rounded-2xl border border-pink-100 dark:border-slate-700 text-center">
                                 <p class="text-xs text-gray-500 mb-3">You will be redirected securely to authenticate your digital wallet transaction.</p>
-                                <button type="button" class="bg-slate-900 text-white text-xs font-semibold px-6 py-2.5 rounded-full hover:bg-slate-800 transition">
+                                <button type="button" id="btnConnectFastCheckout" onclick="if (typeof showToast === 'function') { showToast((localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR') ? 'تم اختيار الدفع السريع عبر المحفظة الإلكترونية' : 'Fast Checkout with digital wallet connected', 'success'); }" class="bg-slate-900 text-white text-xs font-semibold px-6 py-2.5 rounded-full hover:bg-slate-800 transition">
                                     Connect Fast Checkout
                                 </button>
                             </div>
