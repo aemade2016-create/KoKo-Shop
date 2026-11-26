@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth overflow-x-hidden max-w-[100vw]">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Ritual - KoKo Shop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./src/styles.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "KoKo Shop",
+      "url": "https://kokoshop.com",
+      "logo": "https://kokoshop.com/images/slider-1.jpeg",
+      "sameAs": ["https://facebook.com/kokoshop", "https://instagram.com/kokoshop"]
+    }
+    </script>
+    <script type="application/ld+json" id="product-schema">{}</script>
+
+    <script type="module" src="./i18n.js"></script>
+    <script type="module" src="./firebase-config.js"></script>
+    <script type="module" src="./init-products.js"></script>
+    <script type="module" src="./app.js"></script>
+</head>
+
+<body class="bg-[#fdf8fa] dark:bg-[#0f172a] text-gray-800 dark:text-gray-100 transition-colors duration-300 antialiased selection:bg-pink-100 selection:text-pink-600 min-h-screen flex flex-col overflow-x-hidden max-w-[100vw] w-full">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:bg-pink-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-full focus:text-xs focus:font-semibold">
+        Skip to main content
+    </a>
+
+    <!-- Global Floating Glassmorphic Navbar -->
+    <header class="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-pink-100 dark:border-slate-800 shadow-sm transition-colors duration-300">
+        <div class="container mx-auto px-4 py-3.5">
+            <div class="flex items-center justify-between">
+                <a href="index.html" class="flex items-center space-x-2.5 group">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 to-rose-400 text-white flex items-center justify-center shadow-md shadow-pink-500/25 group-hover:scale-105 transition-transform">
+                        <i class="fa-brands fa-shopify text-xl"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-2xl font-display font-bold tracking-tight text-gray-900 dark:text-white">
+                            KoKo <span class="italic font-normal text-pink-500">Shop</span>
+                        </span>
+                        <span class="text-[9px] uppercase tracking-widest text-pink-500 font-semibold -mt-1">Clean Beauty Rituals</span>
+                    </div>
+                </a>
+
+                <nav class="hidden lg:flex items-center space-x-8 text-sm font-medium text-gray-700 dark:text-gray-200" aria-label="Main navigation">
+                    <a href="index.html" class="hover:text-pink-500 transition" data-i18n="nav_home">Home</a>
+                    <a href="products.html" class="hover:text-pink-500 transition" data-i18n="nav_shop_all">Shop All</a>
+                    <a href="products.html?category=Serum" class="hover:text-pink-500 transition" data-i18n="nav_serums">Serums</a>
+                    <a href="products.html?category=Moisturizer" class="hover:text-pink-500 transition" data-i18n="nav_moisturizers">Moisturizers</a>
+                    <a href="about.html" class="hover:text-pink-500 transition" data-i18n="nav_our_ethos">Our Ethos</a>
+                </nav>
+
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <a href="admin-dashboard.html" id="adminPanelIcon"
+                        class="hidden p-2 rounded-full text-pink-600 bg-pink-50 hover:bg-pink-100 dark:bg-pink-950/50 dark:hover:bg-pink-900/50 transition"
+                        title="Admin Dashboard" aria-label="Admin Dashboard">
+                        <i class="fas fa-crown text-sm"></i>
+                    </a>
+                    <a href="login.html" id="accountLink"
+                        class="p-2 text-gray-600 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-800 rounded-full transition"
+                        title="Account" aria-label="Account">
+                        <i class="far fa-user text-base"></i>
+                    </a>
+                    <a href="wishlist.html"
+                        class="relative p-2 text-gray-600 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-800 rounded-full transition"
+                        title="Wishlist" aria-label="Wishlist">
+                        <i class="far fa-heart text-base"></i>
+                        <span id="wishlistCount"
+                            class="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+                    </a>
+                    <a href="cart.html"
+                        class="relative p-2 text-gray-600 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-800 rounded-full transition"
+                        title="Shopping Bag" aria-label="Shopping Bag">
+                        <i class="fas fa-bag-shopping text-base"></i>
+                        <span id="cartCount"
+                            class="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-sm shadow-pink-500/30">0</span>
+                    </a>
+                    <button id="themeToggle" type="button"
+                        class="p-2 text-gray-600 dark:text-gray-300 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-slate-800 rounded-full transition"
+                        title="Toggle Light/Dark Theme" aria-label="Toggle Light or Dark Theme">
+                        <i class="fas fa-moon text-base dark:hidden"></i>
+                        <i class="fas fa-sun text-base hidden dark:inline"></i>
+                    </button>
+                    <button type="button" data-action="toggle-lang" aria-label="Toggle language"
+                        class="px-2.5 py-1 text-xs font-semibold rounded-full border border-pink-200 dark:border-slate-700 text-gray-700 dark:text-gray-200 hover:border-pink-500 hover:text-pink-500 transition">
+                        <span id="langText">AR</span>
+                    </button>
+                    <button id="mobileMenuBtn" type="button"
+                        class="lg:hidden p-2 text-gray-700 dark:text-gray-200 hover:text-pink-500 rounded-lg"
+                        aria-label="Toggle navigation menu">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="mobileMenu" class="hidden lg:hidden mt-4 pt-4 border-t border-pink-100 dark:border-slate-800 space-y-3 pb-2">
+                <a href="index.html" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_home">Home</a>
+                <a href="products.html" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_shop_all_products">Shop All Products</a>
+                <a href="about.html" class="block py-2 text-gray-700 dark:text-gray-200 hover:text-pink-500" data-i18n="nav_about_ethos">About Our Ethos</a>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content" class="container mx-auto px-4 py-10 flex-1 max-w-5xl">
+        <nav aria-label="Breadcrumb" class="text-xs text-gray-500 dark:text-gray-400 mb-6 flex items-center gap-2">
+            <a href="index.html" class="hover:text-pink-500 transition">Home</a>
+            <span>/</span>
+            <a href="products.html" class="hover:text-pink-500 transition">Products</a>
+            <span>/</span>
+            <span id="breadcrumbProduct" class="text-pink-600 dark:text-pink-400 font-semibold">Loading...</span>
+        </nav>
+
+        <div id="productDetailContainer" class="bg-white dark:bg-slate-800 rounded-3xl border border-pink-100/80 dark:border-slate-700/80 p-6 sm:p-10 shadow-sm">
+            <!-- Initial loading skeleton -->
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="skeleton skeleton-image rounded-2xl"></div>
+                <div class="space-y-4">
+                    <div class="skeleton skeleton-text w-1/4"></div>
+                    <div class="skeleton skeleton-text w-3/4 h-8"></div>
+                    <div class="skeleton skeleton-text w-full h-20"></div>
+                    <div class="skeleton skeleton-price"></div>
+                    <div class="skeleton skeleton-text w-full h-12 rounded-full"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast"
+        class="fixed bottom-8 right-8 bg-white dark:bg-slate-800 border border-pink-200 dark:border-slate-700 text-gray-800 dark:text-white px-5 py-3.5 rounded-2xl shadow-xl transform translate-y-32 transition-transform duration-300 z-50 flex items-center space-x-3">
+        <i class="fas fa-check-circle text-pink-500 text-lg"></i>
+        <span id="toastMessage" class="text-xs font-semibold">Action completed</span>
+    </div>
+
+    <script type="module">
+        import { escapeHtml, safeUrl } from './utils/security.js';
+        import { db } from './firebase-config.js';
+        import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
+        const renderProductNotFound = () => {
+            const container = document.getElementById('productDetailContainer');
+            if (!container) return;
+            container.innerHTML = `
+                <div class="text-center py-12">
+                    <i class="fas fa-sparkles text-3xl text-pink-400 mb-3"></i>
+                    <h1 class="text-2xl font-display font-bold text-gray-900 dark:text-white mb-2">Product Not Found</h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">This formulation could not be found or is no longer available.</p>
+                    <a href="products.html" class="inline-block bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-full text-xs font-semibold transition">Back to Catalog</a>
+                </div>
+            `;
+        };
+
+        const injectProductSchema = (product, id) => {
+            const schemaEl = document.getElementById('product-schema');
+            if (!schemaEl) return;
+            const currentPrice = Number(product.salePrice || product.price || 0);
+            const schema = {
+                '@context': 'https://schema.org',
+                '@type': 'Product',
+                name: product.name || 'Botanical Ritual',
+                image: safeUrl(product.image, `${window.location.origin}/images/slider-1.jpeg`),
+                description: product.description || 'Clean botanical formulation.',
+                sku: product.barcode || String(id),
+                offers: {
+                    '@type': 'Offer',
+                    url: `${window.location.origin}/product.html?id=${encodeURIComponent(String(id))}`,
+                    priceCurrency: 'EGP',
+                    price: currentPrice.toFixed(2),
+                    availability: Number(product.stock ?? 1) > 0
+                        ? 'https://schema.org/InStock'
+                        : 'https://schema.org/OutOfStock'
+                },
+                aggregateRating: {
+                    '@type': 'AggregateRating',
+                    ratingValue: String(product.rating || 5),
+                    reviewCount: String(product.reviews || 1)
+                }
+            };
+            schemaEl.textContent = JSON.stringify(schema);
+        };
+
+        const renderProductDetail = (product, id) => {
+            const container = document.getElementById('productDetailContainer');
+            const breadcrumb = document.getElementById('breadcrumbProduct');
+            if (!container) return;
+
+            const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
+            const origPrice = Number(product.originalPrice || product.price || 0);
+            const currentPrice = Number(product.salePrice || product.price || origPrice);
+            const savings = Number(product.savings) || Math.max(origPrice - currentPrice, 0);
+            const isDiscounted = savings > 0 || origPrice > currentPrice;
+            const displayName = window.i18n ? window.i18n.translateText(product.name || '') : (product.name || 'Botanical Ritual');
+            const displayDesc = window.i18n ? window.i18n.translateText(product.description || '') : (product.description || '');
+            const displayCat = typeof product.category === 'object' ? (product.category.en || 'Skincare') : (product.category || 'Skincare');
+            const imgUrl = safeUrl(product.image, './images/slider-1.jpeg');
+
+            if (breadcrumb) breadcrumb.textContent = displayName;
+            document.title = `${displayName} - KoKo Shop`;
+
+            container.innerHTML = `
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div class="relative aspect-square rounded-2xl overflow-hidden bg-pink-50 dark:bg-slate-900">
+                        <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(displayName)}" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <span class="text-xs text-pink-600 dark:text-pink-400 font-bold uppercase tracking-wider block mb-2">${escapeHtml(displayCat)}</span>
+                        <h1 class="text-3xl font-display font-bold text-gray-900 dark:text-white mb-3">${escapeHtml(displayName)}</h1>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-6">${escapeHtml(displayDesc)}</p>
+                        <div class="flex items-baseline gap-3 mb-6">
+                            <span class="text-3xl font-bold font-display text-pink-600">${isAr ? `${currentPrice.toFixed(2)} ج.م` : `EGP ${currentPrice.toFixed(2)}`}</span>
+                            ${isDiscounted && origPrice > currentPrice ? `<span class="text-base text-gray-400 line-through">${isAr ? `${origPrice.toFixed(2)} ج.م` : `EGP ${origPrice.toFixed(2)}`}</span>` : ''}
+                        </div>
+                        <div class="space-y-3">
+                            <button type="button" data-action="add-to-cart" data-product-id="${escapeHtml(String(id))}"
+                                class="w-full bg-pink-500 hover:bg-pink-600 text-white py-3.5 rounded-full font-semibold text-sm transition shadow-md flex items-center justify-center gap-2">
+                                <i class="fas fa-bag-shopping"></i>
+                                <span>${isAr ? 'أضف للحقيبة' : 'Add to Bag'}</span>
+                            </button>
+                            <button type="button" data-action="toggle-wishlist" data-product-id="${escapeHtml(String(id))}"
+                                class="w-full bg-pink-50 dark:bg-slate-700 hover:bg-pink-100 text-gray-800 dark:text-gray-200 py-3.5 rounded-full font-semibold text-sm transition flex items-center justify-center gap-2">
+                                <i class="far fa-heart"></i>
+                                <span>${isAr ? 'حفظ في المفضلة' : 'Save to Wishlist'}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            injectProductSchema(product, id);
+        };
+
+        const initProductPage = async () => {
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get('id');
+            if (!productId) {
+                renderProductNotFound();
+                return;
+            }
+
+            let found = null;
+            try {
+                const snap = await getDoc(doc(db, 'products', String(productId)));
+                if (snap.exists()) {
+                    found = { id: snap.id, ...snap.data() };
+                }
+            } catch (e) {
+                console.warn('Firestore product lookup fallback:', e);
+            }
+
+            if (!found) {
+                const local = JSON.parse(localStorage.getItem('luxe_products') || 'null') || window.defaultLuxeProducts || [];
+                found = local.find((p) => String(p.id) === String(productId)) || null;
+            }
+
+            if (!found) {
+                renderProductNotFound();
+                return;
+            }
+
+            renderProductDetail(found, found.id || productId);
+        };
+
+        initProductPage();
+    </script>
+</body>
+
+</html>
