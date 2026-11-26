@@ -9,7 +9,9 @@ function copyClassicScriptsPlugin() {
     'init-products.js',
     'app.js',
     'checkout.js',
-    'admin-script.js'
+    'admin-script.js',
+    'firebase-config.js',
+    'firebase-auth.js'
   ];
 
   return {
