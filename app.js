@@ -854,14 +854,13 @@ async function applyStoreSettings() {
 // Global Horizontal Scroll & Layout Guard (Phase 3 Core Safeguard)
 function initHorizontalScrollGuard() {
     if (document.documentElement) {
-        document.documentElement.classList.add('overflow-x-hidden', 'max-w-[100vw]');
-        document.documentElement.style.overflowX = 'hidden';
-        document.documentElement.style.maxWidth = '100vw';
+        document.documentElement.style.overflowX = 'clip';
+        document.documentElement.style.maxWidth = '100%';
     }
     if (document.body) {
-        document.body.classList.add('overflow-x-hidden', 'max-w-[100vw]', 'w-full');
-        document.body.style.overflowX = 'hidden';
-        document.body.style.maxWidth = '100vw';
+        document.body.classList.add('w-full');
+        document.body.style.overflowX = 'clip';
+        document.body.style.maxWidth = '100%';
     }
 }
 

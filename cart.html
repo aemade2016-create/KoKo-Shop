@@ -413,7 +413,8 @@
             return cart;
         };
 
-        const escapeHtml = window.escapeHtml || ((str) => {
+        const cartEscapeHtml = (str) => {
+            if (typeof window.escapeHtml === 'function') return window.escapeHtml(str);
             if (str === null || str === undefined) return '';
             return String(str)
                 .replace(/&/g, '&amp;')
@@ -421,9 +422,10 @@
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
-        });
+        };
 
-        const safeUrl = window.safeUrl || ((url, fallback = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop') => {
+        const cartSafeUrl = (url, fallback = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop') => {
+            if (typeof window.safeUrl === 'function') return window.safeUrl(url, fallback);
             if (!url || typeof url !== 'string') return fallback;
             const trimmed = url.trim();
             const lower = trimmed.toLowerCase();
@@ -447,7 +449,7 @@
                 return trimmed;
             }
             return fallback;
-        });
+        };
 
         // Modular ES6 Cart Item Builder
         const createCartItemRow = (item) => {
@@ -474,9 +476,9 @@
             const perUnitText = isAr ? 'لكل عبوة' : '/ unit';
             const removeTitle = isAr ? 'حذف المنتج من الحقيبة' : 'Remove item';
 
-            const safeId = escapeHtml(String(id || ''));
-            const safeDisplayName = escapeHtml(String(displayName || ''));
-            const safeImage = escapeHtml(safeUrl(image, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop'));
+            const safeId = cartEscapeHtml(String(id || ''));
+            const safeDisplayName = cartEscapeHtml(String(displayName || ''));
+            const safeImage = cartEscapeHtml(cartSafeUrl(image, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop'));
 
             return `
                 <div class="p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 hover:bg-pink-50/30 dark:hover:bg-slate-700/30 rounded-2xl transition-all duration-300 ${isGift ? 'bg-pink-50/40 dark:bg-pink-950/20 border border-pink-200/60 dark:border-pink-800/40' : ''}">
@@ -585,8 +587,11 @@
             const itemCount = document.getElementById('itemCount');
 
             if (!cart || cart.length === 0) {
+                if (itemCount) itemCount.textContent = '0';
+                if (cartItemsList) cartItemsList.innerHTML = '';
                 if (emptyCart) emptyCart.classList.remove('hidden');
                 if (cartItems) cartItems.classList.add('hidden');
+                calculateTotals();
                 return;
             }
 
@@ -650,7 +655,7 @@
                         if (typeof updateCartCount === 'function') updateCartCount();
                     }
                     verifyGiftEligibility();
-                    showToast('Formulation removed from bag');
+                    cartShowToast('Formulation removed from bag');
                     loadCart();
                 }
             } catch (error) {
@@ -712,16 +717,16 @@
             if (code === 'LUXE10') {
                 discountMultiplier = 0.10;
                 sessionStorage.setItem('koko_promo_code', 'LUXE10');
-                showToast('10% VIP Discount Applied!');
+                cartShowToast('10% VIP Discount Applied!');
                 calculateTotals();
             } else if (code === 'WELCOME20') {
                 discountMultiplier = 0.20;
                 sessionStorage.setItem('koko_promo_code', 'WELCOME20');
-                showToast('20% Welcome Ritual Discount Applied!');
+                cartShowToast('20% Welcome Ritual Discount Applied!');
                 calculateTotals();
             } else {
                 sessionStorage.removeItem('koko_promo_code');
-                showToast('Invalid promo code. Try LUXE10');
+                cartShowToast('Invalid promo code. Try LUXE10', 'error');
             }
         };
 
@@ -729,7 +734,7 @@
         const checkout = () => {
             const isAr = (localStorage.getItem('koko_lang') === 'ar' || localStorage.getItem('luxe_lang') === 'AR');
             if (!isUserLoggedIn()) {
-                showToast(isAr ? 'يجب تسجيل الدخول لإتمام عملية الشراء' : 'Please log in to proceed to checkout');
+                cartShowToast(isAr ? 'يجب تسجيل الدخول لإتمام عملية الشراء' : 'Please log in to proceed to checkout', 'error');
                 sessionStorage.setItem('loginRedirect', 'checkout.html');
                 setTimeout(() => {
                     window.location.href = 'login.html?redirect=checkout.html';
@@ -740,15 +745,19 @@
             const cart = typeof getCart === 'function' ? getCart() : JSON.parse(localStorage.getItem('luxe_cart') || '[]');
 
             if (!cart || cart.length === 0) {
-                showToast(isAr ? 'حقيبة التسوق فارغة حالياً!' : 'Your bag is currently empty!');
+                cartShowToast(isAr ? 'حقيبة التسوق فارغة حالياً!' : 'Your bag is currently empty!', 'error');
                 return;
             }
 
             window.location.href = 'checkout.html';
         };
 
-        // Toast Helper
-        const showToast = (message) => {
+        // Toast Helper (delegates to shared app.js showToast cleanly without symbol collision)
+        const cartShowToast = (message, type = 'success') => {
+            if (typeof window.showToast === 'function') {
+                window.showToast(message, type);
+                return;
+            }
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toastMessage');
             if (!toast || !toastMessage) return;
@@ -760,6 +769,11 @@
                 toast.style.transform = 'translateY(8rem)';
             }, 3000);
         };
+
+        window.updateQuantity = updateQuantity;
+        window.removeFromCartPage = removeFromCartPage;
+        window.applyPromo = applyPromo;
+        window.checkout = checkout;
 
         // Initialize on DOM Ready
         document.addEventListener('DOMContentLoaded', () => {
@@ -784,8 +798,11 @@
 
                 loadCart();
 
+                // Re-sync cart view if updated via Gift Widget or another tab
+                window.addEventListener('cart-updated', loadCart);
+
                 // Check Admin Crown Icon
-                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                const currentUser = JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('luxe_currentUser') || '{}');
                 const adminIcon = document.getElementById('adminPanelIcon');
                 if (adminIcon && (currentUser.isAdmin === true || currentUser.role === 'admin')) {
                     adminIcon.classList.remove('hidden');

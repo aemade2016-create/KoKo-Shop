@@ -50,87 +50,135 @@ window.safeUrl = safeUrl;
 
 let _authenticatedAdminUser = null;
 
+const runAdminLoaderSafely = async (label, fn) => {
+    try {
+        await Promise.resolve(fn());
+    } catch (err) {
+        console.warn(`Admin dashboard loader warning (${label}):`, err);
+    }
+};
+
+const clearAdminAuthStorage = () => {
+    try {
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('luxe_currentUser');
+    } catch (e) {}
+};
+
+const initAdminDashboardData = async () => {
+    await runAdminLoaderSafely('loadOrdersTable', loadOrdersTable);
+    await runAdminLoaderSafely('loadStoreSettingsForm', loadStoreSettingsForm);
+    await runAdminLoaderSafely('loadUsersTable', loadUsersTable);
+    await runAdminLoaderSafely('loadDashboardOverview', loadDashboardOverview);
+    await runAdminLoaderSafely('loadProductsTable', loadProductsTable);
+    await runAdminLoaderSafely('loadCategoriesTable', loadCategoriesTable);
+    await runAdminLoaderSafely('fetchProducts', fetchProducts);
+    await runAdminLoaderSafely('loadInboxTab', loadInboxTab);
+};
+
 const verifyAdminAccess = async () => {
+    let user = null;
+    let db = null;
+
     try {
         const configModule = await import('./firebase-config.js');
-        const { auth, db } = configModule;
+        const { auth } = configModule;
+        db = configModule.db;
         const { onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js');
-        const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
 
-        // Resolve Firebase Auth user without trusting localStorage
-        const user = await new Promise((resolve) => {
+        if (auth && typeof auth.authStateReady === 'function') {
+            await auth.authStateReady();
+        }
+
+        // Resolve Firebase Auth user cleanly via onAuthStateChanged
+        user = await new Promise((resolve) => {
             if (auth && auth.currentUser) {
                 resolve(auth.currentUser);
                 return;
             }
-            const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-                unsubscribe();
+            let settled = false;
+            let unsubscribe = null;
+            const finish = (firebaseUser) => {
+                if (settled) return;
+                settled = true;
+                if (typeof unsubscribe === 'function') unsubscribe();
                 resolve(firebaseUser);
+            };
+            unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+                finish(firebaseUser);
             });
+            setTimeout(() => finish(auth?.currentUser || null), 8000);
         });
+    } catch (authError) {
+        console.error('Critical Admin authentication check failure:', authError);
+        clearAdminAuthStorage();
+        window.location.replace('login.html');
+        return false;
+    }
 
-        // If not logged in at all, redirect immediately
-        if (!user) {
-            console.warn('Admin Access Blocked: No authenticated session found.');
-            window.location.replace('login.html');
-            return false;
-        }
+    // If not logged in at all, clear localStorage and redirect immediately
+    if (!user) {
+        console.warn('Admin Access Blocked: No authenticated session found.');
+        clearAdminAuthStorage();
+        window.location.replace('login.html');
+        return false;
+    }
 
-        // Fetch user document directly from Firestore (Ground Truth)
+    const isPrimaryAdminEmail = Boolean(user.email && user.email.toLowerCase() === 'aemade2016@gmail.com');
+    let isAdmin = isPrimaryAdminEmail;
+    let isBlocked = false;
+
+    try {
+        const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
         const userDocRef = doc(db, 'users', user.uid);
         const userDocSnap = await getDoc(userDocRef);
-
-        let isAdmin = false;
-        let isBlocked = false;
 
         if (userDocSnap.exists()) {
             const userData = userDocSnap.data();
             isBlocked = Boolean(userData.isBlocked === true || userData.status === 'Blocked');
             isAdmin = Boolean(
-                userData.role === 'admin' ||
-                userData.isAdmin === true
+                isPrimaryAdminEmail ||
+                userData.isAdmin === true ||
+                userData.role === 'admin'
             );
         }
-
-        if (!isAdmin || isBlocked) {
-            console.warn('Admin Access Denied: User lacks admin role or is blocked.', user.email);
+    } catch (firestoreAuthErr) {
+        console.warn('Firestore admin role check notice:', firestoreAuthErr);
+        if (!isPrimaryAdminEmail) {
+            clearAdminAuthStorage();
             window.location.replace('login.html');
             return false;
         }
+    }
 
-        _authenticatedAdminUser = user;
-
-        // Display admin email in top bar
-        const emailDisplay = document.getElementById('adminEmailDisplay');
-        if (emailDisplay) {
-            emailDisplay.textContent = user.email;
-        }
-
-        // Unhide the dashboard interface and remove overlay
-        const overlay = document.getElementById('adminAuthOverlay');
-        const content = document.getElementById('adminDashboardContent');
-        if (overlay) overlay.style.display = 'none';
-        if (content) {
-            content.classList.remove('hidden');
-            content.style.display = 'flex';
-        }
-
-        // Load data only after authorization is verified from Firestore
-        await loadOrdersTable();
-        loadStoreSettingsForm();
-        await loadUsersTable();
-        await loadDashboardOverview();
-        loadProductsTable();
-        loadCategoriesTable();
-        fetchProducts();
-        loadInboxTab();
-
-        return true;
-    } catch (authError) {
-        console.error('Critical Admin verification failure:', authError);
+    if (!isAdmin || isBlocked) {
+        console.warn('Admin Access Denied: User lacks admin role or is blocked.', user.email);
+        clearAdminAuthStorage();
         window.location.replace('login.html');
         return false;
     }
+
+    _authenticatedAdminUser = user;
+
+    // Display admin email in top bar
+    const emailDisplay = document.getElementById('adminEmailDisplay');
+    if (emailDisplay) {
+        emailDisplay.textContent = user.email;
+    }
+
+    // Unhide the dashboard interface and remove overlay BEFORE loading tables
+    const overlay = document.getElementById('adminAuthOverlay');
+    const content = document.getElementById('adminDashboardContent');
+    if (overlay) overlay.style.display = 'none';
+    if (content) {
+        content.classList.remove('hidden');
+        content.style.display = 'flex';
+    }
+
+    // Load dashboard datasets independently so one error never logs out the admin
+    await initAdminDashboardData();
+
+    return true;
 };
 
 // ============================================
@@ -3097,6 +3145,8 @@ const formatChatTime = (isoString) => {
 // Export to window
 window.verifyAdminAccess = verifyAdminAccess;
 window.verifyAdminAuth = verifyAdminAccess;
+window.initAdmin = initAdminDashboardData;
+window.initAdminDashboardData = initAdminDashboardData;
 window.loadInboxTab = loadInboxTab;
 window.renderInboxThreads = renderInboxThreads;
 window.selectInboxThread = selectInboxThread;
