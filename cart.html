@@ -423,7 +423,7 @@
                 .replace(/'/g, '&#39;');
         });
 
-        const safeUrl = window.safeUrl || ((url, fallback = './images/slider-1.jpeg') => {
+        const safeUrl = window.safeUrl || ((url, fallback = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop') => {
             if (!url || typeof url !== 'string') return fallback;
             const trimmed = url.trim();
             const lower = trimmed.toLowerCase();
@@ -441,7 +441,6 @@
                 lower.startsWith('./') ||
                 lower.startsWith('../') ||
                 lower.startsWith('/') ||
-                lower.startsWith('images/') ||
                 lower.startsWith('data:image/') ||
                 /^[a-zA-Z0-9_\-\.\/]+$/.test(trimmed)
             ) {
@@ -456,7 +455,7 @@
                 id,
                 name = 'Botanical Ritual',
                 price = 0,
-                image = './images/slider-1.jpeg',
+                image = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop',
                 quantity = 1
             } = item;
 
@@ -477,7 +476,7 @@
 
             const safeId = escapeHtml(String(id || ''));
             const safeDisplayName = escapeHtml(String(displayName || ''));
-            const safeImage = escapeHtml(safeUrl(image, './images/slider-1.jpeg'));
+            const safeImage = escapeHtml(safeUrl(image, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop'));
 
             return `
                 <div class="p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 hover:bg-pink-50/30 dark:hover:bg-slate-700/30 rounded-2xl transition-all duration-300 ${isGift ? 'bg-pink-50/40 dark:bg-pink-950/20 border border-pink-200/60 dark:border-pink-800/40' : ''}">

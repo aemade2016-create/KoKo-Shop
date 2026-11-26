@@ -39,7 +39,6 @@ export function safeUrl(url, fallback = '') {
         lower.startsWith('./') ||
         lower.startsWith('../') ||
         lower.startsWith('/') ||
-        lower.startsWith('images/') ||
         lower.startsWith('data:image/') ||
         /^[a-zA-Z0-9_\-./]+$/.test(trimmed)
     ) {

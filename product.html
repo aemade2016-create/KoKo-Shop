@@ -19,16 +19,16 @@
       "@type": "Store",
       "name": "KoKo Shop",
       "url": "https://kokoshop.com",
-      "logo": "https://kokoshop.com/images/slider-1.jpeg",
+      "logo": "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop",
       "sameAs": ["https://facebook.com/kokoshop", "https://instagram.com/kokoshop"]
     }
     </script>
     <script type="application/ld+json" id="product-schema">{}</script>
 
-    <script type="module" src="./i18n.js"></script>
-    <script type="module" src="./firebase-config.js"></script>
-    <script type="module" src="./init-products.js"></script>
-    <script type="module" src="./app.js"></script>
+    <script src="i18n.js"></script>
+    <script type="module" src="firebase-config.js"></script>
+    <script src="init-products.js"></script>
+    <script src="app.js"></script>
 </head>
 
 <body class="bg-[#fdf8fa] dark:bg-[#0f172a] text-gray-800 dark:text-gray-100 transition-colors duration-300 antialiased selection:bg-pink-100 selection:text-pink-600 min-h-screen flex flex-col overflow-x-hidden max-w-[100vw] w-full">
@@ -167,7 +167,7 @@
                 '@context': 'https://schema.org',
                 '@type': 'Product',
                 name: product.name || 'Botanical Ritual',
-                image: safeUrl(product.image, `${window.location.origin}/images/slider-1.jpeg`),
+                image: safeUrl(product.image, `https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop`),
                 description: product.description || 'Clean botanical formulation.',
                 sku: product.barcode || String(id),
                 offers: {
@@ -201,7 +201,7 @@
             const displayName = window.i18n ? window.i18n.translateText(product.name || '') : (product.name || 'Botanical Ritual');
             const displayDesc = window.i18n ? window.i18n.translateText(product.description || '') : (product.description || '');
             const displayCat = typeof product.category === 'object' ? (product.category.en || 'Skincare') : (product.category || 'Skincare');
-            const imgUrl = safeUrl(product.image, './images/slider-1.jpeg');
+            const imgUrl = safeUrl(product.image, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop');
 
             if (breadcrumb) breadcrumb.textContent = displayName;
             document.title = `${displayName} - KoKo Shop`;

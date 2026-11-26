@@ -87,7 +87,7 @@ KoKo-Shop/
 │   └── firestore.rules         # قواعد أمان السحابة وقواعد الصلاحيات
 │
 └── 🖼️ Assets
-    └── images/                 # صور المنتجات والبانرات (slider-1.jpeg)
+    └── External CDN / Unsplash Image URLs
 ```
 
 ---

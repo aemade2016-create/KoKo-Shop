@@ -35,7 +35,6 @@ function safeUrl(url, fallback = '') {
         lower.startsWith('./') ||
         lower.startsWith('../') ||
         lower.startsWith('/') ||
-        lower.startsWith('images/') ||
         lower.startsWith('data:image/') ||
         /^[a-zA-Z0-9_\-\.\/]+$/.test(trimmed)
     ) {
@@ -194,7 +193,7 @@ const normalizeProduct = (product) => {
         savings: details.savings,
         discountPercent: details.discountPercent,
         hasDiscount: details.savings > 0 && details.discountPercent > 0,
-        image: product.image || './images/slider-1.jpeg',
+        image: product.image || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop',
         barcode: product.barcode || ''
     };
 };
@@ -427,7 +426,7 @@ const getBanners = async () => {
             subtitle: { en: "Natural Radiance", ar: "إشراقتها الطبيعية" },
             description: { en: "Formulated with cold-pressed antioxidants and skin-identical ceramides.", ar: "مستخلصات نباتية مضغوطة على البارد لبشرة صحية ومشرقة." },
             buttonText: { en: "Shop Clean Collection", ar: "تسوق التشكيلة النظيفة" },
-            imageUrl: './images/slider-1.jpeg',
+            imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop',
             targetUrl: 'products.html'
         }
     ];
@@ -592,7 +591,7 @@ const getDefaultStoreSettings = () => ({
         minSpend: 500,
         name: { en: 'Mini Splash Khamrah', ar: 'ميني سبلاش خمرة' },
         originalPrice: 122.50,
-        image: './images/slider-1.jpeg',
+        image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop',
         timerMinutes: 30
     },
     homepage: {
@@ -813,7 +812,7 @@ const createRecentOrderRow = (order) => {
 
 // Product Table Row Builder
 const createProductTableRow = (product, index = 0) => {
-    const { id, name = '', image = './images/slider-1.jpeg', price = 0, originalPrice = 0, salePrice = 0, category = 'Skincare', stock = 0, hasDiscount = false, discountPercent = 0, savings = 0 } = product;
+    const { id, name = '', image = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop', price = 0, originalPrice = 0, salePrice = 0, category = 'Skincare', stock = 0, hasDiscount = false, discountPercent = 0, savings = 0 } = product;
 
     const currentPrice = Number(salePrice || price || 0);
     const origPrice = Number(originalPrice || currentPrice);
@@ -834,7 +833,7 @@ const createProductTableRow = (product, index = 0) => {
                 </button>
             </td>
             <td class="px-4 py-3">
-                <img src="${escapeHtml(safeUrl(image, './images/slider-1.jpeg'))}" alt="${escapeHtml(name)}" class="w-11 h-11 rounded-xl object-cover border border-pink-100 dark:border-slate-700">
+                <img src="${escapeHtml(safeUrl(image, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop'))}" alt="${escapeHtml(name)}" class="w-11 h-11 rounded-xl object-cover border border-pink-100 dark:border-slate-700">
             </td>
             <td class="px-4 py-3">
                 <h4 class="font-semibold text-gray-900 dark:text-white line-clamp-1">${escapeHtml(name)}</h4>
@@ -948,7 +947,7 @@ const createBannerTableRow = (banner) => {
     return `
         <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
             <td class="px-5 py-3">
-                <img src="${escapeHtml(safeUrl(imageUrl, './images/slider-1.jpeg'))}" alt="${escapeHtml(titleEn)}" class="w-12 h-10 rounded-xl object-cover border border-pink-100 dark:border-slate-700">
+                <img src="${escapeHtml(safeUrl(imageUrl, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop'))}" alt="${escapeHtml(titleEn)}" class="w-12 h-10 rounded-xl object-cover border border-pink-100 dark:border-slate-700">
             </td>
             <td class="px-5 py-3">
                 <div class="font-semibold text-gray-900 dark:text-white">
@@ -979,11 +978,11 @@ const createReviewTableRow = (review) => {
     const customerName = review.customerName || review.userName || review.author || 'Customer';
     const rating = parseInt(review.rating, 10) || 5;
     const text = review.text || review.comment || review.quote || '';
-    const profileImage = review.profileImage || './images/slider-1.jpeg';
+    const profileImage = review.profileImage || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop';
     return `
         <tr class="hover:bg-pink-50/30 dark:hover:bg-slate-700/30 transition">
             <td class="px-5 py-3 flex items-center space-x-2.5">
-                <img src="${escapeHtml(safeUrl(profileImage, './images/slider-1.jpeg'))}" alt="${escapeHtml(customerName)}" class="w-8 h-8 rounded-full object-cover">
+                <img src="${escapeHtml(safeUrl(profileImage, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop'))}" alt="${escapeHtml(customerName)}" class="w-8 h-8 rounded-full object-cover">
                 <span class="font-semibold text-gray-900 dark:text-white">${escapeHtml(customerName)}</span>
             </td>
             <td class="px-5 py-3 text-amber-400 text-xs">★ ${rating}.0</td>
@@ -1916,7 +1915,7 @@ const viewOrderDetails = (orderId) => {
                     ${items.map((item) => `
                         <div class="py-2.5 flex items-center justify-between">
                             <div class="flex items-center space-x-2.5">
-                                <img src="${escapeHtml(safeUrl(item.image, './images/slider-1.jpeg'))}" alt="${escapeHtml(item.name || '')}" class="w-8 h-8 rounded-lg object-cover">
+                                <img src="${escapeHtml(safeUrl(item.image, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop'))}" alt="${escapeHtml(item.name || '')}" class="w-8 h-8 rounded-lg object-cover">
                                 <span>${escapeHtml(item.name || '')} (x${parseInt(item.quantity, 10) || 1})</span>
                             </div>
                             <span class="font-semibold text-pink-600">EGP ${((parseFloat(item.price) || 0) * (parseInt(item.quantity, 10) || 1)).toFixed(2)}</span>
@@ -2187,7 +2186,7 @@ const loadStoreSettingsForm = async () => {
     setVal('giftNameEn', gf.name?.en || (typeof gf.name === 'string' ? gf.name : 'Mini Splash Khamrah'));
     setVal('giftNameAr', gf.name?.ar || 'ميني سبلاش خمرة');
     setVal('giftOriginalPrice', gf.originalPrice ?? 122.50);
-    setVal('giftImage', gf.image || './images/slider-1.jpeg');
+    setVal('giftImage', gf.image || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop');
     setVal('giftTimerMinutes', gf.timerMinutes ?? 30);
 };
 
@@ -2390,7 +2389,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     subtitle: { en: subtitleEn || subtitleAr, ar: subtitleAr || subtitleEn },
                     description: { en: descriptionEn || descriptionAr, ar: descriptionAr || descriptionEn },
                     buttonText: { en: buttonTextEn || buttonTextAr || 'Shop Now', ar: buttonTextAr || buttonTextEn || 'تسوق الآن' },
-                    imageUrl: imageUrl || './images/slider-1.jpeg',
+                    imageUrl: imageUrl || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop',
                     targetUrl
                 });
 
@@ -2413,7 +2412,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const newReview = {
                 id: document.getElementById('reviewId').value || `review-${Date.now()}`,
                 customerName: document.getElementById('reviewCustomerName').value.trim(),
-                profileImage: document.getElementById('reviewProfileImage').value.trim() || './images/slider-1.jpeg',
+                profileImage: document.getElementById('reviewProfileImage').value.trim() || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop',
                 rating: parseInt(document.getElementById('reviewRating').value, 10) || 5,
                 text: document.getElementById('reviewText').value.trim(),
                 createdAt: new Date().toISOString()
@@ -2557,7 +2556,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ar: document.getElementById('giftNameAr')?.value.trim() || 'ميني سبلاش خمرة'
                     },
                     originalPrice: Number(document.getElementById('giftOriginalPrice')?.value) || 122.50,
-                    image: document.getElementById('giftImage')?.value.trim() || './images/slider-1.jpeg',
+                    image: document.getElementById('giftImage')?.value.trim() || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop',
                     timerMinutes: Number(document.getElementById('giftTimerMinutes')?.value) || 30
                 }
             };

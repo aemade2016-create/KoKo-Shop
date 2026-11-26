@@ -1,6 +1,34 @@
 import { defineConfig } from 'vite';
 import legacy from '@vitejs/plugin-legacy';
 import { resolve } from 'path';
+import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
+
+function copyClassicScriptsPlugin() {
+  const classicFiles = [
+    'i18n.js',
+    'init-products.js',
+    'app.js',
+    'checkout.js',
+    'admin-script.js'
+  ];
+
+  return {
+    name: 'copy-classic-scripts',
+    closeBundle() {
+      const outDir = resolve(__dirname, 'dist');
+      if (!existsSync(outDir)) {
+        mkdirSync(outDir, { recursive: true });
+      }
+      for (const file of classicFiles) {
+        const src = resolve(__dirname, file);
+        const dest = resolve(outDir, file);
+        if (existsSync(src)) {
+          copyFileSync(src, dest);
+        }
+      }
+    }
+  };
+}
 
 export default defineConfig({
   root: '.',
@@ -33,7 +61,8 @@ export default defineConfig({
   plugins: [
     legacy({
       targets: ['defaults', 'not IE 11']
-    })
+    }),
+    copyClassicScriptsPlugin()
   ],
   server: {
     port: 3000

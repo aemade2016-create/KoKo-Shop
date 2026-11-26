@@ -16,7 +16,7 @@
             .replace(/'/g, '&#39;');
     };
 
-    const safeUrl = (url, fallback = './images/slider-1.jpeg') => {
+    const safeUrl = (url, fallback = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop') => {
         if (!url || typeof url !== 'string') return fallback;
         const trimmed = url.trim();
         const lower = trimmed.toLowerCase();
@@ -34,7 +34,6 @@
             lower.startsWith('./') ||
             lower.startsWith('../') ||
             lower.startsWith('/') ||
-            lower.startsWith('images/') ||
             lower.startsWith('data:image/') ||
             /^[a-zA-Z0-9_\-\.\/]+$/.test(trimmed)
         ) {
@@ -95,7 +94,7 @@
             rawName = isAr ? (rawName.ar || rawName.en) : (rawName.en || rawName.ar);
         }
         const displayName = rawName || (isAr ? 'مستحضر كوكو' : 'Ritual Formulation');
-        const displayImg = safeUrl(item.image, './images/slider-1.jpeg');
+        const displayImg = safeUrl(item.image, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop');
 
         const qtyLabel = isAr ? 'الكمية:' : 'Quantity:';
         const totalFormatted = isGift 
@@ -105,7 +104,7 @@
         return `
             <div class="flex items-center space-x-3 pt-3.5 first:pt-0">
                 <div class="w-14 h-14 rounded-xl overflow-hidden bg-pink-50 dark:bg-slate-900 border border-pink-100 dark:border-slate-700 flex-shrink-0 relative">
-                    <img src="${escapeHtml(displayImg)}" alt="${escapeHtml(displayName)}" class="w-full h-full object-cover" onerror="this.src='./images/slider-1.jpeg'">
+                    <img src="${escapeHtml(displayImg)}" alt="${escapeHtml(displayName)}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop'">
                     ${isGift ? `
                         <span class="absolute top-1 left-1 bg-pink-500 text-white text-[8px] font-bold p-0.5 rounded-full flex items-center justify-center">
                             <i class="fas fa-gift text-[7px]"></i>
@@ -422,7 +421,7 @@
                 productName = isAr ? (productName.ar || productName.en) : (productName.en || productName.ar);
             }
             productName = productName || 'Ritual Formulation';
-            let productImage = item.image || './images/slider-1.jpeg';
+            let productImage = item.image || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop';
 
             let foundPrice = null;
 
@@ -505,7 +504,7 @@
                 name: productName,
                 price: unitPrice,
                 quantity: quantity,
-                image: safeUrl(productImage, './images/slider-1.jpeg'),
+                image: safeUrl(productImage, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop'),
                 isGift: false
             });
         }
@@ -528,7 +527,7 @@
                     name: giftName || (isAr ? 'ميني سبلاش خمرة (هدية مجانية)' : 'Mini Splash Khamrah (Free Gift)'),
                     price: 0,
                     quantity: 1,
-                    image: safeUrl(giftItem.image, './images/slider-1.jpeg'),
+                    image: safeUrl(giftItem.image, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop'),
                     isGift: true
                 });
             } else {

@@ -209,7 +209,7 @@ function addToCart(productId, productData) {
                 productData = {
                     name: found.name,
                     price: Number(found.salePrice || found.price || 0),
-                    image: found.image || './images/slider-1.jpeg'
+                    image: found.image || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop'
                 };
             }
         } catch (e) {
@@ -231,7 +231,7 @@ function addToCart(productId, productData) {
             id: targetId,
             name: productData ? productData.name : 'Botanical Ritual',
             price: productData ? Number(productData.price || 0) : 0,
-            image: productData ? (productData.image || './images/slider-1.jpeg') : './images/slider-1.jpeg',
+            image: productData ? (productData.image || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop') : 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop',
             quantity: 1,
             addedAt: new Date().toISOString()
         });
@@ -325,7 +325,7 @@ function toggleWishlist(productId, productData) {
                 productData = {
                     name: found.name,
                     price: Number(found.salePrice || found.price || 0),
-                    image: found.image || './images/slider-1.jpeg'
+                    image: found.image || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop'
                 };
             }
         } catch (e) {
@@ -349,7 +349,7 @@ function toggleWishlist(productId, productData) {
             id: targetId,
             name: productData ? productData.name : 'Botanical Ritual',
             price: productData ? Number(productData.price || 0) : 0,
-            image: productData ? (productData.image || './images/slider-1.jpeg') : './images/slider-1.jpeg',
+            image: productData ? (productData.image || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop') : 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop',
             addedAt: new Date().toISOString()
         });
         showToast(isAr ? 'تمت الإضافة إلى قائمة الرغبات ✨' : 'Added to wishlist!');
@@ -453,7 +453,7 @@ function initGlobalCartAndWishlistDelegation() {
                     var name = card ? (card.querySelector('h3, .product-title')?.textContent?.trim() || 'Botanical Ritual') : 'Botanical Ritual';
                     var priceText = card ? (card.querySelector('.text-pink-600, .product-price')?.textContent || '0') : '0';
                     var price = parseFloat(priceText.replace(/[^0-9.]/g, '')) || 0;
-                    var img = card ? (card.querySelector('img')?.getAttribute('src') || './images/slider-1.jpeg') : './images/slider-1.jpeg';
+                    var img = card ? (card.querySelector('img')?.getAttribute('src') || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop') : 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop';
                     addToCart(targetId, { name: name, price: price, image: img });
                 }
             }
@@ -492,7 +492,7 @@ function initGlobalCartAndWishlistDelegation() {
                     var name = card ? (card.querySelector('h3, .product-title')?.textContent?.trim() || 'Botanical Ritual') : 'Botanical Ritual';
                     var priceText = card ? (card.querySelector('.text-pink-600, .product-price')?.textContent || '0') : '0';
                     var price = parseFloat(priceText.replace(/[^0-9.]/g, '')) || 0;
-                    var img = card ? (card.querySelector('img')?.getAttribute('src') || './images/slider-1.jpeg') : './images/slider-1.jpeg';
+                    var img = card ? (card.querySelector('img')?.getAttribute('src') || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop') : 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop';
                     toggleWishlist(targetId, { name: name, price: price, image: img });
                 }
             }
@@ -572,7 +572,7 @@ async function getBanners() {
                     subtitle: typeof data.subtitle === 'object' ? data.subtitle : { en: data.subtitle || '', ar: data.subtitleAr || data.subtitle || '' },
                     description: typeof data.description === 'object' ? data.description : { en: data.description || '', ar: data.descriptionAr || data.description || '' },
                     buttonText: typeof data.buttonText === 'object' ? data.buttonText : { en: data.buttonText || 'Shop Now', ar: data.buttonTextAr || 'تسوق الآن' },
-                    imageUrl: data.imageUrl || data.image || './images/slider-1.jpeg',
+                    imageUrl: data.imageUrl || data.image || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop',
                     targetUrl: data.targetUrl || 'products.html'
                 };
             });
@@ -594,7 +594,7 @@ async function getBanners() {
                 subtitle: typeof b.subtitle === 'object' ? b.subtitle : { en: b.subtitle || '', ar: window.i18n?.translateText?.(b.subtitle, true) || b.subtitle || '' },
                 description: typeof b.description === 'object' ? b.description : { en: b.description || '', ar: window.i18n?.translateText?.(b.description, true) || b.description || '' },
                 buttonText: typeof b.buttonText === 'object' ? b.buttonText : { en: b.buttonText || 'Shop Now', ar: 'تسوق الآن' },
-                imageUrl: b.imageUrl || b.image || './images/slider-1.jpeg',
+                imageUrl: b.imageUrl || b.image || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop',
                 targetUrl: b.targetUrl || 'products.html'
             }));
         }
@@ -608,7 +608,7 @@ async function getBanners() {
             subtitle: { en: "Natural Radiance", ar: "إشراقتها الطبيعية" },
             description: { en: "Formulated with cold-pressed antioxidants and skin-identical ceramides.", ar: "مستخلصات نباتية مضغوطة على البارد لبشرة صحية ومشرقة." },
             buttonText: { en: "Shop Clean Collection", ar: "تسوق التشكيلة النظيفة" },
-            imageUrl: './images/slider-1.jpeg',
+            imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop',
             targetUrl: 'products.html'
         },
         {
@@ -730,7 +730,7 @@ async function getStoreSettings() {
             minSpend: 500,
             name: { en: 'Mini Splash Khamrah', ar: 'ميني سبلاش خمرة' },
             originalPrice: 122.50,
-            image: './images/slider-1.jpeg',
+            image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop',
             timerMinutes: 30
         }
     };
@@ -1253,7 +1253,7 @@ function initGiftWidget() {
                 <div class="border border-pink-100/80 dark:border-slate-800 rounded-2xl p-2.5 bg-pink-50/20 dark:bg-slate-800/40 flex items-center justify-between gap-3 mb-4">
                     <div class="flex items-center gap-3 min-w-0">
                         <div class="w-14 h-14 rounded-xl overflow-hidden bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 shrink-0">
-                            <img id="giftWidgetImg" src="./images/slider-1.jpeg" alt="Free Gift" class="w-full h-full object-cover">
+                            <img id="giftWidgetImg" src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop" alt="Free Gift" class="w-full h-full object-cover">
                         </div>
                         <div class="min-w-0">
                             <h4 id="giftWidgetTitle" class="text-xs font-bold text-gray-900 dark:text-white truncate">Mini Splash Khamrah</h4>
@@ -1368,7 +1368,7 @@ async function updateGiftWidgetUI() {
         minSpend: 500,
         name: { en: 'Mini Splash Khamrah', ar: 'ميني سبلاش خمرة' },
         originalPrice: 122.50,
-        image: './images/slider-1.jpeg',
+        image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop',
         timerMinutes: 30
     };
 
@@ -1384,14 +1384,14 @@ async function updateGiftWidgetUI() {
     const giftTitle = (typeof gift.name === 'object') ? ((isAr ? gift.name.ar : gift.name.en) || gift.name.en || gift.name.ar || 'Mini Splash Khamrah') : String(gift.name || 'Mini Splash Khamrah');
     const minSpend = Number(gift.minSpend) || 500;
     const origPrice = Number(gift.originalPrice) || 122.50;
-    const giftImage = safeUrl(gift.image, './images/slider-1.jpeg');
+    const giftImage = safeUrl(gift.image, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop');
 
     // Update Image & Title & Price in widget
     const titleEl = document.getElementById('giftWidgetTitle');
     const imgEl = document.getElementById('giftWidgetImg');
     const oldPriceEl = document.getElementById('giftWidgetOldPrice');
     if (titleEl) titleEl.textContent = giftTitle;
-    if (imgEl) imgEl.src = safeUrl(giftImage, './images/slider-1.jpeg');
+    if (imgEl) imgEl.src = safeUrl(giftImage, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop');
     if (oldPriceEl) oldPriceEl.textContent = isAr ? `${origPrice.toFixed(2)} ج.م` : `LE ${origPrice.toFixed(2)}`;
 
     // Compute cart total excluding gifts
@@ -1496,7 +1496,7 @@ async function claimFreeGift() {
         minSpend: 500,
         name: { en: 'Mini Splash Khamrah', ar: 'ميني سبلاش خمرة' },
         originalPrice: 122.50,
-        image: './images/slider-1.jpeg'
+        image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop'
     };
 
     const minSpend = Number(gift.minSpend) || 500;
@@ -1524,7 +1524,7 @@ async function claimFreeGift() {
         name: giftTitle,
         price: 0,
         originalPrice: Number(gift.originalPrice) || 122.50,
-        image: safeUrl(gift.image, './images/slider-1.jpeg'),
+        image: safeUrl(gift.image, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop'),
         quantity: 1,
         category: 'Free Gift',
         isGift: true
@@ -1578,7 +1578,6 @@ function safeUrl(url, fallback = '') {
         lower.startsWith('./') ||
         lower.startsWith('../') ||
         lower.startsWith('/') ||
-        lower.startsWith('images/') ||
         lower.startsWith('data:image/') ||
         /^[a-zA-Z0-9_\-\.\/]+$/.test(trimmed)
     ) {
@@ -1664,7 +1663,7 @@ function renderAutoReviewModal(order) {
     const items = order.items || [];
     const itemsPreviewHtml = items.slice(0, 3).map((item) => `
         <div class="flex items-center gap-2.5 p-2 bg-pink-50/50 dark:bg-slate-800/60 rounded-2xl border border-pink-100/60 dark:border-slate-700">
-            <img src="${escapeHtml(safeUrl(item.image, './images/slider-1.jpeg'))}" alt="${escapeHtml(item.name || 'Product')}" class="w-10 h-10 rounded-xl object-cover border border-pink-100 dark:border-slate-700 shrink-0">
+            <img src="${escapeHtml(safeUrl(item.image, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop'))}" alt="${escapeHtml(item.name || 'Product')}" class="w-10 h-10 rounded-xl object-cover border border-pink-100 dark:border-slate-700 shrink-0">
             <div class="min-w-0 flex-1 text-left rtl:text-right">
                 <p class="text-xs font-bold text-gray-900 dark:text-white truncate">${escapeHtml(item.name || 'Product')}</p>
                 <p class="text-[10px] text-gray-400 font-mono">${isAr ? 'الكمية: ' : 'Qty: '}${parseInt(item.quantity, 10) || 1}</p>
@@ -1931,14 +1930,14 @@ function initLiveChatSystem() {
                             <!-- Card 2: Argan Conditioner (Behind / Angled) -->
                             <div class="absolute right-8 top-1 bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-2 shadow-lg w-28 text-center transform rotate-6 hover:rotate-0 transition duration-300">
                                 <div class="w-12 h-14 mx-auto overflow-hidden rounded-lg mb-1 bg-pink-50 dark:bg-slate-700">
-                                    <img src="./images/slider-1.jpeg" alt="Argan Conditioner" class="w-full h-full object-cover">
+                                    <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop" alt="Argan Conditioner" class="w-full h-full object-cover">
                                 </div>
                                 <p class="text-[9px] font-bold text-gray-800 dark:text-gray-200 truncate">Argan Conditioner</p>
                             </div>
                             <!-- Card 1: Oud Body Splash (Front / Aligned) -->
                             <div class="absolute left-8 top-0 bg-white dark:bg-slate-800 border border-pink-100 dark:border-slate-700 rounded-2xl p-2 shadow-xl w-28 text-center transform -rotate-3 hover:rotate-0 transition duration-300 z-10">
                                 <div class="w-12 h-14 mx-auto overflow-hidden rounded-lg mb-1 bg-pink-50 dark:bg-slate-700">
-                                    <img src="./images/slider-1.jpeg" alt="Oud Body Splash" class="w-full h-full object-cover">
+                                    <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop" alt="Oud Body Splash" class="w-full h-full object-cover">
                                 </div>
                                 <p class="text-[9px] font-bold text-gray-800 dark:text-gray-200 truncate">Oud Body Splash</p>
                             </div>

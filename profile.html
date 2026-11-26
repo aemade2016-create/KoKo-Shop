@@ -747,7 +747,7 @@
 
             grid.innerHTML = wishlist.slice(0, 6).map((item) => `
                 <div class="bg-pink-50/30 dark:bg-slate-700/30 rounded-2xl p-3 border border-pink-100 dark:border-slate-700 flex flex-col justify-between">
-                    <img src="${escapeHtml(window.safeUrl ? window.safeUrl(item.image, './images/slider-1.jpeg') : (item.image || './images/slider-1.jpeg'))}" alt="${escapeHtml(item.name || 'Product')}" class="w-full aspect-square rounded-xl object-cover mb-2">
+                    <img src="${escapeHtml(window.safeUrl ? window.safeUrl(item.image, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop') : (item.image || 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop'))}" alt="${escapeHtml(item.name || 'Product')}" class="w-full aspect-square rounded-xl object-cover mb-2">
                     <h4 class="font-semibold text-xs text-gray-800 dark:text-white truncate mb-1">${escapeHtml(item.name || 'Product')}</h4>
                     <span class="text-xs font-bold text-pink-600 block mb-2">EGP ${Number(item.price || 0).toFixed(2)}</span>
                     <a href="wishlist.html" class="text-[11px] text-pink-600 hover:underline font-semibold">View in Wishlist</a>

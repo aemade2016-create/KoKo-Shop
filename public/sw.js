@@ -4,8 +4,7 @@ const CORE_ASSETS = [
     '/',
     '/index.html',
     '/products.html',
-    '/about.html',
-    '/images/slider-1.jpeg'
+    '/about.html'
 ];
 
 self.addEventListener('install', (event) => {

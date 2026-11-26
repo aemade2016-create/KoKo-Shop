@@ -395,7 +395,7 @@
                     .replace(/'/g, '&#39;');
             });
 
-            const safeUrl = window.safeUrl || ((url, fallback = './images/slider-1.jpeg') => {
+            const safeUrl = window.safeUrl || ((url, fallback = 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop') => {
                 if (!url || typeof url !== 'string') return fallback;
                 const trimmed = url.trim();
                 if (/^(?:javascript|data:text\/html):/i.test(trimmed)) {
@@ -511,14 +511,14 @@
                             itemName = itemName.en || itemName.ar || 'Ritual Formulation';
                         }
                         itemName = itemName || 'Product';
-                        const itemImg = safeUrl(item.image, './images/slider-1.jpeg');
+                        const itemImg = safeUrl(item.image, 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop');
                         const itemPrice = parseFloat(item.price) || 0;
                         const itemQty = parseInt(item.quantity, 10) || 1;
                         const itemTotal = itemPrice * itemQty;
 
                         itemsHtml += `
                             <div class="flex items-center space-x-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-                                <img src="${escapeHtml(itemImg)}" alt="${escapeHtml(itemName)}" class="w-20 h-20 object-cover rounded-lg" onerror="this.src='./images/slider-1.jpeg'">
+                                <img src="${escapeHtml(itemImg)}" alt="${escapeHtml(itemName)}" class="w-20 h-20 object-cover rounded-lg" onerror="this.src='https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=800&fit=crop'">
                                 <div class="flex-1">
                                     <h4 class="font-semibold text-gray-900 dark:text-white">${escapeHtml(itemName)}</h4>
                                     <p class="text-sm text-gray-500">Quantity: ${itemQty}</p>
